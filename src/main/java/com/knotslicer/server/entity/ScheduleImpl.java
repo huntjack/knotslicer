@@ -1,12 +1,11 @@
-package com.knotslicer.server.entities;
+package com.knotslicer.server.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Objects;
 
 @Entity
-public class Schedule {
+public class ScheduleImpl implements Schedule {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(unique = true, updatable = false, nullable = false)
@@ -15,18 +14,9 @@ public class Schedule {
     private String scheduleBusinessKey;
     private LocalDateTime startTimeUtc;
     private LocalDateTime endTimeUtc;
-    private ZoneId memberTimeZone;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="memberId")
-    private Member member;
-
-    public Schedule() {}
-    public Schedule(String scheduleBusinessKey, LocalDateTime startTimeUtc, LocalDateTime endTimeUtc, ZoneId memberTimeZone){
-        this.scheduleBusinessKey = scheduleBusinessKey;
-        this.startTimeUtc = startTimeUtc;
-        this.endTimeUtc = endTimeUtc;
-        this.memberTimeZone = memberTimeZone;
-    }
+    private MemberImpl member;
 
     @Override
     public boolean equals(Object object) {
@@ -39,7 +29,7 @@ public class Schedule {
         if(getClass() != object.getClass()) {
             return false;
         }
-        Schedule inputSchedule = (Schedule)object;
+        ScheduleImpl inputSchedule = (ScheduleImpl)object;
         return Objects.equals(scheduleBusinessKey, inputSchedule.getScheduleBusinessKey());
     }
     @Override
@@ -47,16 +37,23 @@ public class Schedule {
         return Objects.hashCode(scheduleBusinessKey);
     }
 
+    public ScheduleImpl(String scheduleBusinessKey) {
+        this.scheduleBusinessKey = scheduleBusinessKey;
+    }
+    public ScheduleImpl() {}
+
     public String getScheduleBusinessKey() {return scheduleBusinessKey;}
     public void setScheduleBusinessKey(String scheduleBusinessKey) {this.scheduleBusinessKey = scheduleBusinessKey;}
+    @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}
+    @Override
     public void setStartTimeUtc(LocalDateTime startTimeUtc) {this.startTimeUtc = startTimeUtc;}
+    @Override
     public LocalDateTime getEndTimeUtc() {return endTimeUtc;}
+    @Override
     public void setEndTimeUtc(LocalDateTime endTimeUtc) {this.endTimeUtc = endTimeUtc;}
-    public ZoneId getMemberTimeZone() {return memberTimeZone;}
-    public void setMemberTimeZone(ZoneId memberTimeZone) {this.memberTimeZone = memberTimeZone;}
 
-    public Member getMember() {return member;}
-    public void setMember(Member member) {this.member = member;}
+    public MemberImpl getMember() {return member;}
+    public void setMember(MemberImpl member) {this.member = member;}
 
 }

@@ -1,4 +1,4 @@
-package com.knotslicer.server.entities;
+package com.knotslicer.server.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-public class Event {
+public class EventImpl implements Event {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(unique = true, updatable = false, nullable = false)
@@ -18,38 +18,30 @@ public class Event {
     private String eventDescription;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")
-    private User user;
+    private UserImpl user;
     @ManyToMany
     @JoinTable(name = "event_member",
                 joinColumns = {@JoinColumn(name = "eventId")},
                 inverseJoinColumns = {@JoinColumn(name = "memberId")})
-    private Set<Member> members;
+    private Set<MemberImpl> members;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", orphanRemoval = true)
-    private List<Poll> polls;
+    private List<PollImpl> polls;
 
-    public void addMember(Member member) {
+    public void addMember(MemberImpl member) {
         members.add(member);
         member.getEvents().add(this);
     }
-    public void removeMember(Member member) {
+    public void removeMember(MemberImpl member) {
         members.remove(member);
         member.getEvents().remove(this);
     }
-    public void addPoll(Poll poll) {
+    public void addPoll(PollImpl poll) {
         poll.setEvent(this);
         polls.add(poll);
     }
-    public void removePoll(Poll poll) {
+    public void removePoll(PollImpl poll) {
         polls.remove(poll);
         poll.setEvent(null);
-    }
-
-    public Event() {}
-    public Event(String eventBusinessKey, String subject, String eventName, String eventDescription) {
-        this.eventBusinessKey = eventBusinessKey;
-        this.subject = subject;
-        this.eventName = eventName;
-        this.eventDescription = eventDescription;
     }
 
     @Override
@@ -63,7 +55,7 @@ public class Event {
         if(getClass() != object.getClass()) {
             return false;
         }
-        Event inputEvent = (Event) object;
+        EventImpl inputEvent = (EventImpl) object;
         return Objects.equals(eventBusinessKey, inputEvent.getEventBusinessKey());
     }
     @Override
@@ -71,19 +63,30 @@ public class Event {
         return Objects.hashCode(eventBusinessKey);
     }
 
+    public EventImpl(String eventBusinessKey) {
+        this.eventBusinessKey = eventBusinessKey;
+    }
+    public EventImpl() {}
+
     public String getEventBusinessKey() {return eventBusinessKey;}
     public void setEventBusinessKey(String eventBusinessKey) {this.eventBusinessKey = eventBusinessKey;}
+    @Override
     public String getSubject() {return subject;}
+    @Override
     public void setSubject(String subject) {this.subject = subject;}
+    @Override
     public String getEventName() {return eventName;}
+    @Override
     public void setEventName(String eventName) {this.eventName = eventName;}
+    @Override
     public String getEventDescription() {return eventDescription;}
+    @Override
     public void setEventDescription(String eventDescription) {this.eventDescription = eventDescription;}
 
-    public User getUser() {return user;}
-    public void setUser(User user) {this.user = user;}
-    public Set<Member> getMembers() {return members;}
-    public void setMembers(Set<Member> members) {this.members = members;}
-    public List<Poll> getPolls() {return polls;}
-    public void setPolls(List<Poll> polls) {this.polls = polls;}
+    public UserImpl getUser() {return user;}
+    public void setUser(UserImpl user) {this.user = user;}
+    public Set<MemberImpl> getMembers() {return members;}
+    public void setMembers(Set<MemberImpl> members) {this.members = members;}
+    public List<PollImpl> getPolls() {return polls;}
+    public void setPolls(List<PollImpl> polls) {this.polls = polls;}
 }

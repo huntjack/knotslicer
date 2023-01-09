@@ -1,4 +1,4 @@
-package com.knotslicer.server.entities;
+package com.knotslicer.server.entity;
 
 import jakarta.persistence.*;
 
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class Project {
+public class ProjectImpl implements Project {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(unique = true, updatable = false, nullable = false)
@@ -18,23 +18,17 @@ public class Project {
     private String projectDescription;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")
-    private User user;
+    private UserImpl user;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", orphanRemoval = true)
-    private List<Member> members;
+    private List<MemberImpl> members;
 
-    public void addMember(Member member) {
+    public void addMember(MemberImpl member) {
         member.setProject(this);
         members.add(member);
     }
-    public void removeMember(Member member) {
+    public void removeMember(MemberImpl member) {
         members.remove(member);
         member.setProject(null);
-    }
-    public Project() {}
-    public Project(String projectBusinessKey, String projectName, String projectDescription) {
-        this.projectBusinessKey = projectBusinessKey;
-        this.projectName = projectName;
-        this.projectDescription = projectDescription;
     }
 
     @Override
@@ -48,7 +42,7 @@ public class Project {
         if(getClass() != object.getClass()) {
             return false;
         }
-        Project inputProject = (Project)object;
+        ProjectImpl inputProject = (ProjectImpl)object;
         return Objects.equals(projectBusinessKey, inputProject.getProjectBusinessKey());
     }
     @Override
@@ -56,14 +50,23 @@ public class Project {
         return Objects.hashCode(projectBusinessKey);
     }
 
+    public ProjectImpl(String projectBusinessKey) {
+        this.projectBusinessKey = projectBusinessKey;
+    }
+    public ProjectImpl() {}
+
     public String getProjectBusinessKey() {return projectBusinessKey;}
     public void setProjectBusinessKey(String projectBusinessKey) {this.projectBusinessKey = projectBusinessKey;}
+    @Override
     public String getProjectName() {return projectName;}
+    @Override
     public void setProjectName(String projectName) {this.projectName = projectName;}
+    @Override
     public String getProjectDescription() {return projectDescription;}
+    @Override
     public void setProjectDescription(String projectDescription) {this.projectDescription = projectDescription;}
-    public User getUser() {return user;}
-    public void setUser(User user) {this.user = user;}
-    public List<Member> getMembers() {return members;}
-    public void setMembers(List<Member> members) {this.members = members;}
+    public UserImpl getUser() {return user;}
+    public void setUser(UserImpl user) {this.user = user;}
+    public List<MemberImpl> getMembers() {return members;}
+    public void setMembers(List<MemberImpl> members) {this.members = members;}
 }

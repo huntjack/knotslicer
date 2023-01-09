@@ -1,4 +1,4 @@
-package com.knotslicer.server;
+package com.knotslicer.server.control;
 
 import jakarta.annotation.sql.DataSourceDefinition;
 import jakarta.enterprise.context.ApplicationScoped;

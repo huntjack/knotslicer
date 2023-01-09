@@ -1,4 +1,4 @@
-package com.knotslicer.server.entities;
+package com.knotslicer.server.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class Poll {
+public class PollImpl implements Poll {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(unique = true, updatable = false, nullable = false)
@@ -17,23 +17,16 @@ public class Poll {
     private LocalDateTime endTimeUtc;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="eventId")
-    private Event event;
+    private EventImpl event;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "poll", orphanRemoval = true)
-    private List<PollAnswer> pollAnswers;
-    public void addPollAnswer(PollAnswer pollAnswer) {
+    private List<PollAnswerImpl> pollAnswers;
+    public void addPollAnswer(PollAnswerImpl pollAnswer) {
         pollAnswer.setPoll(this);
         pollAnswers.add(pollAnswer);
     }
-    public void removePollAnswer(PollAnswer pollAnswer) {
+    public void removePollAnswer(PollAnswerImpl pollAnswer) {
         pollAnswers.remove(pollAnswer);
         pollAnswer.setPoll(null);
-    }
-
-    public Poll() {}
-    public Poll(String pollBusinessKey, LocalDateTime startTimeUtc, LocalDateTime endTimeUtc) {
-        this.pollBusinessKey = pollBusinessKey;
-        this.startTimeUtc = startTimeUtc;
-        this.endTimeUtc = endTimeUtc;
     }
 
     @Override
@@ -47,7 +40,7 @@ public class Poll {
         if(getClass() != object.getClass()) {
             return false;
         }
-        Poll inputPoll = (Poll)object;
+        PollImpl inputPoll = (PollImpl)object;
         return Objects.equals(pollBusinessKey, inputPoll.getPollBusinessKey());
     }
     @Override
@@ -55,14 +48,23 @@ public class Poll {
         return Objects.hashCode(pollBusinessKey);
     }
 
+    public PollImpl(String pollBusinessKey) {
+        this.pollBusinessKey = pollBusinessKey;
+    }
+    public PollImpl() {}
+
     public String getPollBusinessKey() {return pollBusinessKey;}
     public void setPollBusinessKey(String pollBusinessKey) {this.pollBusinessKey = pollBusinessKey;}
+    @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}
+    @Override
     public void setStartTimeUtc(LocalDateTime startTimeUtc) {this.startTimeUtc = startTimeUtc;}
+    @Override
     public LocalDateTime getEndTimeUtc() {return endTimeUtc;}
+    @Override
     public void setEndTimeUtc(LocalDateTime endTimeUtc) {this.endTimeUtc = endTimeUtc;}
-    public Event getEvent() {return event;}
-    public void setEvent(Event event) {this.event = event;}
-    public List<PollAnswer> getPollAnswers() {return pollAnswers;}
-    public void setPollAnswers(List<PollAnswer> pollAnswers) {this.pollAnswers = pollAnswers;}
+    public EventImpl getEvent() {return event;}
+    public void setEvent(EventImpl event) {this.event = event;}
+    public List<PollAnswerImpl> getPollAnswers() {return pollAnswers;}
+    public void setPollAnswers(List<PollAnswerImpl> pollAnswers) {this.pollAnswers = pollAnswers;}
 }

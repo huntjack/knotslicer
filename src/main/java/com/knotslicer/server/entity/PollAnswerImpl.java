@@ -1,29 +1,23 @@
-package com.knotslicer.server.entities;
+package com.knotslicer.server.entity;
 
 import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-public class PollAnswer {
+public class PollAnswerImpl implements PollAnswer {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(unique = true, updatable = false, nullable = false)
     private Long pollAnswerId;
     @Column(unique=true, updatable = false, nullable = false)
     private String pollAnswerBusinessKey;
-    private boolean approved;
+    private Boolean approved;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="pollId")
-    private Poll poll;
+    private PollImpl poll;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="memberId")
-    private Member member;
-
-    public PollAnswer() {}
-    public PollAnswer(String pollAnswerBusinessKey, boolean approved) {
-        this.pollAnswerBusinessKey = pollAnswerBusinessKey;
-        this.approved = approved;
-    }
+    private MemberImpl member;
 
     @Override
     public boolean equals(Object object) {
@@ -36,19 +30,26 @@ public class PollAnswer {
         if(getClass() != object.getClass()) {
             return false;
         }
-        PollAnswer inputPollAnswer = (PollAnswer) object;
+        PollAnswerImpl inputPollAnswer = (PollAnswerImpl) object;
         return Objects.equals(pollAnswerBusinessKey, inputPollAnswer.getPollAnswerBusinessKey());
     }
     @Override
     public int hashCode() {
         return Objects.hashCode(pollAnswerBusinessKey);
     }
+
+    public PollAnswerImpl(String pollAnswerBusinessKey) {
+        this.pollAnswerBusinessKey = pollAnswerBusinessKey;
+    }
+    public PollAnswerImpl() {}
     public String getPollAnswerBusinessKey() {return pollAnswerBusinessKey;}
     public void setPollAnswerBusinessKey(String pollAnswerBusinessKey) {this.pollAnswerBusinessKey = pollAnswerBusinessKey;}
-    public boolean isApproved() {return approved;}
-    public void setApproved(boolean approved) {this.approved = approved;}
-    public Poll getPoll() {return poll;}
-    public void setPoll(Poll poll) {this.poll = poll;}
-    public Member getMember() {return member;}
-    public void setMember(Member member) {this.member = member;}
+    @Override
+    public Boolean isApproved() {return approved;}
+    @Override
+    public void setApproved(Boolean approved) {this.approved = approved;}
+    public PollImpl getPoll() {return poll;}
+    public void setPoll(PollImpl poll) {this.poll = poll;}
+    public MemberImpl getMember() {return member;}
+    public void setMember(MemberImpl member) {this.member = member;}
 }
