@@ -3,6 +3,7 @@ package com.knotslicer.server.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 public class ScheduleImpl implements Schedule {
@@ -36,14 +37,9 @@ public class ScheduleImpl implements Schedule {
     public int hashCode() {
         return Objects.hashCode(scheduleBusinessKey);
     }
-
-    public ScheduleImpl(String scheduleBusinessKey) {
-        this.scheduleBusinessKey = scheduleBusinessKey;
-    }
-    public ScheduleImpl() {}
+    public ScheduleImpl() {this.scheduleBusinessKey = UUID.randomUUID().toString();}
 
     public String getScheduleBusinessKey() {return scheduleBusinessKey;}
-    public void setScheduleBusinessKey(String scheduleBusinessKey) {this.scheduleBusinessKey = scheduleBusinessKey;}
     @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}
     @Override

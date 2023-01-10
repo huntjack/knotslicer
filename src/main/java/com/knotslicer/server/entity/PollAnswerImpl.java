@@ -2,6 +2,7 @@ package com.knotslicer.server.entity;
 
 import jakarta.persistence.*;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 public class PollAnswerImpl implements PollAnswer {
@@ -37,13 +38,9 @@ public class PollAnswerImpl implements PollAnswer {
     public int hashCode() {
         return Objects.hashCode(pollAnswerBusinessKey);
     }
+    public PollAnswerImpl() {this.pollAnswerBusinessKey = UUID.randomUUID().toString();}
 
-    public PollAnswerImpl(String pollAnswerBusinessKey) {
-        this.pollAnswerBusinessKey = pollAnswerBusinessKey;
-    }
-    public PollAnswerImpl() {}
     public String getPollAnswerBusinessKey() {return pollAnswerBusinessKey;}
-    public void setPollAnswerBusinessKey(String pollAnswerBusinessKey) {this.pollAnswerBusinessKey = pollAnswerBusinessKey;}
     @Override
     public Boolean isApproved() {return approved;}
     @Override

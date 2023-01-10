@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 public class EventImpl implements Event {
@@ -62,14 +63,9 @@ public class EventImpl implements Event {
     public int hashCode() {
         return Objects.hashCode(eventBusinessKey);
     }
-
-    public EventImpl(String eventBusinessKey) {
-        this.eventBusinessKey = eventBusinessKey;
-    }
-    public EventImpl() {}
+    public EventImpl() {this.eventBusinessKey = UUID.randomUUID().toString();}
 
     public String getEventBusinessKey() {return eventBusinessKey;}
-    public void setEventBusinessKey(String eventBusinessKey) {this.eventBusinessKey = eventBusinessKey;}
     @Override
     public String getSubject() {return subject;}
     @Override

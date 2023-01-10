@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 public class PollImpl implements Poll {
@@ -48,13 +49,9 @@ public class PollImpl implements Poll {
         return Objects.hashCode(pollBusinessKey);
     }
 
-    public PollImpl(String pollBusinessKey) {
-        this.pollBusinessKey = pollBusinessKey;
-    }
-    public PollImpl() {}
+    public PollImpl() {this.pollBusinessKey = UUID.randomUUID().toString();}
 
     public String getPollBusinessKey() {return pollBusinessKey;}
-    public void setPollBusinessKey(String pollBusinessKey) {this.pollBusinessKey = pollBusinessKey;}
     @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}
     @Override

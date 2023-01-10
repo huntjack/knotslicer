@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 public class ProjectImpl implements Project {
@@ -49,14 +50,9 @@ public class ProjectImpl implements Project {
     public int hashCode() {
         return Objects.hashCode(projectBusinessKey);
     }
-
-    public ProjectImpl(String projectBusinessKey) {
-        this.projectBusinessKey = projectBusinessKey;
-    }
-    public ProjectImpl() {}
+    public ProjectImpl() {this.projectBusinessKey = UUID.randomUUID().toString();}
 
     public String getProjectBusinessKey() {return projectBusinessKey;}
-    public void setProjectBusinessKey(String projectBusinessKey) {this.projectBusinessKey = projectBusinessKey;}
     @Override
     public String getProjectName() {return projectName;}
     @Override

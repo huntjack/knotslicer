@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 public class UserImpl implements User {
@@ -69,13 +70,11 @@ public class UserImpl implements User {
         return Objects.hashCode(userBusinessKey);
     }
 
-    public UserImpl(String userBusinessKey) {
-        this.userBusinessKey = userBusinessKey;
+    public UserImpl() {
+        this.userBusinessKey = UUID.randomUUID().toString();
     }
-    public UserImpl() {}
 
     public String getUserBusinessKey() {return userBusinessKey;}
-    public void setUserBusinessKey(String userBusinessKey) {this.userBusinessKey = userBusinessKey;}
     @Override
     public String getEmail() {return email;}
     @Override

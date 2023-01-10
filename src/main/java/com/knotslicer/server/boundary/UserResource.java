@@ -1,6 +1,7 @@
 package com.knotslicer.server.boundary;
 
 import com.knotslicer.server.control.UserService;
+import com.knotslicer.server.entity.User;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -23,8 +24,8 @@ public class UserResource {
     private UserService userService;
     @POST
     @Path("users")
-    public Response createUser(UserDto userDto, @Context UriInfo uriInfo) {
-        Long userId = userService.createUser(userDto);
+    public Response createUser(User userDto, @Context UriInfo uriInfo) {
+        long userId  = userService.createUser(userDto);
         String newId = String.valueOf(userId);
         URI uri = uriInfo.getAbsolutePathBuilder()
                 .path(newId)

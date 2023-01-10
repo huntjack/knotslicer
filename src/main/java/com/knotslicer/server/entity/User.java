@@ -1,10 +1,10 @@
 package com.knotslicer.server.entity;
 
 public interface User {
-    public String getEmail();
-    public void setEmail(String email);
-    public String getUserName();
-    public void setUserName(String userName);
-    public String getUserDescription();
-    public void setUserDescription(String userDescription);
+    String getEmail();
+    void setEmail(String email);
+    String getUserName();
+    void setUserName(String userName);
+    String getUserDescription();
+    void setUserDescription(String userDescription);
 }

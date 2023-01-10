@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 public class MemberImpl implements Member {
@@ -57,14 +58,9 @@ public class MemberImpl implements Member {
     public int hashCode() {
         return Objects.hashCode(memberBusinessKey);
     }
-
-    public MemberImpl(String memberBusinessKey) {
-        this.memberBusinessKey = memberBusinessKey;
-    }
-    public MemberImpl() {}
+    public MemberImpl() {this.memberBusinessKey = UUID.randomUUID().toString();}
 
     public String getMemberBusinessKey() {return memberBusinessKey;}
-    public void setMemberBusinessKey(String memberBusinessKey) {this.memberBusinessKey = memberBusinessKey;}
     @Override
     public String getName() {return name;}
     @Override
