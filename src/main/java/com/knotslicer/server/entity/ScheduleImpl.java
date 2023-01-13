@@ -5,7 +5,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "Schedule")
+@Table(name = "Schedule")
 public class ScheduleImpl implements Schedule {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -39,6 +40,7 @@ public class ScheduleImpl implements Schedule {
     }
     public ScheduleImpl() {this.scheduleBusinessKey = UUID.randomUUID().toString();}
 
+    public Long getScheduleId() {return scheduleId;}
     public String getScheduleBusinessKey() {return scheduleBusinessKey;}
     @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}

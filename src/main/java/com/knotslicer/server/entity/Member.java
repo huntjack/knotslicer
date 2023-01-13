@@ -1,7 +1,10 @@
 package com.knotslicer.server.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.time.ZoneId;
 
+@JsonDeserialize(as = MemberDtoImpl.class)
 public interface Member {
     String getName();
     void setName(String name);

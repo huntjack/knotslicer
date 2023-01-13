@@ -1,5 +1,8 @@
 package com.knotslicer.server.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@JsonDeserialize(as = UserDtoImpl.class)
 public interface User {
     String getEmail();
     void setEmail(String email);

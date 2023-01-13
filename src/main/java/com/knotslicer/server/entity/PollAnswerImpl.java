@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "PollAnswer")
+@Table(name = "PollAnswer")
 public class PollAnswerImpl implements PollAnswer {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -40,6 +41,7 @@ public class PollAnswerImpl implements PollAnswer {
     }
     public PollAnswerImpl() {this.pollAnswerBusinessKey = UUID.randomUUID().toString();}
 
+    public Long getPollAnswerId() {return pollAnswerId;}
     public String getPollAnswerBusinessKey() {return pollAnswerBusinessKey;}
     @Override
     public Boolean isApproved() {return approved;}

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "Poll")
+@Table(name = "Poll")
 public class PollImpl implements Poll {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -51,6 +52,7 @@ public class PollImpl implements Poll {
 
     public PollImpl() {this.pollBusinessKey = UUID.randomUUID().toString();}
 
+    public Long getPollId() {return pollId;}
     public String getPollBusinessKey() {return pollBusinessKey;}
     @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}

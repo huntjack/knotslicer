@@ -6,12 +6,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "Event")
+@Table(name = "Event")
 public class EventImpl implements Event {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(unique = true, updatable = false, nullable = false)
     private Long eventId;
+
     @Column(unique=true, updatable = false, nullable = false)
     private String eventBusinessKey;
     private String subject;
@@ -65,6 +67,7 @@ public class EventImpl implements Event {
     }
     public EventImpl() {this.eventBusinessKey = UUID.randomUUID().toString();}
 
+    public Long getEventId() {return eventId;}
     public String getEventBusinessKey() {return eventBusinessKey;}
     @Override
     public String getSubject() {return subject;}

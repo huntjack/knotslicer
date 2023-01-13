@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "User")
+@Table(name = "User")
 public class UserImpl implements User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -74,6 +75,7 @@ public class UserImpl implements User {
         this.userBusinessKey = UUID.randomUUID().toString();
     }
 
+    public Long getUserId() {return userId;}
     public String getUserBusinessKey() {return userBusinessKey;}
     @Override
     public String getEmail() {return email;}

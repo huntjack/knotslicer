@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "Project")
+@Table(name = "Project")
 public class ProjectImpl implements Project {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -52,6 +53,7 @@ public class ProjectImpl implements Project {
     }
     public ProjectImpl() {this.projectBusinessKey = UUID.randomUUID().toString();}
 
+    public Long getProjectId() {return projectId;}
     public String getProjectBusinessKey() {return projectBusinessKey;}
     @Override
     public String getProjectName() {return projectName;}

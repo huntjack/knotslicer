@@ -8,6 +8,7 @@ public interface EntityMapper {
     UserLight createUserLight();
     User toEntity(User userDtoEntityInput);
     User toEntity(User userDtoEntityInput, User userJpaEntityToBeModified);
+    User toEntity(UserLight userLightDtoEntityInput, User userJpaEntityToBeModified);
     Project toDto(Project projectJpaEntityInput);
     Project toEntity(Project projectDtoEntityInput);
     Project toEntity(Project projectDtoEntityInput, Project projectJpaEntityToBeModified);

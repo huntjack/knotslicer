@@ -49,6 +49,12 @@ public class EntityMapperImpl implements EntityMapper {
         return setJpaEntityVariables(userJpaEntityToBeModified, userDtoEntityInput);
     }
     @Override
+    public User toEntity(UserLight userLightDtoEntityInput, User userJpaEntityToBeModified) {
+        userJpaEntityToBeModified.setUserName(userLightDtoEntityInput.getUserName());
+        userJpaEntityToBeModified.setUserDescription(userLightDtoEntityInput.getUserDescription());
+        return userJpaEntityToBeModified;
+    }
+    @Override
     public Project toDto(Project projectJpaEntityInput) {
         Project projectDto = dtoEntityFactory.createProject();
         projectDto.setProjectName(projectJpaEntityInput.getProjectName());
@@ -159,14 +165,12 @@ public class EntityMapperImpl implements EntityMapper {
     public Poll toEntity(Poll pollDtoEntityInput, Poll pollJpaEntityToBeModified) {
         return setJpaEntityVariables(pollJpaEntityToBeModified, pollDtoEntityInput);
     }
-
     @Override
     public PollAnswer toDto(PollAnswer pollAnswerJpaEntityInput) {
         PollAnswer pollAnswerDto = dtoEntityFactory.createPollAnswer();
         pollAnswerDto.setApproved(pollAnswerJpaEntityInput.isApproved());
         return pollAnswerDto;
     }
-
     @Override
     public PollAnswer toEntity(PollAnswer pollAnswerDtoEntityInput) {
         PollAnswer pollAnswerJpaEntity = jpaEntityFactory.createPollAnswer();
@@ -176,7 +180,6 @@ public class EntityMapperImpl implements EntityMapper {
         pollAnswerJpaEntity.setApproved(pollAnswerDtoEntityInput.isApproved());
         return pollAnswerJpaEntity;
     }
-
     @Override
     public PollAnswer toEntity(PollAnswer pollAnswerDtoEntityInput, PollAnswer pollAnswerJpaEntityToBeModified) {
         return setJpaEntityVariables(pollAnswerJpaEntityToBeModified, pollAnswerDtoEntityInput);

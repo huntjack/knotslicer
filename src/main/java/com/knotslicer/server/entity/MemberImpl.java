@@ -8,7 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "Member")
+@Table(name = "Member")
 public class MemberImpl implements Member {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -60,6 +61,7 @@ public class MemberImpl implements Member {
     }
     public MemberImpl() {this.memberBusinessKey = UUID.randomUUID().toString();}
 
+    public Long getMemberId() {return memberId;}
     public String getMemberBusinessKey() {return memberBusinessKey;}
     @Override
     public String getName() {return name;}
