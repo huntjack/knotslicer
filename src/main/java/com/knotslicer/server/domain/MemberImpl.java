@@ -20,7 +20,6 @@ public class MemberImpl implements Member {
     private String name;
     private String role;
     private String roleDescription;
-    private ZoneId timeZone;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")
     private UserImpl user;
@@ -84,10 +83,6 @@ public class MemberImpl implements Member {
     public String getRoleDescription() {return roleDescription;}
     @Override
     public void setRoleDescription(String roleDescription) {this.roleDescription = roleDescription;}
-    @Override
-    public ZoneId getTimeZone() {return timeZone;}
-    @Override
-    public void setTimeZone(ZoneId timeZone) {this.timeZone = timeZone;}
 
     public UserImpl getUser() {return user;}
     public void setUser(UserImpl user) {this.user = user;}

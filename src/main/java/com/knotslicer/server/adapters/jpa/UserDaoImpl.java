@@ -43,6 +43,7 @@ public class UserDaoImpl implements UserDao {
         User userToBeModified = entityManager.find(UserImpl.class, inputUser.getUserId());
         userToBeModified.setUserName(inputUser.getUserName());
         userToBeModified.setUserDescription(inputUser.getUserDescription());
+        userToBeModified.setTimeZone(inputUser.getTimeZone());
         entityManager.flush();
         return userToBeModified;
     }

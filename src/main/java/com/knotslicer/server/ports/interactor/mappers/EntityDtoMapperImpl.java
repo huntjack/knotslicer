@@ -21,6 +21,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         userDto.setEmail(userInput.getEmail());
         userDto.setUserName(userInput.getUserName());
         userDto.setUserDescription(userInput.getUserDescription());
+        userDto.setTimeZone(userInput.getTimeZone());
         return userDto;
     }
     @Override
@@ -29,6 +30,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         userLightDto.setUserId(userInput.getUserId());
         userLightDto.setUserName(userInput.getUserName());
         userLightDto.setUserDescription(userInput.getUserDescription());
+        userLightDto.setTimeZone(userInput.getTimeZone());
         return userLightDto;
     }
     @Override
@@ -41,6 +43,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         userToBeModified.setEmail(userDtoInput.getEmail());
         userToBeModified.setUserName(userDtoInput.getUserName());
         userToBeModified.setUserDescription(userDtoInput.getUserDescription());
+        userToBeModified.setTimeZone(userDtoInput.getTimeZone());
     }
     @Override
     public User toEntity(UserDto userDtoInput, User userToBeModified) {
@@ -51,6 +54,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     public User toEntity(UserLightDto userLightDtoInput, User userToBeModified) {
         userToBeModified.setUserName(userLightDtoInput.getUserName());
         userToBeModified.setUserDescription(userLightDtoInput.getUserDescription());
+        userToBeModified.setTimeZone(userLightDtoInput.getTimeZone());
         return userToBeModified;
     }
     @Override
@@ -85,7 +89,6 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         memberDto.setName(memberInput.getName());
         memberDto.setRole(memberInput.getRole());
         memberDto.setRoleDescription(memberInput.getRoleDescription());
-        memberDto.setTimeZone(memberInput.getTimeZone());
         return memberDto;
     }
     @Override
@@ -98,7 +101,6 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         memberToBeModified.setName(memberDtoInput.getName());
         memberToBeModified.setRole(memberDtoInput.getRole());
         memberToBeModified.setRoleDescription(memberDtoInput.getRoleDescription());
-        memberToBeModified.setTimeZone(memberDtoInput.getTimeZone());
     }
     @Override
     public Member toEntity(MemberDto memberDtoInput, Member memberToBeModified) {

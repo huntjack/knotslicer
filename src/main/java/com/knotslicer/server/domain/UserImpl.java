@@ -1,6 +1,8 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -19,6 +21,7 @@ public class UserImpl implements User {
     @Column(unique=true, nullable = false)
     private String userName;
     private String userDescription;
+    private ZoneId timeZone;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
     private List<ProjectImpl> projects;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
@@ -89,6 +92,10 @@ public class UserImpl implements User {
     public String getUserDescription() {return userDescription;}
     @Override
     public void setUserDescription(String userDescription) {this.userDescription = userDescription;}
+    @Override
+    public ZoneId getTimeZone() {return timeZone;}
+    @Override
+    public void setTimeZone(ZoneId timeZone) {this.timeZone = timeZone;}
 
     public List<ProjectImpl> getProjects() {return projects;}
     public void setProjects(List<ProjectImpl> projects) {this.projects = projects;}

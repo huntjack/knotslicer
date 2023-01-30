@@ -1,6 +1,7 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ public class UserDtoImpl implements UserDto, Serializable {
     private String email;
     private String userName;
     private String userDescription;
+    private ZoneId timeZone;
     private List<Link> links = new ArrayList<>();
 
     @Override
@@ -51,6 +53,10 @@ public class UserDtoImpl implements UserDto, Serializable {
     public void setUserDescription(String userDescription) {
         this.userDescription = userDescription;
     }
+    @Override
+    public ZoneId getTimeZone() {return timeZone;}
+    @Override
+    public void setTimeZone(ZoneId timeZone) {this.timeZone = timeZone;}
     public List<Link> getLinks() {return links;}
     public void setLinks(List<Link> links) {this.links = links;}
 }

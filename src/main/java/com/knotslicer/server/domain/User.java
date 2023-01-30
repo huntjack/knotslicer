@@ -1,6 +1,8 @@
 package com.knotslicer.server.domain;
 
 
+import java.time.ZoneId;
+
 public interface User {
     Long getUserId();
     String getEmail();
@@ -9,4 +11,6 @@ public interface User {
     void setUserName(String userName);
     String getUserDescription();
     void setUserDescription(String userDescription);
+    ZoneId getTimeZone();
+    void setTimeZone(ZoneId timeZone);
 }

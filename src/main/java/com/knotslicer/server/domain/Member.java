@@ -10,6 +10,4 @@ public interface Member {
     void setRole(String role);
     String getRoleDescription();
     void setRoleDescription(String roleDescription);
-    ZoneId getTimeZone();
-    void setTimeZone(ZoneId timeZone);
 }
