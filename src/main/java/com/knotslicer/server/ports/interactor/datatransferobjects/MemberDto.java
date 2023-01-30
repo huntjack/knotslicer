@@ -2,10 +2,11 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.ZoneId;
+import java.util.List;
 
 @JsonDeserialize(as = MemberDtoImpl.class)
 public interface MemberDto {
-
+    void addLink(String url, String rel);
     Long getUserId();
     void setUserId(Long userId);
     Long getMemberId();

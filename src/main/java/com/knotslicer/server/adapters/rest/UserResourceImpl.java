@@ -1,5 +1,6 @@
 package com.knotslicer.server.adapters.rest;
 
+import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.services.UserService;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserDto;
 import jakarta.enterprise.context.RequestScoped;
@@ -14,18 +15,19 @@ import java.net.URI;
 
 @Path("/users")
 @RequestScoped
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 public class UserResourceImpl implements UserResource {
     @Inject
     private UserService userService;
     @POST
-    public Response createUser(UserDto userDto, @Context UriInfo uriInfo) {
-        UserDto newUserDto = userService.createUser(userDto);
-        URI uri = getUriForSelf(uriInfo, newUserDto);
-        newUserDto.addLink(uri.toString(), "self");
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Override
+    public Response createUser(UserDto userRequestDto, @Context UriInfo uriInfo) {
+        UserDto UserResponseDto = userService.createUser(userRequestDto);
+        URI uri = getUriForSelf(uriInfo, UserResponseDto);
+        UserResponseDto.addLink(uri.toString(), "self");
         return Response.created(uri)
-                .entity(newUserDto)
+                .entity(UserResponseDto)
                 .type("application/json")
                 .build();
     }
@@ -37,17 +39,41 @@ public class UserResourceImpl implements UserResource {
     }
     @GET
     @Path("/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Override
     public Response getUser(@PathParam("userId") Long userId, @Context UriInfo uriInfo) {
-        UserDto userDto = userService.getUser(userId);
-        String uri = getUriForSelf(uriInfo, userDto).toString();
-        userDto.addLink(uri, "self");
+        UserLightDto userResponseDto = userService.getUser(userId);
+        String uri = getUriForSelf(uriInfo, userResponseDto).toString();
+        userResponseDto.addLink(uri, "self");
         return Response.ok()
-                .entity(userDto)
+                .entity(userResponseDto)
+                .type("application/json")
+                .build();
+    }
+    private URI getUriForSelf(UriInfo uriInfo, UserLightDto userLightDto) {
+        return uriInfo.getBaseUriBuilder()
+                .path(UserResourceImpl.class)
+                .path(Long.toString(userLightDto.getUserId()))
+                .build();
+    }
+    @PUT
+    @Path("/{userId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Override
+    public Response updateUser(UserLightDto userRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+        userRequestDto.setUserId(userId);
+        UserLightDto userResponseDto = userService.updateUser(userRequestDto);
+        String uri = getUriForSelf(uriInfo, userResponseDto).toString();
+        userResponseDto.addLink(uri, "self");
+        return Response.ok()
+                .entity(userResponseDto)
                 .type("application/json")
                 .build();
     }
     @DELETE
     @Path("/{userId}")
+    @Override
     public Response deleteUser(@PathParam("userId") Long userId) {
         userService.deleteUser(userId);
         return Response.noContent()

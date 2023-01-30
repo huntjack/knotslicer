@@ -2,9 +2,11 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @JsonDeserialize(as = PollDtoImpl.class)
 public interface PollDto {
+    void addLink(String url, String rel);
     Long getEventId();
     void setEventId(Long eventId);
     Long getPollId();

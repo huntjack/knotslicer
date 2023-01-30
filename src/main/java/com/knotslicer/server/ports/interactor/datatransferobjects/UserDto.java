@@ -6,6 +6,7 @@ import java.util.List;
 
 @JsonDeserialize(as = UserDtoImpl.class)
 public interface UserDto {
+    void addLink(String url, String rel);
     Long getUserId();
     void setUserId(Long userId);
     String getEmail();
@@ -14,8 +15,4 @@ public interface UserDto {
     void setUserName(String userName);
     String getUserDescription();
     void setUserDescription(String userDescription);
-    List<Link> getLinks();
-    void setLinks(List<Link> links);
-    public void addLink(String url, String rel);
-    public Link createLink();
 }

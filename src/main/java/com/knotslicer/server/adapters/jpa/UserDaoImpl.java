@@ -3,7 +3,6 @@ package com.knotslicer.server.adapters.jpa;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.domain.UserImpl;
 import com.knotslicer.server.ports.entitygateway.UserDao;
-import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -40,8 +39,12 @@ public class UserDaoImpl implements UserDao {
         return Optional.empty();
     }
     @Override
-    public User updateUser(User user) {
-        return null;
+    public User updateUser(User inputUser) {
+        User userToBeModified = entityManager.find(UserImpl.class, inputUser.getUserId());
+        userToBeModified.setUserName(inputUser.getUserName());
+        userToBeModified.setUserDescription(inputUser.getUserDescription());
+        entityManager.flush();
+        return userToBeModified;
     }
     @Override
     public void deleteUser(Long userId) {

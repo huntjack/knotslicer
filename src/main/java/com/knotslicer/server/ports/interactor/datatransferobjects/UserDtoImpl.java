@@ -19,9 +19,8 @@ public class UserDtoImpl implements UserDto, Serializable {
         link.setRel(rel);
         links.add(link);
     }
-    @Override
-    public Link createLink() {
-        return new Link();
+    private Link createLink() {
+        return new LinkImpl();
     }
 
     @Override
@@ -52,8 +51,6 @@ public class UserDtoImpl implements UserDto, Serializable {
     public void setUserDescription(String userDescription) {
         this.userDescription = userDescription;
     }
-    @Override
     public List<Link> getLinks() {return links;}
-    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }

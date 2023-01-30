@@ -9,6 +9,6 @@ public interface UserDao {
     Optional<User> getUserWithProjects(Long userId);
     Optional<User> getUserWithEvents(Long userId);
     Optional<User> getUserWithMembers(Long userId);
-    User updateUser(User user);
+    User updateUser(User inputUser);
     void deleteUser(Long userId);
 }
