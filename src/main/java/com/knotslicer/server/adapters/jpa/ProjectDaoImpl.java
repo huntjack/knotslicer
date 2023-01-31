@@ -2,6 +2,7 @@ package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.Project;
 import com.knotslicer.server.domain.ProjectImpl;
+import com.knotslicer.server.domain.User;
 import com.knotslicer.server.domain.UserImpl;
 import com.knotslicer.server.ports.entitygateway.ProjectDao;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,7 +20,7 @@ public class ProjectDaoImpl implements ProjectDao {
     EntityManager entityManager;
     @Override
     public Project createProject(Project project, Long userId) {
-        UserImpl userImpl = getUserWithProjects(userId);
+        UserImpl userImpl = getUserWithProjectsFromJpa(userId);
         entityManager.detach(userImpl);
         userImpl.addProject((ProjectImpl) project);
         userImpl = entityManager.merge(userImpl);
@@ -31,7 +32,7 @@ public class ProjectDaoImpl implements ProjectDao {
                 .getProjects()
                 .get(projectIndex);
     }
-    private UserImpl getUserWithProjects(Long userId) {
+    private UserImpl getUserWithProjectsFromJpa(Long userId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
                         ("SELECT user FROM User user " +
                                 "INNER JOIN FETCH user.projects " +
@@ -45,8 +46,9 @@ public class ProjectDaoImpl implements ProjectDao {
         return Optional.ofNullable(project);
     }
     @Override
-    public Project updateProject(Project inputProject, Long userId) {
-        UserImpl userImpl = getUserWithProjects(userId);
+    public Project updateProject(Project inputProject) {
+        Long userId = getUserId(inputProject.getProjectId());
+        UserImpl userImpl = getUserWithProjectsFromJpa(userId);
         entityManager.detach(userImpl);
         int projectIndex = userImpl
                 .getProjects()
@@ -67,8 +69,19 @@ public class ProjectDaoImpl implements ProjectDao {
         return projectToBeModified;
     }
     @Override
-    public void deleteProject(Long projectId, Long userId) {
-        UserImpl userImpl = getUserWithProjects(userId);
+    public Long getUserId(Long projectId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery
+                        ("SELECT user FROM User user " +
+                                "INNER JOIN user.projects p " +
+                                "WHERE p.projectId = :projectId", UserImpl.class)
+                .setParameter("projectId", projectId);
+        User user = query.getSingleResult();
+        return user.getUserId();
+    }
+    @Override
+    public void deleteProject(Long projectId) {
+        Long userId = getUserId(projectId);
+        UserImpl userImpl = getUserWithProjectsFromJpa(userId);
         Project project = entityManager.find(ProjectImpl.class, projectId);
         userImpl.getProjects()
                 .remove(project);

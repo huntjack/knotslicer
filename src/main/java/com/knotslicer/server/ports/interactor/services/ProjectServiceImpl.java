@@ -1,6 +1,7 @@
 package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.Project;
+import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.entitygateway.ProjectDao;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
@@ -16,6 +17,8 @@ public class ProjectServiceImpl implements ProjectService {
     EntityDtoMapper entityDtoMapper;
     @Inject
     ProjectDao projectDao;
+    @Inject
+    MemberDao memberDao;
     @Override
     public ProjectDto createProject(ProjectDto projectDto) {
         Project project = entityDtoMapper.toEntity(projectDto);
@@ -25,10 +28,19 @@ public class ProjectServiceImpl implements ProjectService {
                 projectDto.getUserId());
     }
     @Override
-    public ProjectDto getProject(Long projectId, Long userId) {
+    public ProjectDto getProject(Long projectId) {
         Optional<Project> optionalProject = projectDao.getProject(projectId);
         Project project = unpackOptionalProject(optionalProject);
+        Long userId = projectDao.getUserId(projectId);
         return entityDtoMapper.toDto(project, userId);
+    }
+    @Override
+    public ProjectDto getProjectWithMembers(Long projectId) {
+        Optional<Project> optionalProject = memberDao.getProjectWithMembers(projectId);
+        Project project = unpackOptionalProject(optionalProject);
+        Long userId = projectDao.getUserId(projectId);
+        ProjectDto projectDto = entityDtoMapper.toDto(project, userId);
+        return entityDtoMapper.addMembers(projectDto, project);
     }
     private Project unpackOptionalProject(Optional<Project> optionalProject) {
         return optionalProject.orElseThrow(() -> new EntityNotFoundException("Project not found."));
@@ -37,14 +49,15 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDto updateProject(ProjectDto projectDto) {
         Optional<Project> optionalProject = projectDao.getProject(projectDto.getProjectId());
         Project projectToBeModified = unpackOptionalProject(optionalProject);
-        Project inputProject = entityDtoMapper.toEntity(projectDto, projectToBeModified);
-        Project updatedProject = projectDao.updateProject(inputProject, projectDto.getUserId());
+        projectToBeModified = entityDtoMapper.toEntity(projectDto, projectToBeModified);
+        Project updatedProject = projectDao.updateProject(projectToBeModified);
+        Long userId = projectDao.getUserId(projectDto.getProjectId());
         return entityDtoMapper.toDto(
                 updatedProject,
-                projectDto.getUserId());
+                userId);
     }
     @Override
-    public void deleteUser(Long projectId, Long userId) {
-        projectDao.deleteProject(projectId, userId);
+    public void deleteUser(Long projectId) {
+        projectDao.deleteProject(projectId);
     }
 }

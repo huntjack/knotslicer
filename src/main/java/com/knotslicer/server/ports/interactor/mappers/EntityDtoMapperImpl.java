@@ -7,6 +7,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @ApplicationScoped
 @Transactional
 public class EntityDtoMapperImpl implements EntityDtoMapper {
@@ -58,12 +61,33 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return userToBeModified;
     }
     @Override
+    public ProjectDto toDto(Project projectInput) {
+        ProjectDto projectDto = dtoFactory.createProjectDto();
+        setDtoVariables(projectDto, projectInput);
+        return projectDto;
+    }
+    private void setDtoVariables(ProjectDto projectDtoToBeModified, Project projectInput) {
+        projectDtoToBeModified.setProjectId(projectInput.getProjectId());
+        projectDtoToBeModified.setProjectName(projectInput.getProjectName());
+        projectDtoToBeModified.setProjectDescription(projectInput.getProjectDescription());
+    }
+    @Override
     public ProjectDto toDto(Project projectInput, Long userId) {
         ProjectDto projectDto = dtoFactory.createProjectDto();
         projectDto.setUserId(userId);
-        projectDto.setProjectId(projectInput.getProjectId());
-        projectDto.setProjectName(projectInput.getProjectName());
-        projectDto.setProjectDescription(projectInput.getProjectDescription());
+        setDtoVariables(projectDto, projectInput);
+        return projectDto;
+    }
+    @Override
+    public ProjectDto addMembers(ProjectDto projectDto, Project projectInput) {
+        ProjectImpl projectImpl = (ProjectImpl) projectInput;
+        List<MemberImpl> membersImpls = projectImpl.getMembers();
+        LinkedList<MemberDto> memberDtos = new LinkedList<>();
+        for(MemberImpl memberImpl: membersImpls) {
+            memberDtos.add(
+                    toDto(memberImpl));
+        }
+        projectDto.setMembers(memberDtos);
         return projectDto;
     }
     @Override
@@ -82,13 +106,22 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return projectToBeModified;
     }
     @Override
+    public MemberDto toDto(Member memberInput) {
+        MemberDto memberDto = dtoFactory.createMemberDto();
+        setDtoVariables(memberDto, memberInput);
+        return memberDto;
+    }
+    private void setDtoVariables(MemberDto memberDtoToBeModified, Member memberInput) {
+        memberDtoToBeModified.setMemberId(memberInput.getMemberId());
+        memberDtoToBeModified.setName(memberInput.getName());
+        memberDtoToBeModified.setRole(memberInput.getRole());
+        memberDtoToBeModified.setRoleDescription(memberInput.getRoleDescription());
+    }
+    @Override
     public MemberDto toDto(Member memberInput, Long userId) {
         MemberDto memberDto = dtoFactory.createMemberDto();
         memberDto.setUserId(userId);
-        memberDto.setMemberId(memberInput.getMemberId());
-        memberDto.setName(memberInput.getName());
-        memberDto.setRole(memberInput.getRole());
-        memberDto.setRoleDescription(memberInput.getRoleDescription());
+        setDtoVariables(memberDto, memberInput);
         return memberDto;
     }
     @Override

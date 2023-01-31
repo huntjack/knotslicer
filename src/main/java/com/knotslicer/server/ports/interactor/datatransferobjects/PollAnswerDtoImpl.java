@@ -3,6 +3,7 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
@@ -10,7 +11,7 @@ public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
     private Long pollId;
     private Long pollAnswerId;
     private Boolean approved;
-    private List<Link> links = new ArrayList<>();
+    private LinkedList<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -37,6 +38,6 @@ public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
     public void setApproved(Boolean approved) {
         this.approved = approved;
     }
-    public List<Link> getLinks() {return links;}
-    public void setLinks(List<Link> links) {this.links = links;}
+    public LinkedList<Link> getLinks() {return links;}
+    public void setLinks(LinkedList<Link> links) {this.links = links;}
 }

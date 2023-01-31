@@ -3,6 +3,7 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class EventDtoImpl implements EventDto, Serializable {
@@ -12,7 +13,7 @@ public class EventDtoImpl implements EventDto, Serializable {
     private String subject;
     private String eventName;
     private String eventDescription;
-    private List<Link> links = new ArrayList<>();
+    private LinkedList<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -55,6 +56,6 @@ public class EventDtoImpl implements EventDto, Serializable {
     public void setEventDescription(String eventDescription) {
         this.eventDescription = eventDescription;
     }
-    public List<Link> getLinks() {return links;}
-    public void setLinks(List<Link> links) {this.links = links;}
+    public LinkedList<Link> getLinks() {return links;}
+    public void setLinks(LinkedList<Link> links) {this.links = links;}
 }

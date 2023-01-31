@@ -1,8 +1,7 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.List;
+import java.util.LinkedList;
 
 @JsonDeserialize(as = ProjectDtoImpl.class)
 public interface ProjectDto {
@@ -15,4 +14,6 @@ public interface ProjectDto {
     void setProjectName(String projectName);
     String getProjectDescription();
     void setProjectDescription(String projectDescription);
+    LinkedList<MemberDto> getMembers();
+    void setMembers(LinkedList<MemberDto> members);
 }

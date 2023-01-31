@@ -9,11 +9,12 @@ public interface EntityDtoMapper {
     User toEntity(UserDto userDtoInput);
     User toEntity(UserDto userDtoInput, User userToBeModified);
     User toEntity(UserLightDto userLightDtoInput, User userToBeModified);
-
+    ProjectDto toDto(Project projectInput);
     ProjectDto toDto(Project projectInput, Long userId);
+    ProjectDto addMembers(ProjectDto projectDto, Project projectInput);
     Project toEntity(ProjectDto projectDtoInput);
     Project toEntity(ProjectDto projectDtoInput, Project projectToBeModified);
-
+    MemberDto toDto(Member memberInput);
     MemberDto toDto(Member memberInput, Long userId);
     Member toEntity(MemberDto memberDtoInput);
     Member toEntity(MemberDto memberDtoInput, Member memberToBeModified);
