@@ -1,18 +1,15 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 
 @Entity(name = "Member")
 @Table(name = "Member")
 public class MemberImpl implements Member {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long memberId;
     @Column(unique=true, updatable = false, nullable = false)
     private String memberBusinessKey;
@@ -27,9 +24,9 @@ public class MemberImpl implements Member {
     @JoinColumn(name="projectId")
     private ProjectImpl project;
     @ManyToMany(mappedBy = "members")
-    private Set<EventImpl> events;
+    private Set<EventImpl> events = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
-    private List<ScheduleImpl> schedules;
+    private List<ScheduleImpl> schedules = new ArrayList<>();
 
     public void addEvent(EventImpl event) {
         events.add(event);

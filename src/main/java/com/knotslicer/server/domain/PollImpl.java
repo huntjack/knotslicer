@@ -2,6 +2,7 @@ package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -11,7 +12,7 @@ import java.util.UUID;
 public class PollImpl implements Poll {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long pollId;
     @Column(unique=true, updatable = false, nullable = false)
     private String pollBusinessKey;
@@ -21,7 +22,7 @@ public class PollImpl implements Poll {
     @JoinColumn(name="eventId")
     private EventImpl event;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "poll", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
-    private List<PollAnswerImpl> pollAnswers;
+    private List<PollAnswerImpl> pollAnswers = new ArrayList<>();
     public void addPollAnswer(PollAnswerImpl pollAnswer) {
         pollAnswer.setPoll(this);
         pollAnswers.add(pollAnswer);

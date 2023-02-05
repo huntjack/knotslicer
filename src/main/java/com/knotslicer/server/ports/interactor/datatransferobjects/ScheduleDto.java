@@ -6,8 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @JsonDeserialize(as = ScheduleDtoImpl.class)
-public interface ScheduleDto {
-    void addLink(String url, String rel);
+public interface ScheduleDto extends Linkable {
     Long getMemberId();
     void setMemberId(Long memberId);
     Long getScheduleId();

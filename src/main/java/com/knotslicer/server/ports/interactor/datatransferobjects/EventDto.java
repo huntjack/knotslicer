@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 
 @JsonDeserialize(as = EventDtoImpl.class)
-public interface EventDto {
-    void addLink(String url, String rel);
+public interface EventDto extends Linkable {
     Long getUserId();
     void setUserId(Long userId);
     Long getEventId();

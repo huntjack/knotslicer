@@ -1,15 +1,15 @@
 package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
-import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.services.MemberService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.*;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 @Path("/users/{userId}/members")
 @RequestScoped
@@ -23,7 +23,46 @@ public class MemberResourceImpl implements MemberResource {
     public Response createMember(MemberDto memberRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
         memberRequestDto.setUserId(userId);
         MemberDto memberResponseDto = memberService.createMember(memberRequestDto);
-        return null;
+        addLinks(uriInfo, memberResponseDto);
+        URI selfUri = getUriForSelf(uriInfo, memberResponseDto);
+        return Response.created(selfUri)
+                .entity(memberResponseDto)
+                .type("application/json")
+                .build();
+    }
+    private void addLinks(UriInfo uriInfo, MemberDto memberResponseDto) {
+        URI selfUri = getUriForSelf(uriInfo,
+                memberResponseDto);
+        URI userUri = getUriForUser(uriInfo,
+                memberResponseDto);
+        memberResponseDto.addLink(selfUri.toString(), "self");
+        memberResponseDto.addLink(userUri.toString(), "user");
+    }
+    private URI getUriForSelf(UriInfo uriInfo, MemberDto memberResponseDto) {
+        String baseUri = uriInfo
+                .getBaseUriBuilder()
+                .path(UserResourceImpl.class)
+                .build()
+                .toString();
+        String secondHalfOfUri = "/{userId}/members/{memberId}";
+        String template = baseUri + secondHalfOfUri;
+        Map<String, Long> parameters = new HashMap<>(3);
+        parameters.put(
+                "userId",
+                memberResponseDto.getUserId());
+        parameters.put(
+                "memberId",
+                memberResponseDto.getMemberId());
+        UriBuilder uriBuilder = UriBuilder.fromPath(template);
+        return uriBuilder
+                .buildFromMap(parameters);
+    }
+    private URI getUriForUser(UriInfo uriInfo, MemberDto memberResponseDto) {
+        return uriInfo
+                .getBaseUriBuilder()
+                .path(UserResourceImpl.class)
+                .path(Long.toString(memberResponseDto.getUserId()))
+                .build();
     }
     @GET
     @Path("/{memberId}")

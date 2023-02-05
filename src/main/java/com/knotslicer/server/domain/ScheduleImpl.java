@@ -10,7 +10,7 @@ import java.util.UUID;
 public class ScheduleImpl implements Schedule {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long scheduleId;
     @Column(unique=true, updatable = false, nullable = false)
     private String scheduleBusinessKey;

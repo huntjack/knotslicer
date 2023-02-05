@@ -13,7 +13,7 @@ public class EventDtoImpl implements EventDto, Serializable {
     private String subject;
     private String eventName;
     private String eventDescription;
-    private LinkedList<Link> links = new LinkedList<>();
+    private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -56,6 +56,6 @@ public class EventDtoImpl implements EventDto, Serializable {
     public void setEventDescription(String eventDescription) {
         this.eventDescription = eventDescription;
     }
-    public LinkedList<Link> getLinks() {return links;}
-    public void setLinks(LinkedList<Link> links) {this.links = links;}
+    public List<Link> getLinks() {return links;}
+    public void setLinks(List<Link> links) {this.links = links;}
 }

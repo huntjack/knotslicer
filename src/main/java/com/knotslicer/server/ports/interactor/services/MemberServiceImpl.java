@@ -17,8 +17,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberDto createMember(MemberDto memberDto) {
         Member member = entityDtoMapper.toEntity(memberDto);
-        member = memberDao.createMember(member, memberDto.getUserId());
-        return entityDtoMapper.toDto(member, memberDto.getUserId());
+        member = memberDao.createMember(member, memberDto.getUserId(), memberDto.getProjectId());
+        return entityDtoMapper.toDto(
+                member,
+                memberDto.getUserId(),
+                memberDto.getProjectId());
     }
     @Override
     public MemberDto getMember(Long memberId, Long userId) {

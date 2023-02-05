@@ -19,6 +19,7 @@ public class UserDaoImpl implements UserDao {
     public User createUser(User user) {
         entityManager.persist(user);
         entityManager.flush();
+        entityManager.refresh(user);
         return user;
     }
     @Override

@@ -15,18 +15,18 @@ public class MemberDaoImpl implements MemberDao {
     @PersistenceContext(unitName = "knotslicer_database")
     EntityManager entityManager;
     @Override
-    public Member createMember(Member member, Long userId) {
+    public Member createMember(Member member, Long userId, Long projectId) {
+        MemberImpl memberImpl = (MemberImpl) member;
         UserImpl userImpl = getUserWithMembersFromJpa(userId);
         entityManager.detach(userImpl);
-        userImpl.addMember((MemberImpl) member);
+        userImpl.addMember(memberImpl);
         userImpl = entityManager.merge(userImpl);
+        ProjectImpl projectImpl = getProjectWithMembersFromJpa(projectId);
+        memberImpl = getMemberFromUser(userImpl, memberImpl);
+        projectImpl.addMember(memberImpl);
         entityManager.flush();
-        int memberIndex = userImpl
-                .getMembers()
-                .indexOf(member);
-        return userImpl
-                .getMembers()
-                .get(memberIndex);
+        entityManager.refresh(memberImpl);
+        return memberImpl;
     }
     private UserImpl getUserWithMembersFromJpa(Long userId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
@@ -35,6 +35,22 @@ public class MemberDaoImpl implements MemberDao {
                                 "WHERE user.userId = :userId", UserImpl.class)
                 .setParameter("userId", userId);
         return query.getSingleResult();
+    }
+    private ProjectImpl getProjectWithMembersFromJpa(Long projectId) {
+        TypedQuery<ProjectImpl> query = entityManager.createQuery
+                        ("SELECT project FROM Project project " +
+                                "INNER JOIN FETCH project.members " +
+                                "WHERE project.projectId = :projectId", ProjectImpl.class)
+                .setParameter("projectId", projectId);
+        return query.getSingleResult();
+    }
+    private MemberImpl getMemberFromUser(UserImpl userImpl, Member member) {
+        int memberIndex = userImpl
+                .getMembers()
+                .indexOf(member);
+        return userImpl
+                .getMembers()
+                .get(memberIndex);
     }
 
     @Override
@@ -45,14 +61,6 @@ public class MemberDaoImpl implements MemberDao {
     public Optional<Project> getProjectWithMembers(Long projectId) {
         Project project = getProjectWithMembersFromJpa(projectId);
         return Optional.ofNullable(project);
-    }
-    private ProjectImpl getProjectWithMembersFromJpa(Long projectId) {
-        TypedQuery<ProjectImpl> query = entityManager.createQuery
-                        ("SELECT project FROM Project project " +
-                                "INNER JOIN FETCH project.members " +
-                                "WHERE project.projectId = :projectId", ProjectImpl.class)
-                .setParameter("projectId", projectId);
-        return query.getSingleResult();
     }
     @Override
     public Member updateMember(Member inputMember, Long userId) {

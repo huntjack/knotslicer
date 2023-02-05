@@ -2,20 +2,18 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 
 import java.io.Serializable;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MemberDtoImpl implements MemberDto, Serializable {
     private static final long serialVersionUID = 4000L;
     private Long userId;
+    private Long projectId;
     private Long memberId;
     private String name;
     private String role;
     private String roleDescription;
-    private ZoneId timeZone;
-    private LinkedList<Link> links = new LinkedList<>();
+    private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -28,6 +26,10 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     }
     @Override
     public Long getUserId() {return userId;}
+    @Override
+    public Long getProjectId() {return projectId;}
+    @Override
+    public void setProjectId(Long projectId) {this.projectId = projectId;}
     @Override
     public void setUserId(Long userId) {this.userId = userId;}
     @Override
@@ -58,15 +60,7 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     public void setRoleDescription(String roleDescription) {
         this.roleDescription = roleDescription;
     }
-    @Override
-    public ZoneId getTimeZone() {
-        return timeZone;
-    }
-    @Override
-    public void setTimeZone(ZoneId timeZone) {
-        this.timeZone = timeZone;
-    }
 
-    public LinkedList<Link> getLinks() {return links;}
-    public void setLinks(LinkedList<Link> links) {this.links = links;}
+    public List<Link> getLinks() {return links;}
+    public void setLinks(List<Link> links) {this.links = links;}
 }

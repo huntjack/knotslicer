@@ -15,7 +15,7 @@ public interface EntityDtoMapper {
     Project toEntity(ProjectDto projectDtoInput);
     Project toEntity(ProjectDto projectDtoInput, Project projectToBeModified);
     MemberDto toDto(Member memberInput);
-    MemberDto toDto(Member memberInput, Long userId);
+    MemberDto toDto(Member memberInput, Long userId, Long projectId);
     Member toEntity(MemberDto memberDtoInput);
     Member toEntity(MemberDto memberDtoInput, Member memberToBeModified);
 

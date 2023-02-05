@@ -3,7 +3,6 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     private Long scheduleId;
     private LocalDateTime startTimeUtc;
     private LocalDateTime endTimeUtc;
-    private LinkedList<Link> links = new LinkedList<>();
+    private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -48,6 +47,6 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     public void setEndTimeUtc(LocalDateTime endTimeUtc) {
         this.endTimeUtc = endTimeUtc;
     }
-    public LinkedList<Link> getLinks() {return links;}
-    public void setLinks(LinkedList<Link> links) {this.links = links;}
+    public List<Link> getLinks() {return links;}
+    public void setLinks(List<Link> links) {this.links = links;}
 }

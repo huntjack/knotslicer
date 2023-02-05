@@ -82,10 +82,17 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     public ProjectDto addMembers(ProjectDto projectDto, Project projectInput) {
         ProjectImpl projectImpl = (ProjectImpl) projectInput;
         List<MemberImpl> membersImpls = projectImpl.getMembers();
-        LinkedList<MemberDto> memberDtos = new LinkedList<>();
+        List<MemberDto> memberDtos = new LinkedList<>();
+        Long projectId = projectImpl.getProjectId();
         for(MemberImpl memberImpl: membersImpls) {
-            memberDtos.add(
-                    toDto(memberImpl));
+            Long userId = memberImpl
+                    .getUser()
+                    .getUserId();
+            MemberDto memberDto = toDto(
+                    memberImpl,
+                    userId,
+                    projectId);
+            memberDtos.add(memberDto);
         }
         projectDto.setMembers(memberDtos);
         return projectDto;
@@ -118,9 +125,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         memberDtoToBeModified.setRoleDescription(memberInput.getRoleDescription());
     }
     @Override
-    public MemberDto toDto(Member memberInput, Long userId) {
+    public MemberDto toDto(Member memberInput, Long userId, Long projectId) {
         MemberDto memberDto = dtoFactory.createMemberDto();
         memberDto.setUserId(userId);
+        memberDto.setProjectId(projectId);
         setDtoVariables(memberDto, memberInput);
         return memberDto;
     }
@@ -235,5 +243,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     public PollAnswer toEntity(PollAnswerDto pollAnswerDtoInput, PollAnswer pollAnswerToBeModified) {
         setEntityVariables(pollAnswerToBeModified, pollAnswerDtoInput);
         return pollAnswerToBeModified;
+    }
+    public EntityDtoMapperImpl() {}
+    public EntityDtoMapperImpl(EntityFactory entityFactory, DtoFactory dtoFactory) {
+        this.entityFactory = entityFactory;
+        this.dtoFactory = dtoFactory;
     }
 }

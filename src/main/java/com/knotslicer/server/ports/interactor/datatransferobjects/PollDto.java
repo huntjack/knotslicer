@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @JsonDeserialize(as = PollDtoImpl.class)
-public interface PollDto {
-    void addLink(String url, String rel);
+public interface PollDto extends Linkable {
     Long getEventId();
     void setEventId(Long eventId);
     Long getPollId();

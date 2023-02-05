@@ -25,12 +25,9 @@ public class ProjectDaoImpl implements ProjectDao {
         userImpl.addProject((ProjectImpl) project);
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
-        int projectIndex = userImpl
-                .getProjects()
-                .indexOf(project);
-        return userImpl
-                .getProjects()
-                .get(projectIndex);
+        project = getProjectFromUser(userImpl, project);
+        entityManager.refresh(project);
+        return project;
     }
     private UserImpl getUserWithProjectsFromJpa(Long userId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
@@ -39,6 +36,15 @@ public class ProjectDaoImpl implements ProjectDao {
                                 "WHERE user.userId = :userId", UserImpl.class)
                 .setParameter("userId", userId);
         return query.getSingleResult();
+    }
+    private ProjectImpl getProjectFromUser(UserImpl userImpl, Project project) {
+        int projectIndex =
+                userImpl
+                .getProjects()
+                .indexOf(project);
+        return userImpl
+                .getProjects()
+                .get(projectIndex);
     }
     @Override
     public Optional<Project> getProject(Long projectId) {
@@ -50,22 +56,17 @@ public class ProjectDaoImpl implements ProjectDao {
         Long userId = getUserId(inputProject.getProjectId());
         UserImpl userImpl = getUserWithProjectsFromJpa(userId);
         entityManager.detach(userImpl);
-        int projectIndex = userImpl
-                .getProjects()
-                .indexOf(inputProject);
         Project projectToBeModified =
-                userImpl
-                .getProjects()
-                .get(projectIndex);
+                getProjectFromUser(userImpl, inputProject);
         projectToBeModified
                 .setProjectName(
                 inputProject.getProjectName());
         projectToBeModified
                 .setProjectDescription(
-                inputProject
-                .getProjectDescription());
-        entityManager.merge(userImpl);
+                inputProject.getProjectDescription());
+        userImpl = entityManager.merge(userImpl);
         entityManager.flush();
+        projectToBeModified = getProjectFromUser(userImpl, inputProject);
         return projectToBeModified;
     }
     @Override

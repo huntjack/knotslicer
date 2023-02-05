@@ -2,7 +2,6 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import java.io.Serializable;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class UserDtoImpl implements UserDto, Serializable {
     private String userName;
     private String userDescription;
     private ZoneId timeZone;
-    private LinkedList<Link> links = new LinkedList<>();
+    private List<Link> links = new LinkedList<>();
 
     @Override
     public void addLink(String url, String rel) {
@@ -58,6 +57,6 @@ public class UserDtoImpl implements UserDto, Serializable {
     public ZoneId getTimeZone() {return timeZone;}
     @Override
     public void setTimeZone(ZoneId timeZone) {this.timeZone = timeZone;}
-    public LinkedList<Link> getLinks() {return links;}
-    public void setLinks(LinkedList<Link> links) {this.links = links;}
+    public List<Link> getLinks() {return links;}
+    public void setLinks(List<Link> links) {this.links = links;}
 }

@@ -1,5 +1,6 @@
 package com.knotslicer.server.adapters.rest;
 
+import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.services.ProjectService;
 import jakarta.enterprise.context.RequestScoped;
@@ -8,6 +9,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Path("/projects")
@@ -70,10 +72,39 @@ public class ProjectResourceImpl implements ProjectResource {
     public Response getProjectWithMembers(@PathParam("projectId") Long projectId, @Context UriInfo uriInfo) {
         ProjectDto projectResponseDto = projectService.getProjectWithMembers(projectId);
         addLinks(uriInfo, projectResponseDto);
+        addLinksToMembers(uriInfo, projectResponseDto);
         return Response.ok()
                 .entity(projectResponseDto)
                 .type("application/json")
                 .build();
+    }
+    private void addLinksToMembers(UriInfo uriInfo, ProjectDto projectResponseDto) {
+        List<MemberDto> memberDtos = projectResponseDto.getMembers();
+        for(MemberDto memberDto: memberDtos) {
+            URI memberUri = getUriForMembers(uriInfo, memberDto);
+            memberDto.addLink(
+                    memberUri.toString(),
+                    "member");
+        }
+    }
+    private URI getUriForMembers(UriInfo uriInfo, MemberDto memberResponseDto) {
+        String baseUri = uriInfo
+                .getBaseUriBuilder()
+                .path(UserResourceImpl.class)
+                .build()
+                .toString();
+        String secondHalfOfUri = "/{userId}/members/{memberId}";
+        String template = baseUri + secondHalfOfUri;
+        Map<String, Long> parameters = new HashMap<>(3);
+        parameters.put(
+                "userId",
+                memberResponseDto.getUserId());
+        parameters.put(
+                "memberId",
+                memberResponseDto.getMemberId());
+        UriBuilder uriBuilder = UriBuilder.fromPath(template);
+        return uriBuilder
+                .buildFromMap(parameters);
     }
     @PUT
     @Path("/{projectId}")

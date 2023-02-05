@@ -6,8 +6,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 @JsonDeserialize(as = UserDtoImpl.class)
-public interface UserDto {
-    void addLink(String url, String rel);
+public interface UserDto extends Linkable {
     Long getUserId();
     void setUserId(Long userId);
     String getEmail();
