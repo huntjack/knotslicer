@@ -2,13 +2,10 @@ package com.knotslicer.server.ports.entitygateway;
 
 import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Project;
-
+import com.knotslicer.server.domain.User;
 import java.util.Optional;
 
-public interface MemberDao {
-    Member createMember(Member member, Long userId, Long projectId);
-    Optional<Member> getMember(Long memberId);
+public interface MemberDao extends ChildWithTwoParentsDao<Member, User> {
     Optional<Project> getProjectWithMembers(Long projectId);
-    Member updateMember(Member inputMember, Long userId);
-    void deleteMember(Long memberId, Long userId);
+    Long getProjectId(Long memberId);
 }

@@ -2,12 +2,11 @@ package com.knotslicer.server;
 
 import com.knotslicer.server.domain.MemberImpl;
 import com.knotslicer.server.domain.ProjectImpl;
-import com.knotslicer.server.domain.User;
 import com.knotslicer.server.domain.UserImpl;
-import com.knotslicer.server.ports.interactor.EntityFactory;
-import com.knotslicer.server.ports.interactor.EntityFactoryImpl;
-import com.knotslicer.server.ports.interactor.datatransferobjects.DtoFactory;
-import com.knotslicer.server.ports.interactor.datatransferobjects.DtoFactoryImpl;
+import com.knotslicer.server.ports.interactor.EntityCreator;
+import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
+import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
+import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
@@ -17,23 +16,23 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EntityDtoMapperTest {
-    EntityFactory entityFactory = new EntityFactoryImpl();
-    DtoFactory dtoFactory = new DtoFactoryImpl();
-    EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityFactory, dtoFactory);
+    EntityCreator entityCreator = new EntityCreatorImpl();
+    DtoCreator dtoCreator = new DtoCreatorImpl();
+    EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
     @Test
     void testAddMembers() {
-        ProjectImpl projectImpl = (ProjectImpl) entityFactory.createProject();
-        MemberImpl expectedFirstMember = (MemberImpl) entityFactory.createMember();
+        ProjectImpl projectImpl = (ProjectImpl) entityCreator.createProject();
+        MemberImpl expectedFirstMember = (MemberImpl) entityCreator.createMember();
         expectedFirstMember.setName("John");
-        UserImpl firstMembersUser = (UserImpl) entityFactory.createUser();
+        UserImpl firstMembersUser = (UserImpl) entityCreator.createUser();
         firstMembersUser.addMember(expectedFirstMember);
-        MemberImpl expectedSecondMember = (MemberImpl) entityFactory.createMember();
+        MemberImpl expectedSecondMember = (MemberImpl) entityCreator.createMember();
         expectedSecondMember.setName("Sally");
-        UserImpl secondMembersUser = (UserImpl) entityFactory.createUser();
+        UserImpl secondMembersUser = (UserImpl) entityCreator.createUser();
         secondMembersUser.addMember(expectedSecondMember);
         projectImpl.addMember(expectedFirstMember);
         projectImpl.addMember(expectedSecondMember);
-        ProjectDto actualProjectDto = dtoFactory.createProjectDto();
+        ProjectDto actualProjectDto = dtoCreator.createProjectDto();
         actualProjectDto = entityDtoMapper.addMembers(actualProjectDto, projectImpl);
         MemberDto actualFirstMember = actualProjectDto.getMembers().get(0);
         MemberDto actualSecondMember = actualProjectDto.getMembers().get(1);

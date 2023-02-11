@@ -2,7 +2,7 @@ package com.knotslicer.server.ports.interactor;
 
 import com.knotslicer.server.domain.*;
 
-public interface EntityFactory {
+public interface EntityCreator {
     User createUser();
     Project createProject();
     Member createMember();

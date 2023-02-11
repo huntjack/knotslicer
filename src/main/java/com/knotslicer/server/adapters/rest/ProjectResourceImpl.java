@@ -1,65 +1,64 @@
 package com.knotslicer.server.adapters.rest;
 
-import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
+import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
+import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectWithMembersLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.services.ProjectService;
+import com.knotslicer.server.ports.interactor.services.Service;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-@Path("/projects")
+@Path("/users/{userId}/projects")
 @RequestScoped
-public class ProjectResourceImpl implements ProjectResource {
+public class ProjectResourceImpl implements Resource<ProjectDto> {
     @Inject
-    private ProjectService projectService;
+    @ProjectService
+    private Service<ProjectDto> projectService;
+    @Inject
+    @ProjectLinkCreator
+    LinkCreator<ProjectDto> linkCreator;
+    @Inject
+    @ProjectWithMembersLinkCreator
+    LinkCreator<ProjectDto> projectWithMembersLinkCreator;
+    @Inject
+    LinkReceiver linkReceiver;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response createProject(ProjectDto projectRequestDto, @Context UriInfo uriInfo) {
-        ProjectDto projectResponseDto = projectService.createProject(projectRequestDto);
-        addLinks(uriInfo, projectResponseDto);
-        URI selfUri = getUriForSelf(uriInfo, projectResponseDto);
-        return Response.created(selfUri)
+    public Response create(ProjectDto projectRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+        projectRequestDto.setUserId(userId);
+        ProjectDto projectResponseDto = projectService.create(projectRequestDto);
+        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        addLinks(linkCommand);
+        URI uri = linkCommand.getSelfLink();
+        return Response.created(uri)
                 .entity(projectResponseDto)
                 .type("application/json")
                 .build();
     }
-    private void addLinks(UriInfo uriInfo, ProjectDto projectResponseDto) {
-        URI selfUri = getUriForSelf(uriInfo,
-                projectResponseDto);
-        URI userUri = getUriForUser(uriInfo,
-                projectResponseDto);
-        projectResponseDto.addLink(selfUri.toString(), "self");
-        projectResponseDto.addLink(userUri.toString(), "user");
-    }
-    private URI getUriForSelf(UriInfo uriInfo, ProjectDto projectResponseDto) {
-        return uriInfo
-                .getBaseUriBuilder()
-                .path(ProjectResourceImpl.class)
-                .path(Long.toString(projectResponseDto.getProjectId()))
-                .build();
-    }
-    private URI getUriForUser(UriInfo uriInfo, ProjectDto projectResponseDto) {
-        return uriInfo
-                .getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .path(Long.toString(projectResponseDto.getUserId()))
-                .build();
+    private void addLinks(LinkCommand linkCommand) {
+        Invoker invoker =
+                linkCreator.createInvoker(linkCommand);
+        invoker.executeCommand();
     }
     @GET
     @Path("/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getProject(@PathParam("projectId") Long projectId,
+    public Response get(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId,
                                @Context UriInfo uriInfo) {
-        ProjectDto projectResponseDto = projectService.getProject(projectId);
-        addLinks(uriInfo, projectResponseDto);
+        ProjectDto projectResponseDto = projectService.get(projectId, userId);
+        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        addLinks(linkCommand);
         return Response.ok()
                 .entity(projectResponseDto)
                 .type("application/json")
@@ -69,54 +68,26 @@ public class ProjectResourceImpl implements ProjectResource {
     @Path("/{projectId}/members")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getProjectWithMembers(@PathParam("projectId") Long projectId, @Context UriInfo uriInfo) {
-        ProjectDto projectResponseDto = projectService.getProjectWithMembers(projectId);
-        addLinks(uriInfo, projectResponseDto);
-        addLinksToMembers(uriInfo, projectResponseDto);
+    public Response getWithChildren(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+        ProjectDto projectResponseDto = projectService.getWithChildren(projectId, userId);
+        LinkCommand linkCommand = projectWithMembersLinkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        addLinks(linkCommand);
         return Response.ok()
                 .entity(projectResponseDto)
                 .type("application/json")
                 .build();
-    }
-    private void addLinksToMembers(UriInfo uriInfo, ProjectDto projectResponseDto) {
-        List<MemberDto> memberDtos = projectResponseDto.getMembers();
-        for(MemberDto memberDto: memberDtos) {
-            URI memberUri = getUriForMembers(uriInfo, memberDto);
-            memberDto.addLink(
-                    memberUri.toString(),
-                    "member");
-        }
-    }
-    private URI getUriForMembers(UriInfo uriInfo, MemberDto memberResponseDto) {
-        String baseUri = uriInfo
-                .getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .build()
-                .toString();
-        String secondHalfOfUri = "/{userId}/members/{memberId}";
-        String template = baseUri + secondHalfOfUri;
-        Map<String, Long> parameters = new HashMap<>(3);
-        parameters.put(
-                "userId",
-                memberResponseDto.getUserId());
-        parameters.put(
-                "memberId",
-                memberResponseDto.getMemberId());
-        UriBuilder uriBuilder = UriBuilder.fromPath(template);
-        return uriBuilder
-                .buildFromMap(parameters);
     }
     @PUT
     @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response updateProject(ProjectDto projectRequestDto,
-                                  @PathParam("projectId") Long projectId,
-                                  @Context UriInfo uriInfo) {
+    public Response update(ProjectDto projectRequestDto, @PathParam("projectId") Long projectId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
         projectRequestDto.setProjectId(projectId);
-        ProjectDto projectResponseDto = projectService.updateProject(projectRequestDto);
-        addLinks(uriInfo, projectResponseDto);
+        projectRequestDto.setUserId(userId);
+        ProjectDto projectResponseDto = projectService.update(projectRequestDto);
+        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        addLinks(linkCommand);
         return Response.ok()
                 .entity(projectResponseDto)
                 .type("application/json")
@@ -125,8 +96,8 @@ public class ProjectResourceImpl implements ProjectResource {
     @DELETE
     @Path("/{projectId}")
     @Override
-    public Response deleteProject(@PathParam("projectId")Long projectId) {
-        projectService.deleteUser(projectId);
+    public Response delete(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId) {
+        projectService.delete(projectId, userId);
         return Response.noContent()
                 .build();
     }

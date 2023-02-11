@@ -13,4 +13,4 @@ import jakarta.inject.Qualifier;
 @Qualifier
 @Retention(RUNTIME)
 @Target({TYPE, METHOD, FIELD, PARAMETER})
-public @interface ProjectService {}
+public @interface ScheduleService {}

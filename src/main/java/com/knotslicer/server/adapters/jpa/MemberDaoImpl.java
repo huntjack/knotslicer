@@ -7,6 +7,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
+
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -14,8 +16,9 @@ import java.util.Optional;
 public class MemberDaoImpl implements MemberDao {
     @PersistenceContext(unitName = "knotslicer_database")
     EntityManager entityManager;
+
     @Override
-    public Member createMember(Member member, Long userId, Long projectId) {
+    public Member create(Member member, Long userId, Long projectId) {
         MemberImpl memberImpl = (MemberImpl) member;
         UserImpl userImpl = getUserWithMembersFromJpa(userId);
         entityManager.detach(userImpl);
@@ -45,30 +48,46 @@ public class MemberDaoImpl implements MemberDao {
         return query.getSingleResult();
     }
     private MemberImpl getMemberFromUser(UserImpl userImpl, Member member) {
-        int memberIndex = userImpl
-                .getMembers()
-                .indexOf(member);
-        return userImpl
-                .getMembers()
-                .get(memberIndex);
+        List<MemberImpl> memberList = userImpl.getMembers();
+        int memberIndex = memberList.indexOf(member);
+        return memberList.get(memberIndex);
+    }
+    @Override
+    public Optional<Member> get(Long memberId) {
+        Member member = entityManager.find(MemberImpl.class, memberId);
+        return Optional.ofNullable(member);
     }
 
     @Override
-    public Optional<Member> getMember(Long memberId) {
-        return Optional.empty();
-    }
-    @Override
-    public Optional<Project> getProjectWithMembers(Long projectId) {
-        Project project = getProjectWithMembersFromJpa(projectId);
-        return Optional.ofNullable(project);
-    }
-    @Override
-    public Member updateMember(Member inputMember, Long userId) {
+    public Member update(Member member, Long userId) {
         return null;
     }
 
     @Override
-    public void deleteMember(Long memberId, Long userId) {
+    public void delete(Long memberId, Long userId) {
+        UserImpl userImpl = getUserWithMembersFromJpa(userId);
+        MemberImpl memberImpl = entityManager.find(MemberImpl.class, memberId);
+        userImpl.removeMember(memberImpl);
+        entityManager.flush();
+    }
+    @Override
+    public Optional<User> getPrimaryParentWithChildren(Long userId) {
+        User user = getUserWithMembersFromJpa(userId);
+        return Optional.ofNullable(user);
+    }
+    @Override
+    public Optional<Project> getProjectWithMembers(Long projectId) {
+        return Optional.empty();
+    }
 
+    @Override
+    public Long getProjectId(Long memberId) {
+        TypedQuery<ProjectImpl> query = entityManager.createQuery
+                        ("SELECT project FROM Project project " +
+                                "INNER JOIN project.members m " +
+                                "WHERE m.memberId = :memberId", ProjectImpl.class)
+                .setParameter("memberId", memberId);
+        Project project = query.getSingleResult();
+        return project.getProjectId();
     }
 }

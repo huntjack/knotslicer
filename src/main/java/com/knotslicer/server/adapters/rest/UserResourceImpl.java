@@ -1,5 +1,10 @@
 package com.knotslicer.server.adapters.rest;
 
+import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
+import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.UserLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.services.UserService;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserDto;
@@ -18,24 +23,29 @@ import java.net.URI;
 public class UserResourceImpl implements UserResource {
     @Inject
     private UserService userService;
+    @Inject
+    @UserLinkCreator
+    LinkCreator<UserLightDto> linkCreator;
+    @Inject
+    LinkReceiver linkReceiver;
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response createUser(UserDto userRequestDto, @Context UriInfo uriInfo) {
-        UserDto UserResponseDto = userService.createUser(userRequestDto);
-        URI uri = getUriForSelf(uriInfo, UserResponseDto);
-        UserResponseDto.addLink(uri.toString(), "self");
+        UserDto userResponseDto = userService.createUser(userRequestDto);
+        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
+        addLinks(linkCommand);
+        URI uri = linkCommand.getSelfLink();
         return Response.created(uri)
-                .entity(UserResponseDto)
+                .entity(userResponseDto)
                 .type("application/json")
                 .build();
     }
-    private URI getUriForSelf(UriInfo uriInfo, UserDto userDto) {
-        return uriInfo.getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .path(Long.toString(userDto.getUserId()))
-                .build();
+    private void addLinks(LinkCommand linkCommand) {
+        Invoker invoker =
+                linkCreator.createInvoker(linkCommand);
+        invoker.executeCommand();
     }
     @GET
     @Path("/{userId}")
@@ -43,17 +53,11 @@ public class UserResourceImpl implements UserResource {
     @Override
     public Response getUser(@PathParam("userId") Long userId, @Context UriInfo uriInfo) {
         UserLightDto userResponseDto = userService.getUser(userId);
-        String uri = getUriForSelf(uriInfo, userResponseDto).toString();
-        userResponseDto.addLink(uri, "self");
+        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
+        addLinks(linkCommand);
         return Response.ok()
                 .entity(userResponseDto)
                 .type("application/json")
-                .build();
-    }
-    private URI getUriForSelf(UriInfo uriInfo, UserLightDto userLightDto) {
-        return uriInfo.getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .path(Long.toString(userLightDto.getUserId()))
                 .build();
     }
     @PUT
@@ -64,8 +68,8 @@ public class UserResourceImpl implements UserResource {
     public Response updateUser(UserLightDto userRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
         userRequestDto.setUserId(userId);
         UserLightDto userResponseDto = userService.updateUser(userRequestDto);
-        String uri = getUriForSelf(uriInfo, userResponseDto).toString();
-        userResponseDto.addLink(uri, "self");
+        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
+        addLinks(linkCommand);
         return Response.ok()
                 .entity(userResponseDto)
                 .type("application/json")

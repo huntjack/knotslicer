@@ -4,6 +4,8 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.ErrorDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ErrorDtoFactory;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -17,6 +19,7 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
     @Inject
     private ErrorDtoFactory errorDtoFactory;
     @Override
+    @Produces(MediaType.APPLICATION_JSON)
     public Response toResponse(EntityNotFoundException exception) {
         logger.error("Entity could not be found.", exception);
         ErrorDto errorDto = errorDtoFactory.createErrorDto(404, exception.getMessage());

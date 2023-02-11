@@ -16,40 +16,28 @@ public class UserDaoImpl implements UserDao {
     @PersistenceContext(unitName = "knotslicer_database")
     EntityManager entityManager;
     @Override
-    public User createUser(User user) {
+    public User create(User user) {
         entityManager.persist(user);
         entityManager.flush();
         entityManager.refresh(user);
         return user;
     }
     @Override
-    public Optional<User> getUser(Long userId) {
+    public Optional<User> get(Long userId) {
         User user = entityManager.find(UserImpl.class, userId);
         return Optional.ofNullable(user);
     }
     @Override
-    public Optional<User> getUserWithProjects(Long userId) {
-        return Optional.empty();
-    }
-    @Override
-    public Optional<User> getUserWithEvents(Long userId) {
-        return Optional.empty();
-    }
-    @Override
-    public Optional<User> getUserWithMembers(Long userId) {
-        return Optional.empty();
-    }
-    @Override
-    public User updateUser(User inputUser) {
-        User userToBeModified = entityManager.find(UserImpl.class, inputUser.getUserId());
-        userToBeModified.setUserName(inputUser.getUserName());
-        userToBeModified.setUserDescription(inputUser.getUserDescription());
-        userToBeModified.setTimeZone(inputUser.getTimeZone());
+    public User update(User user) {
+        User userToBeModified = entityManager.find(UserImpl.class, user.getUserId());
+        userToBeModified.setUserName(user.getUserName());
+        userToBeModified.setUserDescription(user.getUserDescription());
+        userToBeModified.setTimeZone(user.getTimeZone());
         entityManager.flush();
         return userToBeModified;
     }
     @Override
-    public void deleteUser(Long userId) {
+    public void delete(Long userId) {
         User user = entityManager.find(UserImpl.class, userId);
         entityManager.remove(user);
         entityManager.flush();

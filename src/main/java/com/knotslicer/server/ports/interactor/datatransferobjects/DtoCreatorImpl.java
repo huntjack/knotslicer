@@ -3,7 +3,7 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class DtoFactoryImpl implements DtoFactory {
+public class DtoCreatorImpl implements DtoCreator {
     @Override
     public UserDto createUserDto() {return new UserDtoImpl();}
     @Override

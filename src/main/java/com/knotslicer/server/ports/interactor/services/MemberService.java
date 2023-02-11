@@ -1,10 +1,16 @@
 package com.knotslicer.server.ports.interactor.services;
 
-import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public interface MemberService {
-    MemberDto createMember(MemberDto memberDto);
-    MemberDto getMember(Long memberId, Long userId);
-    MemberDto updateMember(MemberDto memberDto);
-    void deleteMember(Long memberId, Long userId);
-}
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import jakarta.inject.Qualifier;
+
+@Qualifier
+@Retention(RUNTIME)
+@Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface MemberService {}
