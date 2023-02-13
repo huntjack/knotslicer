@@ -11,5 +11,5 @@ import java.net.URI;
 public interface LinkReceiver {
     URI getUriForUser(UriBuilder uriBuilder, Long userId);
     URI getUriForProject(UriBuilder uriBuilder, Long projectId, Long userId);
-    URI getUriForMembers(UriInfo uriInfo, MemberDto memberResponseDto);
+    URI getUriForMembers(UriBuilder uriBuilder, Long memberId, Long userId);
 }

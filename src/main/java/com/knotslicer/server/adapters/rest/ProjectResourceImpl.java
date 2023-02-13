@@ -37,7 +37,11 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
     public Response create(ProjectDto projectRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
         projectRequestDto.setUserId(userId);
         ProjectDto projectResponseDto = projectService.create(projectRequestDto);
-        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        LinkCommand linkCommand = linkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
         addLinks(linkCommand);
         URI uri = linkCommand.getSelfLink();
         return Response.created(uri)
@@ -57,7 +61,11 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
     public Response get(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId,
                                @Context UriInfo uriInfo) {
         ProjectDto projectResponseDto = projectService.get(projectId, userId);
-        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        LinkCommand linkCommand = linkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
         addLinks(linkCommand);
         return Response.ok()
                 .entity(projectResponseDto)
@@ -70,7 +78,11 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
     @Override
     public Response getWithChildren(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
         ProjectDto projectResponseDto = projectService.getWithChildren(projectId, userId);
-        LinkCommand linkCommand = projectWithMembersLinkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        LinkCommand linkCommand = projectWithMembersLinkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
         addLinks(linkCommand);
         return Response.ok()
                 .entity(projectResponseDto)
@@ -85,8 +97,13 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
     public Response update(ProjectDto projectRequestDto, @PathParam("projectId") Long projectId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
         projectRequestDto.setProjectId(projectId);
         projectRequestDto.setUserId(userId);
-        ProjectDto projectResponseDto = projectService.update(projectRequestDto);
-        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, projectResponseDto, uriInfo);
+        ProjectDto projectResponseDto =
+                projectService.update(projectRequestDto);
+        LinkCommand linkCommand = linkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
         addLinks(linkCommand);
         return Response.ok()
                 .entity(projectResponseDto)
@@ -98,7 +115,8 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
     @Override
     public Response delete(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId) {
         projectService.delete(projectId, userId);
-        return Response.noContent()
+        return Response
+                .noContent()
                 .build();
     }
 }

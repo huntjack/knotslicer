@@ -32,7 +32,8 @@ public class UserResourceImpl implements UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response createUser(UserDto userRequestDto, @Context UriInfo uriInfo) {
+    public Response createUser(UserDto userRequestDto,
+                               @Context UriInfo uriInfo) {
         UserDto userResponseDto = userService.createUser(userRequestDto);
         LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
         addLinks(linkCommand);
@@ -51,7 +52,8 @@ public class UserResourceImpl implements UserResource {
     @Path("/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getUser(@PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+    public Response getUser(@PathParam("userId") Long userId,
+                            @Context UriInfo uriInfo) {
         UserLightDto userResponseDto = userService.getUser(userId);
         LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
         addLinks(linkCommand);
@@ -65,7 +67,9 @@ public class UserResourceImpl implements UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response updateUser(UserLightDto userRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+    public Response updateUser(UserLightDto userRequestDto,
+                               @PathParam("userId") Long userId,
+                               @Context UriInfo uriInfo) {
         userRequestDto.setUserId(userId);
         UserLightDto userResponseDto = userService.updateUser(userRequestDto);
         LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
@@ -80,7 +84,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public Response deleteUser(@PathParam("userId") Long userId) {
         userService.deleteUser(userId);
-        return Response.noContent()
+        return Response
+                .noContent()
                 .build();
     }
 }

@@ -7,7 +7,6 @@ import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public class ProjectLinkCommand extends LinkCommand {
-
     protected ProjectDto projectDto;
     protected UriInfo uriInfo;
     public ProjectLinkCommand(LinkReceiver linkReceiver, ProjectDto projectDto, UriInfo uriInfo) {

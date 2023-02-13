@@ -59,8 +59,26 @@ public class MemberDaoImpl implements MemberDao {
     }
 
     @Override
-    public Member update(Member member, Long userId) {
-        return null;
+    public Member update(Member inputMember, Long userId) {
+        UserImpl userImpl = getUserWithMembersFromJpa(userId);
+        entityManager.detach(userImpl);
+        Member memberToBeModified =
+                getMemberFromUser(
+                        userImpl,
+                        inputMember);
+        memberToBeModified
+                .setName(
+                inputMember.getName());
+        memberToBeModified
+                .setRole(
+                        inputMember.getRole());
+        memberToBeModified
+                .setRoleDescription(
+                        inputMember.getRoleDescription());
+        userImpl = entityManager.merge(userImpl);
+        entityManager.flush();
+        Member updatedMember = getMemberFromUser(userImpl, memberToBeModified);
+        return updatedMember;
     }
 
     @Override
@@ -77,7 +95,8 @@ public class MemberDaoImpl implements MemberDao {
     }
     @Override
     public Optional<Project> getProjectWithMembers(Long projectId) {
-        return Optional.empty();
+        Project project = getProjectWithMembersFromJpa(projectId);
+        return Optional.ofNullable(project);
     }
 
     @Override

@@ -17,10 +17,19 @@ public class ProjectWithMembersLinkCommand extends ProjectLinkCommand {
         super.execute();
         List<MemberDto> memberDtos = projectDto.getMembers();
         for(MemberDto memberDto: memberDtos) {
-            URI memberUri = linkReceiver.getUriForMembers(uriInfo, memberDto);
+            URI memberUri = linkReceiver.getUriForMembers(
+                    uriInfo.getBaseUriBuilder(),
+                    memberDto.getMemberId(),
+                    memberDto.getUserId());
             memberDto.addLink(
                     memberUri.toString(),
                     "member");
+            URI membersUserUri = linkReceiver.getUriForUser(
+                    uriInfo.getBaseUriBuilder(),
+                    memberDto.getUserId());
+            memberDto.addLink(
+                    membersUserUri.toString(),
+                    "user");
         }
     }
 }

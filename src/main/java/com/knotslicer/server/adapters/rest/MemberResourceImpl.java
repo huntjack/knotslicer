@@ -1,5 +1,10 @@
 package com.knotslicer.server.adapters.rest;
 
+import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
+import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.MemberLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
 import com.knotslicer.server.ports.interactor.services.MemberService;
 import com.knotslicer.server.ports.interactor.services.Service;
@@ -7,10 +12,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 @Path("/users/{userId}/members")
 @RequestScoped
@@ -18,65 +20,64 @@ public class MemberResourceImpl implements Resource<MemberDto> {
     @Inject
     @MemberService
     Service<MemberDto> memberService;
+    @Inject
+    @MemberLinkCreator
+    LinkCreator<MemberDto> linkCreator;
+    @Inject
+    LinkReceiver linkReceiver;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response create(MemberDto memberRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+    public Response create(MemberDto memberRequestDto,
+                           @PathParam("userId") Long userId,
+                           @Context UriInfo uriInfo) {
         memberRequestDto.setUserId(userId);
         MemberDto memberResponseDto = memberService.create(memberRequestDto);
-        addLinks(uriInfo, memberResponseDto);
-        URI selfUri = getUriForSelf(uriInfo, memberResponseDto);
-        return Response.created(selfUri)
+        LinkCommand linkCommand = linkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        memberResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        URI uri = linkCommand.getSelfLink();
+        return Response.created(uri)
                 .entity(memberResponseDto)
                 .type("application/json")
                 .build();
     }
-    private void addLinks(UriInfo uriInfo, MemberDto memberResponseDto) {
-        URI selfUri = getUriForSelf(uriInfo,
-                memberResponseDto);
-        URI userUri = getUriForUser(uriInfo,
-                memberResponseDto);
-        memberResponseDto.addLink(selfUri.toString(), "self");
-        memberResponseDto.addLink(userUri.toString(), "user");
-    }
-    private URI getUriForSelf(UriInfo uriInfo, MemberDto memberResponseDto) {
-        String baseUri = uriInfo
-                .getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .build()
-                .toString();
-        String secondHalfOfUri = "/{userId}/members/{memberId}";
-        String template = baseUri + secondHalfOfUri;
-        Map<String, Long> parameters = new HashMap<>(3);
-        parameters.put(
-                "userId",
-                memberResponseDto.getUserId());
-        parameters.put(
-                "memberId",
-                memberResponseDto.getMemberId());
-        UriBuilder uriBuilder = UriBuilder.fromPath(template);
-        return uriBuilder
-                .buildFromMap(parameters);
-    }
-    private URI getUriForUser(UriInfo uriInfo, MemberDto memberResponseDto) {
-        return uriInfo
-                .getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .path(Long.toString(memberResponseDto.getUserId()))
-                .build();
+    private void addLinks(LinkCommand linkCommand) {
+        Invoker invoker =
+                linkCreator.createInvoker(linkCommand);
+        invoker.executeCommand();
     }
     @GET
     @Path("/{memberId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response get(@PathParam("memberId") Long memberId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
-        return null;
+    public Response get(@PathParam("memberId") Long memberId,
+                        @PathParam("userId") Long userId,
+                        @Context UriInfo uriInfo) {
+        MemberDto memberResponseDto = memberService.get(memberId, userId);
+        LinkCommand linkCommand = linkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        memberResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(memberResponseDto)
+                .type("application/json")
+                .build();
     }
     @GET
     @Path("/{memberId}/schedules")
+    @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getWithChildren(@PathParam("memberId") Long memberId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+    public Response getWithChildren(@PathParam("memberId") Long memberId,
+                                    @PathParam("userId") Long userId,
+                                    @Context UriInfo uriInfo) {
         return null;
     }
 
@@ -85,15 +86,33 @@ public class MemberResourceImpl implements Resource<MemberDto> {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response update(MemberDto memberRequestDto, @PathParam("memberId") Long memberId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
-        return null;
+    public Response update(MemberDto memberRequestDto,
+                           @PathParam("memberId") Long memberId,
+                           @PathParam("userId") Long userId,
+                           @Context UriInfo uriInfo) {
+        memberRequestDto.setMemberId(memberId);
+        memberRequestDto.setUserId(userId);
+        MemberDto memberResponseDto =
+                memberService.update(memberRequestDto);
+        LinkCommand linkCommand = linkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        memberResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(memberResponseDto)
+                .type("application/json")
+                .build();
     }
     @DELETE
     @Path("/{memberId}")
     @Override
-    public Response delete(@PathParam("memberId") Long memberId, @PathParam("userId") Long userId) {
+    public Response delete(@PathParam("memberId") Long memberId,
+                           @PathParam("userId") Long userId) {
         memberService.delete(memberId, userId);
-        return Response.noContent()
+        return Response
+                .noContent()
                 .build();
     }
 }

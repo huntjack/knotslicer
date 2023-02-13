@@ -32,23 +32,39 @@ public class MemberServiceImpl implements Service<MemberDto> {
     @Override
     public MemberDto get(Long memberId, Long userId) {
         Optional<Member> optionalMember = memberDao.get(memberId);
-        Member member = unpackOptionalProject(optionalMember);
+        Member member = unpackOptionalMember(optionalMember);
         Long projectId = memberDao.getProjectId(memberId);
-        return entityDtoMapper.toDto(member, userId, projectId);
+        return entityDtoMapper.toDto(member,
+                userId,
+                projectId);
+    }
+    private Member unpackOptionalMember(Optional<Member> optionalMember) {
+        return optionalMember.orElseThrow(() -> new EntityNotFoundException("Member not found."));
     }
     @Override
     public MemberDto getWithChildren(Long memberId, Long userId) {
         return null;
     }
-    private Member unpackOptionalProject(Optional<Member> optionalMember) {
-        return optionalMember.orElseThrow(() -> new EntityNotFoundException("Member not found."));
-    }
+
     @Override
     public MemberDto update(MemberDto memberDto) {
-        return null;
+        Long memberId = memberDto.getMemberId();
+        Optional<Member> optionalMember =
+                memberDao.get(memberId);
+        Member memberToBeModified = unpackOptionalMember(optionalMember);
+        memberToBeModified = entityDtoMapper.toEntity(memberDto, memberToBeModified);
+        Long userId = memberDto.getUserId();
+        Member updatedMember = memberDao.update(memberToBeModified, userId);
+        Long projectId = memberDao.getProjectId(memberId);
+        return entityDtoMapper.toDto(
+                updatedMember,
+                userId,
+                projectId);
     }
     @Override
     public void delete(Long memberId, Long userId) {
-        memberDao.delete(memberId, userId);
+        memberDao.delete(
+                memberId,
+                userId);
     }
 }

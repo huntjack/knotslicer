@@ -49,7 +49,9 @@ public class ProjectServiceImpl implements Service<ProjectDto> {
     }
     @Override
     public ProjectDto update(ProjectDto projectDto) {
-        Optional<Project> optionalProject = projectDao.get(projectDto.getProjectId());
+        Long projectId = projectDto.getProjectId();
+        Optional<Project> optionalProject =
+                projectDao.get(projectId);
         Project projectToBeModified = unpackOptionalProject(optionalProject);
         projectToBeModified = entityDtoMapper.toEntity(projectDto, projectToBeModified);
         Long userId = projectDto.getUserId();

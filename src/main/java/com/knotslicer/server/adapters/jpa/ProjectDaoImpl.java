@@ -67,7 +67,7 @@ public class ProjectDaoImpl implements ProjectDao {
                         inputProject.getProjectDescription());
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
-        Project updatedProject = getProjectFromUser(userImpl, inputProject);
+        Project updatedProject = getProjectFromUser(userImpl, projectToBeModified);
         return updatedProject;
     }
     @Override

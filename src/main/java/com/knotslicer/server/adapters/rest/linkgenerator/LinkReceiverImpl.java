@@ -41,9 +41,8 @@ public class LinkReceiverImpl implements LinkReceiver {
                 .buildFromMap(parameters);
     }
     @Override
-    public URI getUriForMembers(UriInfo uriInfo, MemberDto memberResponseDto) {
-        String baseUri = uriInfo
-                .getBaseUriBuilder()
+    public URI getUriForMembers(UriBuilder baseUriBuilder, Long memberId, Long userId) {
+        String baseUri = baseUriBuilder
                 .path(UserResourceImpl.class)
                 .build()
                 .toString();
@@ -52,10 +51,10 @@ public class LinkReceiverImpl implements LinkReceiver {
         Map<String, Long> parameters = new HashMap<>(3);
         parameters.put(
                 "userId",
-                memberResponseDto.getUserId());
+                userId);
         parameters.put(
                 "memberId",
-                memberResponseDto.getMemberId());
+                memberId);
         UriBuilder uriBuilder = UriBuilder.fromPath(template);
         return uriBuilder
                 .buildFromMap(parameters);
