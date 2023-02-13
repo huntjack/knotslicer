@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ScheduleDtoImpl implements ScheduleDto, Serializable {
-    private static final long serialVersionUID = 6000L;
+    private static final long serialVersionUID = 7000L;
     private Long memberId;
     private Long scheduleId;
     private LocalDateTime startTimeUtc;

@@ -6,18 +6,14 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-public class UserLinkCommand extends LinkCommand {
-    private UserLightDto userLightDto;
-    private UriInfo uriInfo;
+public class UserLinkCommand extends LinkCommand<UserLightDto> {
     public UserLinkCommand(LinkReceiver linkReceiver, UserLightDto userLightDto, UriInfo uriInfo) {
-        super(linkReceiver);
-        this.userLightDto = userLightDto;
-        this.uriInfo = uriInfo;
+        super(linkReceiver, userLightDto, uriInfo);
     }
     @Override
-    public void execute() {
-        URI uri = linkReceiver.getUriForUser(uriInfo.getBaseUriBuilder(), userLightDto.getUserId());
-        this.selfLink = uri;
-        userLightDto.addLink(uri.toString(), "self");
+    public URI execute() {
+        URI selfUri = linkReceiver.getUriForUser(uriInfo.getBaseUriBuilder(), dto.getUserId());
+        dto.addLink(selfUri.toString(), "self");
+        return selfUri;
     }
 }

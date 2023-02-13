@@ -6,20 +6,16 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-public class ProjectLinkCommand extends LinkCommand {
-    protected ProjectDto projectDto;
-    protected UriInfo uriInfo;
+public class ProjectLinkCommand extends LinkCommand<ProjectDto> {
     public ProjectLinkCommand(LinkReceiver linkReceiver, ProjectDto projectDto, UriInfo uriInfo) {
-        super(linkReceiver);
-        this.projectDto = projectDto;
-        this.uriInfo = uriInfo;
+        super(linkReceiver, projectDto, uriInfo);
     }
     @Override
-    public void execute() {
-        URI projectUri = linkReceiver.getUriForProject(uriInfo.getBaseUriBuilder(), projectDto.getProjectId(), projectDto.getUserId());
-        this.selfLink = projectUri;
-        projectDto.addLink(projectUri.toString(), "self");
-        URI userUri = linkReceiver.getUriForUser(uriInfo.getBaseUriBuilder(), projectDto.getUserId());
-        projectDto.addLink(userUri.toString(), "user");
+    public URI execute() {
+        URI projectUri = linkReceiver.getUriForProject(uriInfo.getBaseUriBuilder(), dto.getProjectId(), dto.getUserId());
+        dto.addLink(projectUri.toString(), "self");
+        URI userUri = linkReceiver.getUriForUser(uriInfo.getBaseUriBuilder(), dto.getUserId());
+        dto.addLink(userUri.toString(), "user");
+        return projectUri;
     }
 }

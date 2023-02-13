@@ -1,12 +1,8 @@
 package com.knotslicer.server.adapters.rest.linkgenerator;
 
 import com.knotslicer.server.adapters.rest.UserResourceImpl;
-import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
-import com.knotslicer.server.ports.interactor.datatransferobjects.UserDto;
-import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
-import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -41,7 +37,7 @@ public class LinkReceiverImpl implements LinkReceiver {
                 .buildFromMap(parameters);
     }
     @Override
-    public URI getUriForMembers(UriBuilder baseUriBuilder, Long memberId, Long userId) {
+    public URI getUriForMember(UriBuilder baseUriBuilder, Long memberId, Long userId) {
         String baseUri = baseUriBuilder
                 .path(UserResourceImpl.class)
                 .build()

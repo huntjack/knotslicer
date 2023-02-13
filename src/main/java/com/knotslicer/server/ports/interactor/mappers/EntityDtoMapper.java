@@ -11,13 +11,14 @@ public interface EntityDtoMapper {
     User toEntity(UserLightDto userLightDtoInput, User userToBeModified);
     ProjectDto toDto(Project projectInput);
     ProjectDto toDto(Project projectInput, Long userId);
-    ProjectDto addMembers(ProjectDto projectDto, Project projectInput);
+    ProjectDto addMemberDtosToProjectDto(ProjectDto projectDto, Project projectInput);
     Project toEntity(ProjectDto projectDtoInput);
     Project toEntity(ProjectDto projectDtoInput, Project projectToBeModified);
-    MemberDto toDto(Member memberInput);
-    MemberDto toDto(Member memberInput, Long userId, Long projectId);
-    Member toEntity(MemberDto memberDtoInput);
-    Member toEntity(MemberDto memberDtoInput, Member memberToBeModified);
+    MemberLightDto toDto(Member memberInput);
+    MemberLightDto toDto(Member memberInput, Long userId, Long projectId);
+    MemberDto toDto(Member memberInput, Long userId, Long projectId, Long projectOwnerId);
+    Member toEntity(MemberLightDto memberDtoInput);
+    Member toEntity(MemberLightDto memberDtoInput, Member memberToBeModified);
 
     EventDto toDto(Event eventInput, Long userId);
     Event toEntity(EventDto eventDtoInput);

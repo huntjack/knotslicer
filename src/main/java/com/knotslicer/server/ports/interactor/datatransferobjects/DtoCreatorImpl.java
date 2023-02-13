@@ -17,19 +17,13 @@ public class DtoCreatorImpl implements DtoCreator {
         return new MemberDtoImpl();
     }
     @Override
-    public EventDto createEventDto() {
-        return new EventDtoImpl();
-    }
+    public MemberLightDto createMemberLightDto() {return new MemberLightDtoImpl();}
     @Override
-    public ScheduleDto createScheduleDto() {
-        return new ScheduleDtoImpl();
-    }
+    public EventDto createEventDto() {return new EventDtoImpl();}
     @Override
-    public PollDto createPollDto() {
-        return new PollDtoImpl();
-    }
+    public ScheduleDto createScheduleDto() {return new ScheduleDtoImpl();}
     @Override
-    public PollAnswerDto createPollAnswerDto() {
-        return new PollAnswerDtoImpl();
-    }
+    public PollDto createPollDto() {return new PollDtoImpl();}
+    @Override
+    public PollAnswerDto createPollAnswerDto() {return new PollAnswerDtoImpl();}
 }

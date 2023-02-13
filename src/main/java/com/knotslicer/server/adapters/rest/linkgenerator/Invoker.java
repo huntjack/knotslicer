@@ -1,5 +1,7 @@
 package com.knotslicer.server.adapters.rest.linkgenerator;
 
+import java.net.URI;
+
 public interface Invoker {
-    void executeCommand();
+    URI executeCommand();
 }

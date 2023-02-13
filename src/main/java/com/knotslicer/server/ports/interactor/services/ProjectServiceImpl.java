@@ -42,7 +42,7 @@ public class ProjectServiceImpl implements Service<ProjectDto> {
         Optional<Project> optionalProject = memberDao.getProjectWithMembers(projectId);
         Project project = unpackOptionalProject(optionalProject);
         ProjectDto projectDto = entityDtoMapper.toDto(project, userId);
-        return entityDtoMapper.addMembers(projectDto, project);
+        return entityDtoMapper.addMemberDtosToProjectDto(projectDto, project);
     }
     private Project unpackOptionalProject(Optional<Project> optionalProject) {
         return optionalProject.orElseThrow(() -> new EntityNotFoundException("Project not found."));

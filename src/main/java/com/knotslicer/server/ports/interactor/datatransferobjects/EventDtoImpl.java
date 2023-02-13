@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class EventDtoImpl implements EventDto, Serializable {
-    private static final long serialVersionUID = 5000L;
+    private static final long serialVersionUID = 6000L;
     private Long userId;
     private Long eventId;
     private String subject;

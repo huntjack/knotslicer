@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
-    private static final long serialVersionUID = 8000L;
+    private static final long serialVersionUID = 9000L;
     private Long pollId;
     private Long pollAnswerId;
     private Boolean approved;

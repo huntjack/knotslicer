@@ -100,7 +100,7 @@ public class MemberDaoImpl implements MemberDao {
     }
 
     @Override
-    public Long getProjectId(Long memberId) {
+    public Long getSecondaryParentId(Long memberId) {
         TypedQuery<ProjectImpl> query = entityManager.createQuery
                         ("SELECT project FROM Project project " +
                                 "INNER JOIN project.members m " +
@@ -108,5 +108,16 @@ public class MemberDaoImpl implements MemberDao {
                 .setParameter("memberId", memberId);
         Project project = query.getSingleResult();
         return project.getProjectId();
+    }
+
+    @Override
+    public Long getParentIdOfSecondaryParent(Long projectId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery
+                        ("SELECT user FROM User user " +
+                                "INNER JOIN user.projects p " +
+                                "WHERE p.projectId = :projectId", UserImpl.class)
+                .setParameter("projectId", projectId);
+        User user = query.getSingleResult();
+        return user.getUserId();
     }
 }

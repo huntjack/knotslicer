@@ -42,17 +42,16 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
                         linkReceiver,
                         projectResponseDto,
                         uriInfo);
-        addLinks(linkCommand);
-        URI uri = linkCommand.getSelfLink();
-        return Response.created(uri)
+        URI selfUri = addLinks(linkCommand);
+        return Response.created(selfUri)
                 .entity(projectResponseDto)
                 .type("application/json")
                 .build();
     }
-    private void addLinks(LinkCommand linkCommand) {
+    private URI addLinks(LinkCommand linkCommand) {
         Invoker invoker =
                 linkCreator.createInvoker(linkCommand);
-        invoker.executeCommand();
+        return invoker.executeCommand();
     }
     @GET
     @Path("/{projectId}")

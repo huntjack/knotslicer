@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface MemberDao extends ChildWithTwoParentsDao<Member, User> {
     Optional<Project> getProjectWithMembers(Long projectId);
-    Long getProjectId(Long memberId);
 }

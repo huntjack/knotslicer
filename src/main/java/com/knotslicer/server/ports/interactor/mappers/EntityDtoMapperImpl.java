@@ -5,7 +5,6 @@ import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -97,22 +96,22 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return projectDto;
     }
     @Override
-    public ProjectDto addMembers(ProjectDto projectDto, Project projectInput) {
+    public ProjectDto addMemberDtosToProjectDto(ProjectDto projectDto, Project projectInput) {
         ProjectImpl projectImpl = (ProjectImpl) projectInput;
         List<MemberImpl> membersImpls = projectImpl.getMembers();
-        List<MemberDto> memberDtos = new LinkedList<>();
+        List<MemberLightDto> memberLightDtos = new LinkedList<>();
         Long projectId = projectImpl.getProjectId();
         for(MemberImpl memberImpl: membersImpls) {
             Long userId = memberImpl
                     .getUser()
                     .getUserId();
-            MemberDto memberDto = toDto(
+            MemberLightDto memberLightDto = toDto(
                     memberImpl,
                     userId,
                     projectId);
-            memberDtos.add(memberDto);
+            memberLightDtos.add(memberLightDto);
         }
-        projectDto.setMembers(memberDtos);
+        projectDto.setMembers(memberLightDtos);
         return projectDto;
     }
     @Override
@@ -133,12 +132,12 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return projectToBeModified;
     }
     @Override
-    public MemberDto toDto(Member memberInput) {
-        MemberDto memberDto = dtoCreator.createMemberDto();
+    public MemberLightDto toDto(Member memberInput) {
+        MemberLightDto memberDto = dtoCreator.createMemberDto();
         setDtoVariables(memberDto, memberInput);
         return memberDto;
     }
-    private void setDtoVariables(MemberDto memberDtoToBeModified, Member memberInput) {
+    private void setDtoVariables(MemberLightDto memberDtoToBeModified, Member memberInput) {
         memberDtoToBeModified.setMemberId(
                 memberInput.getMemberId());
         memberDtoToBeModified.setName(
@@ -149,20 +148,29 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 memberInput.getRoleDescription());
     }
     @Override
-    public MemberDto toDto(Member memberInput, Long userId, Long projectId) {
-        MemberDto memberDto = dtoCreator.createMemberDto();
+    public MemberLightDto toDto(Member memberInput, Long userId, Long projectId) {
+        MemberLightDto memberDto = dtoCreator.createMemberLightDto();
         memberDto.setUserId(userId);
         memberDto.setProjectId(projectId);
         setDtoVariables(memberDto, memberInput);
         return memberDto;
     }
     @Override
-    public Member toEntity(MemberDto memberDtoInput) {
+    public MemberDto toDto(Member memberInput, Long userId, Long projectId, Long projectOwnerId) {
+        MemberDto memberDto = dtoCreator.createMemberDto();
+        memberDto.setUserId(userId);
+        memberDto.setProjectId(projectId);
+        memberDto.setProjectOwnerId(projectOwnerId);
+        setDtoVariables(memberDto, memberInput);
+        return memberDto;
+    }
+    @Override
+    public Member toEntity(MemberLightDto memberDtoInput) {
         Member member = entityCreator.createMember();
         setEntityVariables(member, memberDtoInput);
         return member;
     }
-    private void setEntityVariables(Member memberToBeModified, MemberDto memberDtoInput) {
+    private void setEntityVariables(Member memberToBeModified, MemberLightDto memberDtoInput) {
         memberToBeModified.setName(
                 memberDtoInput.getName());
         memberToBeModified.setRole(
@@ -171,7 +179,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 memberDtoInput.getRoleDescription());
     }
     @Override
-    public Member toEntity(MemberDto memberDtoInput, Member memberToBeModified) {
+    public Member toEntity(MemberLightDto memberDtoInput, Member memberToBeModified) {
         setEntityVariables(memberToBeModified, memberDtoInput);
         return memberToBeModified;
     }

@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class PollDtoImpl implements PollDto, Serializable {
-    private static final long serialVersionUID = 7000L;
+    private static final long serialVersionUID = 8000L;
     private Long eventId;
     private Long pollId;
     private LocalDateTime startTimeUtc;

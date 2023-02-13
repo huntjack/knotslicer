@@ -6,22 +6,18 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-public class MemberLinkCommand extends LinkCommand {
-    protected MemberDto memberDto;
-    protected UriInfo uriInfo;
+public class MemberLinkCommand extends LinkCommand<MemberDto> {
     public MemberLinkCommand(LinkReceiver linkReceiver, MemberDto memberDto, UriInfo uriInfo) {
-        super(linkReceiver);
-        this.memberDto = memberDto;
-        this.uriInfo = uriInfo;
+        super(linkReceiver, memberDto, uriInfo);
     }
     @Override
-    public void execute() {
-        URI memberUri = linkReceiver.getUriForMembers(uriInfo.getBaseUriBuilder(), memberDto.getMemberId(), memberDto.getUserId());
-        this.selfLink = memberUri;
-        memberDto.addLink(memberUri.toString(), "self");
-        URI projectUri = linkReceiver.getUriForProject(uriInfo.getBaseUriBuilder(), memberDto.getProjectId(), memberDto.getUserId());
-        memberDto.addLink(projectUri.toString(), "project");
-        URI userUri = linkReceiver.getUriForUser(uriInfo.getBaseUriBuilder(), memberDto.getUserId());
-        memberDto.addLink(userUri.toString(), "user");
+    public URI execute() {
+        URI memberUri = linkReceiver.getUriForMember(uriInfo.getBaseUriBuilder(), dto.getMemberId(), dto.getUserId());
+        dto.addLink(memberUri.toString(), "self");
+        URI projectUri = linkReceiver.getUriForProject(uriInfo.getBaseUriBuilder(), dto.getProjectId(), dto.getProjectOwnerId());
+        dto.addLink(projectUri.toString(), "project");
+        URI userUri = linkReceiver.getUriForUser(uriInfo.getBaseUriBuilder(), dto.getUserId());
+        dto.addLink(userUri.toString(), "user");
+        return memberUri;
     }
 }

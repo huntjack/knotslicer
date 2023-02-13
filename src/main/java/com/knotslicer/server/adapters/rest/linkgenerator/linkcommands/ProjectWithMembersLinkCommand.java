@@ -1,7 +1,7 @@
 package com.knotslicer.server.adapters.rest.linkgenerator.linkcommands;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
+import com.knotslicer.server.ports.interactor.datatransferobjects.MemberLightDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import jakarta.ws.rs.core.UriInfo;
 
@@ -13,23 +13,24 @@ public class ProjectWithMembersLinkCommand extends ProjectLinkCommand {
         super(linkReceiver, projectDto, uriInfo);
     }
     @Override
-    public void execute() {
-        super.execute();
-        List<MemberDto> memberDtos = projectDto.getMembers();
-        for(MemberDto memberDto: memberDtos) {
-            URI memberUri = linkReceiver.getUriForMembers(
+    public URI execute() {
+        URI projectUri = super.execute();
+        List<MemberLightDto> memberLightDtos = dto.getMembers();
+        for(MemberLightDto memberLightDto: memberLightDtos) {
+            URI memberUri = linkReceiver.getUriForMember(
                     uriInfo.getBaseUriBuilder(),
-                    memberDto.getMemberId(),
-                    memberDto.getUserId());
-            memberDto.addLink(
+                    memberLightDto.getMemberId(),
+                    memberLightDto.getUserId());
+            memberLightDto.addLink(
                     memberUri.toString(),
                     "member");
             URI membersUserUri = linkReceiver.getUriForUser(
                     uriInfo.getBaseUriBuilder(),
-                    memberDto.getUserId());
-            memberDto.addLink(
+                    memberLightDto.getUserId());
+            memberLightDto.addLink(
                     membersUserUri.toString(),
                     "user");
         }
+        return projectUri;
     }
 }

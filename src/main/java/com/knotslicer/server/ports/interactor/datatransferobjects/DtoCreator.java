@@ -5,6 +5,7 @@ public interface DtoCreator {
     UserLightDto createUserLightDto();
     ProjectDto createProjectDto();
     MemberDto createMemberDto();
+    MemberLightDto createMemberLightDto();
     EventDto createEventDto();
     ScheduleDto createScheduleDto();
     PollDto createPollDto();
