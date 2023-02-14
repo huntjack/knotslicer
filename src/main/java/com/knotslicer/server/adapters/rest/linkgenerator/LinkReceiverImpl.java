@@ -18,41 +18,38 @@ public class LinkReceiverImpl implements LinkReceiver {
                 .build();
     }
     @Override
-    public URI getUriForProject(UriBuilder uriBuilder, Long projectId, Long userId) {
+    public URI getUriForProject(UriBuilder uriBuilder, Map<String,Long> primaryKeys) {
         String baseUri = uriBuilder
                 .path(UserResourceImpl.class)
                 .build()
                 .toString();
-        String secondHalfOfUri = "/{userId}/projects/{projectId}";
+        String secondHalfOfUri = "/{projectOwnerId}/projects/{projectId}";
         String template = baseUri + secondHalfOfUri;
-        Map<String, Long> parameters = new HashMap<>(3);
-        parameters.put(
-                "userId",
-                userId);
-        parameters.put(
-                "projectId",
-                projectId);
         UriBuilder finalUriBuilder = UriBuilder.fromPath(template);
         return finalUriBuilder
-                .buildFromMap(parameters);
+                .buildFromMap(primaryKeys);
     }
     @Override
-    public URI getUriForMember(UriBuilder baseUriBuilder, Long memberId, Long userId) {
+    public URI getUriForMember(UriBuilder baseUriBuilder, Map<String,Long> primaryKeys) {
         String baseUri = baseUriBuilder
                 .path(UserResourceImpl.class)
                 .build()
                 .toString();
         String secondHalfOfUri = "/{userId}/members/{memberId}";
         String template = baseUri + secondHalfOfUri;
-        Map<String, Long> parameters = new HashMap<>(3);
-        parameters.put(
-                "userId",
-                userId);
-        parameters.put(
-                "memberId",
-                memberId);
         UriBuilder uriBuilder = UriBuilder.fromPath(template);
         return uriBuilder
-                .buildFromMap(parameters);
+                .buildFromMap(primaryKeys);
+    }
+    public URI getUriForSchedule(UriBuilder baseUriBuilder, Map<String,Long> primaryKeys) {
+        String baseUri = baseUriBuilder
+                .path(UserResourceImpl.class)
+                .build()
+                .toString();
+        String secondHalfOfUri = "/{userId}/members/{memberId}/schedules/{scheduleId}";
+        String template = baseUri + secondHalfOfUri;
+        UriBuilder uriBuilder = UriBuilder.fromPath(template);
+        return uriBuilder
+                .buildFromMap(primaryKeys);
     }
 }

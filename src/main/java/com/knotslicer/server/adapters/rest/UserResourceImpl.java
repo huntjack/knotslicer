@@ -25,9 +25,9 @@ public class UserResourceImpl implements UserResource {
     private UserService userService;
     @Inject
     @UserLinkCreator
-    LinkCreator<UserLightDto> linkCreator;
+    private LinkCreator<UserLightDto> linkCreator;
     @Inject
-    LinkReceiver linkReceiver;
+    private LinkReceiver linkReceiver;
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

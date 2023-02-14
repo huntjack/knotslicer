@@ -217,9 +217,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return eventToBeModified;
     }
     @Override
-    public ScheduleDto toDto(Schedule scheduleInput, Long memberId) {
+    public ScheduleDto toDto(Schedule scheduleInput, Long memberId, Long userId) {
         ScheduleDto scheduleDto = dtoCreator.createScheduleDto();
         scheduleDto.setMemberId(memberId);
+        scheduleDto.setUserId(userId);
         scheduleDto.setScheduleId(
                 scheduleInput.getScheduleId());
         scheduleDto.setStartTimeUtc(

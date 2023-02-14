@@ -11,10 +11,12 @@ import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import java.util.Map;
 import java.util.Optional;
 
-@ApplicationScoped
 @ProjectService
+@ApplicationScoped
 public class ProjectServiceImpl implements Service<ProjectDto> {
     @Inject
     EntityDtoMapper entityDtoMapper;
@@ -26,21 +28,26 @@ public class ProjectServiceImpl implements Service<ProjectDto> {
     @Override
     public ProjectDto create(ProjectDto projectDto) {
         Project project = entityDtoMapper.toEntity(projectDto);
-        project = projectDao.create(project, projectDto.getUserId());
+        Long userId = projectDto.getUserId();
+        project = projectDao.create(project, userId);
         return entityDtoMapper.toDto(
                 project,
-                projectDto.getUserId());
+                userId);
     }
     @Override
-    public ProjectDto get(Long projectId, Long userId) {
+    public ProjectDto get(Map<String,Long> primaryKeys) {
+        Long projectId = primaryKeys.get("projectId");
         Optional<Project> optionalProject = projectDao.get(projectId);
         Project project = unpackOptionalProject(optionalProject);
+        Long userId = primaryKeys.get("userId");
         return entityDtoMapper.toDto(project, userId);
     }
     @Override
-    public ProjectDto getWithChildren(Long projectId, Long userId) {
+    public ProjectDto getWithChildren(Map<String,Long> primaryKeys) {
+        Long projectId = primaryKeys.get("projectId");
         Optional<Project> optionalProject = memberDao.getProjectWithMembers(projectId);
         Project project = unpackOptionalProject(optionalProject);
+        Long userId = primaryKeys.get("userId");
         ProjectDto projectDto = entityDtoMapper.toDto(project, userId);
         return entityDtoMapper.addMemberDtosToProjectDto(projectDto, project);
     }
@@ -61,7 +68,9 @@ public class ProjectServiceImpl implements Service<ProjectDto> {
                 userId);
     }
     @Override
-    public void delete(Long projectId, Long userId) {
+    public void delete(Map<String,Long> primaryKeys) {
+        Long projectId = primaryKeys.get("projectId");
+        Long userId = primaryKeys.get("userId");
         projectDao.delete(projectId, userId);
     }
 }

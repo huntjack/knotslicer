@@ -10,10 +10,11 @@ import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.Map;
 import java.util.Optional;
 
-@ApplicationScoped
 @MemberService
+@ApplicationScoped
 public class MemberServiceImpl implements Service<MemberDto> {
     @Inject
     EntityDtoMapper entityDtoMapper;
@@ -22,21 +23,33 @@ public class MemberServiceImpl implements Service<MemberDto> {
 
     @Override
     public MemberDto create(MemberDto memberDto) {
-        Member member = entityDtoMapper.toEntity(memberDto);
-        member = memberDao.create(member, memberDto.getUserId(), memberDto.getProjectId());
-        Long projectId = memberDto.getProjectId();
-        Long projectOwnerId = memberDao.getParentIdOfSecondaryParent(projectId);
+        Member member = entityDtoMapper
+                .toEntity(memberDto);
+        member = memberDao.create(
+                member,
+                memberDto.getUserId(),
+                memberDto.getProjectId());
+        Long projectId = memberDto
+                .getProjectId();
+        Long projectOwnerId = memberDao
+                .getParentIdOfSecondaryParent(projectId);
         return entityDtoMapper.toDto(
                 member,
                 memberDto.getUserId(),
                 projectId, projectOwnerId);
     }
     @Override
-    public MemberDto get(Long memberId, Long userId) {
-        Optional<Member> optionalMember = memberDao.get(memberId);
+    public MemberDto get(Map<String,Long> primaryKeys) {
+        Long memberId = primaryKeys.get("memberId");
+        Optional<Member> optionalMember = memberDao
+                .get(memberId);
         Member member = unpackOptionalMember(optionalMember);
-        Long projectId = memberDao.getSecondaryParentId(memberId);
-        Long projectOwnerId = memberDao.getParentIdOfSecondaryParent(projectId);
+        Long projectId = memberDao
+                .getSecondaryParentId(memberId);
+        Long projectOwnerId = memberDao
+                .getParentIdOfSecondaryParent(projectId);
+        Long userId = primaryKeys
+                .get("userId");
         return entityDtoMapper.toDto(member,
                 userId,
                 projectId,
@@ -46,7 +59,7 @@ public class MemberServiceImpl implements Service<MemberDto> {
         return optionalMember.orElseThrow(() -> new EntityNotFoundException("Member not found."));
     }
     @Override
-    public MemberDto getWithChildren(Long memberId, Long userId) {
+    public MemberDto getWithChildren(Map<String,Long> primaryKeys) {
         return null;
     }
 
@@ -56,11 +69,17 @@ public class MemberServiceImpl implements Service<MemberDto> {
         Optional<Member> optionalMember =
                 memberDao.get(memberId);
         Member memberToBeModified = unpackOptionalMember(optionalMember);
-        memberToBeModified = entityDtoMapper.toEntity(memberDto, memberToBeModified);
+        memberToBeModified = entityDtoMapper
+                .toEntity(
+                        memberDto,
+                        memberToBeModified);
         Long userId = memberDto.getUserId();
-        Member updatedMember = memberDao.update(memberToBeModified, userId);
-        Long projectId = memberDao.getSecondaryParentId(memberId);
-        Long projectOwnerId = memberDao.getParentIdOfSecondaryParent(projectId);
+        Member updatedMember = memberDao
+                .update(memberToBeModified, userId);
+        Long projectId = memberDao
+                .getSecondaryParentId(memberId);
+        Long projectOwnerId = memberDao
+                .getParentIdOfSecondaryParent(projectId);
         return entityDtoMapper.toDto(
                 updatedMember,
                 userId,
@@ -68,7 +87,9 @@ public class MemberServiceImpl implements Service<MemberDto> {
                 projectOwnerId);
     }
     @Override
-    public void delete(Long memberId, Long userId) {
+    public void delete(Map<String,Long> primaryKeys) {
+        Long memberId = primaryKeys.get("memberId");
+        Long userId = primaryKeys.get("userId");
         memberDao.delete(
                 memberId,
                 userId);

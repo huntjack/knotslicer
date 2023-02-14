@@ -14,21 +14,23 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 @Path("/users/{userId}/projects")
 @RequestScoped
-public class ProjectResourceImpl implements Resource<ProjectDto> {
+public class ProjectResourceImpl implements ParentResource<ProjectDto> {
     @Inject
     @ProjectService
     private Service<ProjectDto> projectService;
     @Inject
     @ProjectLinkCreator
-    LinkCreator<ProjectDto> linkCreator;
+    private LinkCreator<ProjectDto> linkCreator;
     @Inject
     @ProjectWithMembersLinkCreator
-    LinkCreator<ProjectDto> projectWithMembersLinkCreator;
+    private LinkCreator<ProjectDto> projectWithMembersLinkCreator;
     @Inject
-    LinkReceiver linkReceiver;
+    private LinkReceiver linkReceiver;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -59,7 +61,8 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
     @Override
     public Response get(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId,
                                @Context UriInfo uriInfo) {
-        ProjectDto projectResponseDto = projectService.get(projectId, userId);
+        Map<String,Long> primaryKeys = packPrimaryKeys(projectId, userId);
+        ProjectDto projectResponseDto = projectService.get(primaryKeys);
         LinkCommand linkCommand = linkCreator
                 .createLinkCommand(
                         linkReceiver,
@@ -71,12 +74,21 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
                 .type("application/json")
                 .build();
     }
+    private Map<String,Long> packPrimaryKeys(Long projectId, Long userId) {
+        Map<String,Long> primaryKeys = new HashMap<>(3);
+        primaryKeys
+                .put("projectId", projectId);
+        primaryKeys
+                .put("userId", userId);
+        return primaryKeys;
+    }
     @GET
     @Path("/{projectId}/members")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response getWithChildren(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
-        ProjectDto projectResponseDto = projectService.getWithChildren(projectId, userId);
+        Map<String,Long> primaryKeys = packPrimaryKeys(projectId, userId);
+        ProjectDto projectResponseDto = projectService.getWithChildren(primaryKeys);
         LinkCommand linkCommand = projectWithMembersLinkCreator
                 .createLinkCommand(
                         linkReceiver,
@@ -113,7 +125,8 @@ public class ProjectResourceImpl implements Resource<ProjectDto> {
     @Path("/{projectId}")
     @Override
     public Response delete(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId) {
-        projectService.delete(projectId, userId);
+        Map<String,Long> primaryKeys = packPrimaryKeys(projectId, userId);
+        projectService.delete(primaryKeys);
         return Response
                 .noContent()
                 .build();

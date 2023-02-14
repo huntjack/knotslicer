@@ -8,8 +8,9 @@ import java.util.List;
 
 public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     private static final long serialVersionUID = 7000L;
-    private Long memberId;
     private Long scheduleId;
+    private Long memberId;
+    private Long userId;
     private LocalDateTime startTimeUtc;
     private LocalDateTime endTimeUtc;
     private List<Link> links = new LinkedList<>();
@@ -24,13 +25,17 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
         return new LinkImpl();
     }
     @Override
+    public Long getScheduleId() {return scheduleId;}
+    @Override
+    public void setScheduleId(Long scheduleId) {this.scheduleId = scheduleId;}
+    @Override
     public Long getMemberId() {return memberId;}
     @Override
     public void setMemberId(Long memberId) {this.memberId = memberId;}
     @Override
-    public Long getScheduleId() {return scheduleId;}
+    public Long getUserId() {return userId;}
     @Override
-    public void setScheduleId(Long scheduleId) {this.scheduleId = scheduleId;}
+    public void setUserId(Long userId) {this.userId = userId;}
     @Override
     public LocalDateTime getStartTimeUtc() {
         return startTimeUtc;

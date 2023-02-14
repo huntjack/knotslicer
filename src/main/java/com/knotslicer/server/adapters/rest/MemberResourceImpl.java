@@ -13,18 +13,20 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 @Path("/users/{userId}/members")
 @RequestScoped
-public class MemberResourceImpl implements Resource<MemberDto> {
+public class MemberResourceImpl implements ParentResource<MemberDto> {
     @Inject
     @MemberService
-    Service<MemberDto> memberService;
+    private Service<MemberDto> memberService;
     @Inject
     @MemberLinkCreator
-    LinkCreator<MemberDto> linkCreator;
+    private LinkCreator<MemberDto> linkCreator;
     @Inject
-    LinkReceiver linkReceiver;
+    private LinkReceiver linkReceiver;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -58,7 +60,8 @@ public class MemberResourceImpl implements Resource<MemberDto> {
     public Response get(@PathParam("memberId") Long memberId,
                         @PathParam("userId") Long userId,
                         @Context UriInfo uriInfo) {
-        MemberDto memberResponseDto = memberService.get(memberId, userId);
+        Map<String,Long> primaryKeys = packPrimaryKeys(memberId, userId);
+        MemberDto memberResponseDto = memberService.get(primaryKeys);
         LinkCommand linkCommand = linkCreator
                 .createLinkCommand(
                         linkReceiver,
@@ -69,6 +72,14 @@ public class MemberResourceImpl implements Resource<MemberDto> {
                 .entity(memberResponseDto)
                 .type("application/json")
                 .build();
+    }
+    private Map<String,Long> packPrimaryKeys(Long memberId, Long userId) {
+        Map<String,Long> primaryKeys = new HashMap<>(3);
+        primaryKeys
+                .put("memberId", memberId);
+        primaryKeys
+                .put("userId", userId);
+        return primaryKeys;
     }
     @GET
     @Path("/{memberId}/schedules")
@@ -109,7 +120,8 @@ public class MemberResourceImpl implements Resource<MemberDto> {
     @Override
     public Response delete(@PathParam("memberId") Long memberId,
                            @PathParam("userId") Long userId) {
-        memberService.delete(memberId, userId);
+        Map<String,Long> primaryKeys = packPrimaryKeys(memberId, userId);
+        memberService.delete(primaryKeys);
         return Response
                 .noContent()
                 .build();
