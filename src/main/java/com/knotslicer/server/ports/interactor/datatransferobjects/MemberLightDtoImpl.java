@@ -10,7 +10,6 @@ public class MemberLightDtoImpl implements MemberLightDto, Serializable {
     private Long userId;
     private Long memberId;
     private Long projectId;
-    private Long projectOwnerId;
     private String name;
     private String role;
     private String roleDescription;

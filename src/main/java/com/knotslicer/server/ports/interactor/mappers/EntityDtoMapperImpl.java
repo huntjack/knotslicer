@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class EntityDtoMapperImpl implements EntityDtoMapper {
@@ -45,11 +46,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     }
     @Override
     public User toEntity(UserDto userDtoInput) {
-        User user = entityCreator.createUser();
-        setEntityVariables(user, userDtoInput);
-        return user;
-    }
-    private void setEntityVariables(User userToBeModified, UserDto userDtoInput) {
+        User userToBeModified = entityCreator.createUser();
         userToBeModified.setEmail(
                 userDtoInput.getEmail());
         userToBeModified.setUserName(
@@ -58,10 +55,6 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 userDtoInput.getUserDescription());
         userToBeModified.setTimeZone(
                 userDtoInput.getTimeZone());
-    }
-    @Override
-    public User toEntity(UserDto userDtoInput, User userToBeModified) {
-        setEntityVariables(userToBeModified, userDtoInput);
         return userToBeModified;
     }
     @Override
@@ -75,24 +68,15 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return userToBeModified;
     }
     @Override
-    public ProjectDto toDto(Project projectInput) {
-        ProjectDto projectDto = dtoCreator.createProjectDto();
-        setDtoVariables(projectDto, projectInput);
-        return projectDto;
-    }
-    private void setDtoVariables(ProjectDto projectDtoToBeModified, Project projectInput) {
-        projectDtoToBeModified.setProjectId(
-                projectInput.getProjectId());
-        projectDtoToBeModified.setProjectName(
-                projectInput.getProjectName());
-        projectDtoToBeModified.setProjectDescription(
-                projectInput.getProjectDescription());
-    }
-    @Override
     public ProjectDto toDto(Project projectInput, Long userId) {
         ProjectDto projectDto = dtoCreator.createProjectDto();
         projectDto.setUserId(userId);
-        setDtoVariables(projectDto, projectInput);
+        projectDto.setProjectId(
+                projectInput.getProjectId());
+        projectDto.setProjectName(
+                projectInput.getProjectName());
+        projectDto.setProjectDescription(
+                projectInput.getProjectDescription());
         return projectDto;
     }
     @Override
@@ -132,10 +116,12 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return projectToBeModified;
     }
     @Override
-    public MemberLightDto toDto(Member memberInput) {
-        MemberLightDto memberDto = dtoCreator.createMemberDto();
-        setDtoVariables(memberDto, memberInput);
-        return memberDto;
+    public MemberLightDto toDto(Member memberInput, Long userId, Long projectId) {
+        MemberLightDto memberLightDto = dtoCreator.createMemberLightDto();
+        memberLightDto.setUserId(userId);
+        memberLightDto.setProjectId(projectId);
+        setDtoVariables(memberLightDto, memberInput);
+        return memberLightDto;
     }
     private void setDtoVariables(MemberLightDto memberDtoToBeModified, Member memberInput) {
         memberDtoToBeModified.setMemberId(
@@ -148,18 +134,13 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 memberInput.getRoleDescription());
     }
     @Override
-    public MemberLightDto toDto(Member memberInput, Long userId, Long projectId) {
-        MemberLightDto memberDto = dtoCreator.createMemberLightDto();
-        memberDto.setUserId(userId);
-        memberDto.setProjectId(projectId);
-        setDtoVariables(memberDto, memberInput);
-        return memberDto;
-    }
-    @Override
-    public MemberDto toDto(Member memberInput, Long userId, Long projectId, Long projectOwnerId) {
+    public MemberDto toDto(Member memberInput, Map<String,Long> primaryKeys) {
         MemberDto memberDto = dtoCreator.createMemberDto();
+        Long userId = primaryKeys.get("userId");
         memberDto.setUserId(userId);
+        Long projectId = primaryKeys.get("projectId");
         memberDto.setProjectId(projectId);
+        Long projectOwnerId = primaryKeys.get("projectOwnerId");
         memberDto.setProjectOwnerId(projectOwnerId);
         setDtoVariables(memberDto, memberInput);
         return memberDto;
@@ -217,8 +198,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return eventToBeModified;
     }
     @Override
-    public ScheduleDto toDto(Schedule scheduleInput, Long memberId, Long userId) {
+    public ScheduleDto toDto(Schedule scheduleInput, Map<String,Long> primaryKeys) {
         ScheduleDto scheduleDto = dtoCreator.createScheduleDto();
+        Long memberId = primaryKeys.get("memberId");
+        Long userId = primaryKeys.get("userId");
         scheduleDto.setMemberId(memberId);
         scheduleDto.setUserId(userId);
         scheduleDto.setScheduleId(

@@ -74,7 +74,7 @@ public class MemberResourceImpl implements ParentResource<MemberDto> {
                 .build();
     }
     private Map<String,Long> packPrimaryKeys(Long memberId, Long userId) {
-        Map<String,Long> primaryKeys = new HashMap<>(3);
+        Map<String,Long> primaryKeys = new HashMap<>();
         primaryKeys
                 .put("memberId", memberId);
         primaryKeys

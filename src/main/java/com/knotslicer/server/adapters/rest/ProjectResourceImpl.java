@@ -75,7 +75,7 @@ public class ProjectResourceImpl implements ParentResource<ProjectDto> {
                 .build();
     }
     private Map<String,Long> packPrimaryKeys(Long projectId, Long userId) {
-        Map<String,Long> primaryKeys = new HashMap<>(3);
+        Map<String,Long> primaryKeys = new HashMap<>();
         primaryKeys
                 .put("projectId", projectId);
         primaryKeys

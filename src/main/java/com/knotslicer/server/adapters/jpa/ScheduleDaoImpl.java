@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -53,8 +52,20 @@ public class ScheduleDaoImpl implements ScheduleDao {
         return Optional.ofNullable(member);
     }
     @Override
-    public Schedule update(Schedule schedule, Long memberId) {
-        return null;
+    public Schedule update(Schedule inputSchedule, Long memberId) {
+        MemberImpl memberImpl = getMemberWithSchedulesFromJpa(memberId);
+        entityManager.detach(memberImpl);
+        Schedule scheduleToBeModified =
+                getScheduleFromMember(memberImpl, inputSchedule);
+        scheduleToBeModified.setStartTimeUtc(
+                inputSchedule.getStartTimeUtc());
+        scheduleToBeModified.setEndTimeUtc(
+                inputSchedule.getEndTimeUtc());
+        memberImpl = entityManager
+                .merge(memberImpl);
+        entityManager.flush();
+        Schedule updatedSchedule = getScheduleFromMember(memberImpl, scheduleToBeModified);
+        return updatedSchedule;
     }
     @Override
     public void delete(Long scheduleId, Long memberId) {

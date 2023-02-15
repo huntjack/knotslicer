@@ -15,7 +15,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +80,7 @@ public class ScheduleResourceImpl implements ScheduleResource {
                 .build();
     }
     private Map<String,Long> packPrimaryKeys(Long scheduleId, Long memberId, Long userId) {
-        Map<String,Long> primaryKeys = new HashMap<>(5);
+        Map<String,Long> primaryKeys = new HashMap<>();
         primaryKeys
                 .put("scheduleId", scheduleId);
         primaryKeys
@@ -100,7 +99,21 @@ public class ScheduleResourceImpl implements ScheduleResource {
                            @PathParam("memberId")Long memberId,
                            @PathParam("userId")Long userId,
                            @Context UriInfo uriInfo) {
-        return null;
+        scheduleDto.setScheduleId(scheduleId);
+        scheduleDto.setMemberId(memberId);
+        scheduleDto.setUserId(userId);
+        ScheduleDto scheduleResponseDto =
+                scheduleService.update(scheduleDto);
+        LinkCommand linkCommand = linkCreator
+                .createLinkCommand(
+                        linkReceiver,
+                        scheduleResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(scheduleResponseDto)
+                .type("application/json")
+                .build();
     }
     @DELETE
     @Path("/{scheduleId}")
@@ -114,7 +127,7 @@ public class ScheduleResourceImpl implements ScheduleResource {
                 .build();
     }
     private Map<String,Long> packPrimaryKeys(Long scheduleId, Long memberId) {
-        Map<String,Long> primaryKeys = new HashMap<>(3);
+        Map<String,Long> primaryKeys = new HashMap<>();
         primaryKeys
                 .put("scheduleId", scheduleId);
         primaryKeys
