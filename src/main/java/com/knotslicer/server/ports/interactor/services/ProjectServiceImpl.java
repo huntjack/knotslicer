@@ -1,9 +1,6 @@
 package com.knotslicer.server.ports.interactor.services;
 
-import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Project;
-import com.knotslicer.server.domain.User;
-import com.knotslicer.server.ports.entitygateway.ChildWithOneParentDao;
 import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.entitygateway.ProjectDao;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
@@ -17,7 +14,7 @@ import java.util.Optional;
 
 @ProjectService
 @ApplicationScoped
-public class ProjectServiceImpl implements Service<ProjectDto> {
+public class ProjectServiceImpl implements ParentService<ProjectDto> {
     @Inject
     EntityDtoMapper entityDtoMapper;
     @Inject
@@ -35,21 +32,26 @@ public class ProjectServiceImpl implements Service<ProjectDto> {
                 userId);
     }
     @Override
-    public ProjectDto get(Map<String,Long> primaryKeys) {
-        Long projectId = primaryKeys.get("projectId");
+    public ProjectDto get(Map<String,Long> ids) {
+        Long projectId = ids.get("projectId");
         Optional<Project> optionalProject = projectDao.get(projectId);
         Project project = unpackOptionalProject(optionalProject);
-        Long userId = primaryKeys.get("userId");
-        return entityDtoMapper.toDto(project, userId);
+        Long userId = ids.get("userId");
+        return entityDtoMapper
+                .toDto(project, userId);
     }
     @Override
-    public ProjectDto getWithChildren(Map<String,Long> primaryKeys) {
-        Long projectId = primaryKeys.get("projectId");
+    public ProjectDto getWithChildren(Map<String,Long> ids) {
+        Long projectId = ids.get("projectId");
         Optional<Project> optionalProject = memberDao.getProjectWithMembers(projectId);
         Project project = unpackOptionalProject(optionalProject);
-        Long userId = primaryKeys.get("userId");
-        ProjectDto projectDto = entityDtoMapper.toDto(project, userId);
-        return entityDtoMapper.addMemberDtosToProjectDto(projectDto, project);
+        Long userId = ids.get("userId");
+        ProjectDto projectDto = entityDtoMapper
+                .toDto(project, userId);
+        return entityDtoMapper
+                .addMemberDtosToProjectDto(
+                        projectDto,
+                        project);
     }
     private Project unpackOptionalProject(Optional<Project> optionalProject) {
         return optionalProject.orElseThrow(() -> new EntityNotFoundException("Project not found."));
@@ -68,9 +70,9 @@ public class ProjectServiceImpl implements Service<ProjectDto> {
                 userId);
     }
     @Override
-    public void delete(Map<String,Long> primaryKeys) {
-        Long projectId = primaryKeys.get("projectId");
-        Long userId = primaryKeys.get("userId");
+    public void delete(Map<String,Long> ids) {
+        Long projectId = ids.get("projectId");
+        Long userId = ids.get("userId");
         projectDao.delete(projectId, userId);
     }
 }

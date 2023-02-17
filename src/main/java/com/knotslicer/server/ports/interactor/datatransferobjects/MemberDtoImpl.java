@@ -13,6 +13,7 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     private String name;
     private String role;
     private String roleDescription;
+    private List<ScheduleDto> schedules = new LinkedList<>();
     private List<Link> links = new LinkedList<>();
 
     @Override
@@ -53,6 +54,10 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     public String getRoleDescription() {return roleDescription;}
     @Override
     public void setRoleDescription(String roleDescription) {this.roleDescription = roleDescription;}
+    @Override
+    public List<ScheduleDto> getSchedules() {return schedules;}
+    @Override
+    public void setSchedules(List<ScheduleDto> schedules) {this.schedules = schedules;}
 
     public List<Link> getLinks() {return links;}
     public void setLinks(List<Link> links) {this.links = links;}

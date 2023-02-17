@@ -18,7 +18,7 @@ public class LinkReceiverImpl implements LinkReceiver {
                 .build();
     }
     @Override
-    public URI getUriForProject(UriBuilder uriBuilder, Map<String,Long> primaryKeys) {
+    public URI getUriForProject(UriBuilder uriBuilder, Map<String,Long> ids) {
         String baseUri = uriBuilder
                 .path(UserResourceImpl.class)
                 .build()
@@ -27,10 +27,10 @@ public class LinkReceiverImpl implements LinkReceiver {
         String template = baseUri + secondHalfOfUri;
         UriBuilder finalUriBuilder = UriBuilder.fromPath(template);
         return finalUriBuilder
-                .buildFromMap(primaryKeys);
+                .buildFromMap(ids);
     }
     @Override
-    public URI getUriForMember(UriBuilder baseUriBuilder, Map<String,Long> primaryKeys) {
+    public URI getUriForMember(UriBuilder baseUriBuilder, Map<String,Long> ids) {
         String baseUri = baseUriBuilder
                 .path(UserResourceImpl.class)
                 .build()
@@ -39,9 +39,9 @@ public class LinkReceiverImpl implements LinkReceiver {
         String template = baseUri + secondHalfOfUri;
         UriBuilder uriBuilder = UriBuilder.fromPath(template);
         return uriBuilder
-                .buildFromMap(primaryKeys);
+                .buildFromMap(ids);
     }
-    public URI getUriForSchedule(UriBuilder baseUriBuilder, Map<String,Long> primaryKeys) {
+    public URI getUriForSchedule(UriBuilder baseUriBuilder, Map<String,Long> ids) {
         String baseUri = baseUriBuilder
                 .path(UserResourceImpl.class)
                 .build()
@@ -50,6 +50,6 @@ public class LinkReceiverImpl implements LinkReceiver {
         String template = baseUri + secondHalfOfUri;
         UriBuilder uriBuilder = UriBuilder.fromPath(template);
         return uriBuilder
-                .buildFromMap(primaryKeys);
+                .buildFromMap(ids);
     }
 }

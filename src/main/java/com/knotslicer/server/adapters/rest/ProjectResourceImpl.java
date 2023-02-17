@@ -8,7 +8,7 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectLin
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectWithMembersLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.services.ProjectService;
-import com.knotslicer.server.ports.interactor.services.Service;
+import com.knotslicer.server.ports.interactor.services.ParentService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -19,10 +19,10 @@ import java.util.Map;
 
 @Path("/users/{userId}/projects")
 @RequestScoped
-public class ProjectResourceImpl implements ParentResource<ProjectDto> {
+public class ProjectResourceImpl implements ProjectResource {
     @Inject
     @ProjectService
-    private Service<ProjectDto> projectService;
+    private ParentService<ProjectDto> projectService;
     @Inject
     @ProjectLinkCreator
     private LinkCreator<ProjectDto> linkCreator;
@@ -36,11 +36,13 @@ public class ProjectResourceImpl implements ParentResource<ProjectDto> {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response create(ProjectDto projectRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+    public Response create(ProjectDto projectRequestDto,
+                           @PathParam("userId") Long userId,
+                           @Context UriInfo uriInfo) {
         projectRequestDto.setUserId(userId);
         ProjectDto projectResponseDto = projectService.create(projectRequestDto);
-        LinkCommand linkCommand = linkCreator
-                .createLinkCommand(
+        LinkCommand<ProjectDto> linkCommand =
+                linkCreator.createLinkCommand(
                         linkReceiver,
                         projectResponseDto,
                         uriInfo);
@@ -59,12 +61,13 @@ public class ProjectResourceImpl implements ParentResource<ProjectDto> {
     @Path("/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response get(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId,
-                               @Context UriInfo uriInfo) {
-        Map<String,Long> primaryKeys = packPrimaryKeys(projectId, userId);
-        ProjectDto projectResponseDto = projectService.get(primaryKeys);
-        LinkCommand linkCommand = linkCreator
-                .createLinkCommand(
+    public Response get(@PathParam("projectId") Long projectId,
+                        @PathParam("userId") Long userId,
+                        @Context UriInfo uriInfo) {
+        Map<String,Long> ids = packIds(projectId, userId);
+        ProjectDto projectResponseDto = projectService.get(ids);
+        LinkCommand<ProjectDto> linkCommand =
+                linkCreator.createLinkCommand(
                         linkReceiver,
                         projectResponseDto,
                         uriInfo);
@@ -74,23 +77,23 @@ public class ProjectResourceImpl implements ParentResource<ProjectDto> {
                 .type("application/json")
                 .build();
     }
-    private Map<String,Long> packPrimaryKeys(Long projectId, Long userId) {
-        Map<String,Long> primaryKeys = new HashMap<>();
-        primaryKeys
-                .put("projectId", projectId);
-        primaryKeys
-                .put("userId", userId);
-        return primaryKeys;
+    private Map<String,Long> packIds(Long projectId, Long userId) {
+        Map<String,Long> ids = new HashMap<>();
+        ids.put("projectId", projectId);
+        ids.put("userId", userId);
+        return ids;
     }
     @GET
     @Path("/{projectId}/members")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getWithChildren(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
-        Map<String,Long> primaryKeys = packPrimaryKeys(projectId, userId);
-        ProjectDto projectResponseDto = projectService.getWithChildren(primaryKeys);
-        LinkCommand linkCommand = projectWithMembersLinkCreator
-                .createLinkCommand(
+    public Response getWithMembers(@PathParam("projectId") Long projectId,
+                                    @PathParam("userId") Long userId,
+                                    @Context UriInfo uriInfo) {
+        Map<String,Long> ids = packIds(projectId, userId);
+        ProjectDto projectResponseDto = projectService.getWithChildren(ids);
+        LinkCommand<ProjectDto> linkCommand =
+                projectWithMembersLinkCreator.createLinkCommand(
                         linkReceiver,
                         projectResponseDto,
                         uriInfo);
@@ -105,13 +108,16 @@ public class ProjectResourceImpl implements ParentResource<ProjectDto> {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response update(ProjectDto projectRequestDto, @PathParam("projectId") Long projectId, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
+    public Response update(ProjectDto projectRequestDto,
+                           @PathParam("projectId") Long projectId,
+                           @PathParam("userId") Long userId,
+                           @Context UriInfo uriInfo) {
         projectRequestDto.setProjectId(projectId);
         projectRequestDto.setUserId(userId);
         ProjectDto projectResponseDto =
                 projectService.update(projectRequestDto);
-        LinkCommand linkCommand = linkCreator
-                .createLinkCommand(
+        LinkCommand<ProjectDto> linkCommand =
+                linkCreator.createLinkCommand(
                         linkReceiver,
                         projectResponseDto,
                         uriInfo);
@@ -124,9 +130,10 @@ public class ProjectResourceImpl implements ParentResource<ProjectDto> {
     @DELETE
     @Path("/{projectId}")
     @Override
-    public Response delete(@PathParam("projectId") Long projectId, @PathParam("userId") Long userId) {
-        Map<String,Long> primaryKeys = packPrimaryKeys(projectId, userId);
-        projectService.delete(primaryKeys);
+    public Response delete(@PathParam("projectId") Long projectId,
+                           @PathParam("userId") Long userId) {
+        Map<String,Long> ids = packIds(projectId, userId);
+        projectService.delete(ids);
         return Response
                 .noContent()
                 .build();

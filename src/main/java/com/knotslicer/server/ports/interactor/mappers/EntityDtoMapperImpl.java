@@ -6,6 +6,7 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -134,15 +135,32 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 memberInput.getRoleDescription());
     }
     @Override
-    public MemberDto toDto(Member memberInput, Map<String,Long> primaryKeys) {
+    public MemberDto toDto(Member memberInput, Map<String,Long> ids) {
         MemberDto memberDto = dtoCreator.createMemberDto();
-        Long userId = primaryKeys.get("userId");
+        Long userId = ids.get("userId");
         memberDto.setUserId(userId);
-        Long projectId = primaryKeys.get("projectId");
+        Long projectId = ids.get("projectId");
         memberDto.setProjectId(projectId);
-        Long projectOwnerId = primaryKeys.get("projectOwnerId");
+        Long projectOwnerId = ids.get("projectOwnerId");
         memberDto.setProjectOwnerId(projectOwnerId);
         setDtoVariables(memberDto, memberInput);
+        return memberDto;
+    }
+    public MemberDto addScheduleDtosToMemberDto(MemberDto memberDto, Member memberInput) {
+        MemberImpl memberImpl = (MemberImpl) memberInput;
+        List<ScheduleImpl> scheduleImpls = memberImpl.getSchedules();
+        List<ScheduleDto> scheduleDtos = new LinkedList<>();
+        Map<String,Long> ids = new HashMap<>(3);
+        ids.put("memberId",
+                memberDto.getMemberId());
+        ids.put("userId",
+                memberDto.getUserId());
+        for(ScheduleImpl scheduleImpl: scheduleImpls) {
+            ScheduleDto scheduleDto =
+                    toDto(scheduleImpl, ids);
+            scheduleDtos.add(scheduleDto);
+        }
+        memberDto.setSchedules(scheduleDtos);
         return memberDto;
     }
     @Override
@@ -198,10 +216,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return eventToBeModified;
     }
     @Override
-    public ScheduleDto toDto(Schedule scheduleInput, Map<String,Long> primaryKeys) {
+    public ScheduleDto toDto(Schedule scheduleInput, Map<String,Long> ids) {
         ScheduleDto scheduleDto = dtoCreator.createScheduleDto();
-        Long memberId = primaryKeys.get("memberId");
-        Long userId = primaryKeys.get("userId");
+        Long memberId = ids.get("memberId");
+        Long userId = ids.get("userId");
         scheduleDto.setMemberId(memberId);
         scheduleDto.setUserId(userId);
         scheduleDto.setScheduleId(

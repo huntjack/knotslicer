@@ -15,7 +15,8 @@ public interface EntityDtoMapper {
     Project toEntity(ProjectDto projectDtoInput);
     Project toEntity(ProjectDto projectDtoInput, Project projectToBeModified);
     MemberLightDto toDto(Member memberInput, Long userId, Long projectId);
-    MemberDto toDto(Member memberInput, Map<String,Long> primaryKeys);
+    MemberDto toDto(Member memberInput, Map<String,Long> ids);
+    MemberDto addScheduleDtosToMemberDto(MemberDto memberDto, Member memberInput);
     Member toEntity(MemberLightDto memberDtoInput);
     Member toEntity(MemberLightDto memberDtoInput, Member memberToBeModified);
 
@@ -23,7 +24,7 @@ public interface EntityDtoMapper {
     Event toEntity(EventDto eventDtoInput);
     Event toEntity(EventDto eventDtoInput, Event eventToBeModified);
 
-    ScheduleDto toDto(Schedule scheduleInput, Map<String,Long> primaryKeys);
+    ScheduleDto toDto(Schedule scheduleInput, Map<String,Long> ids);
     Schedule toEntity(ScheduleDto scheduleDtoInput);
     Schedule toEntity(ScheduleDto scheduleDtoInput, Schedule scheduleToBeModified);
 

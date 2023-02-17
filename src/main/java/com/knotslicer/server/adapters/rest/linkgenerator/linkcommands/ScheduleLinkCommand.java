@@ -14,19 +14,16 @@ public class ScheduleLinkCommand extends LinkCommand<ScheduleDto> {
     }
     @Override
     public URI execute() {
-        Map<String, Long> primaryKeys = new HashMap<>(5);
-        primaryKeys.put(
-                "userId",
+        Map<String, Long> ids = new HashMap<>(5);
+        ids.put("userId",
                 dto.getUserId());
-        primaryKeys.put(
-                "memberId",
+        ids.put("memberId",
                 dto.getMemberId());
-        primaryKeys.put(
-                "scheduleId",
+        ids.put("scheduleId",
                 dto.getScheduleId());
         URI scheduleUri = linkReceiver.getUriForSchedule(
                 uriInfo.getBaseUriBuilder(),
-                primaryKeys);
+                ids);
         dto.addLink(scheduleUri.toString(), "self");
         return scheduleUri;
     }

@@ -19,18 +19,16 @@ public class ProjectWithMembersLinkCommand extends ProjectLinkCommand {
         URI projectUri = super.execute();
         List<MemberLightDto> memberLightDtos = dto.getMembers();
         for(MemberLightDto memberLightDto: memberLightDtos) {
-            Map<String,Long> primaryKeys = new HashMap<>(3);
+            Map<String,Long> ids = new HashMap<>(3);
             Long userId = memberLightDto.getUserId();
-            primaryKeys.put(
-                    "userId",
+            ids.put("userId",
                     userId);
-            primaryKeys.put(
-                    "memberId",
+            ids.put("memberId",
                     memberLightDto.getMemberId());
             URI memberUri = linkReceiver
                     .getUriForMember(
                             uriInfo.getBaseUriBuilder(),
-                            primaryKeys);
+                            ids);
             memberLightDto.addLink(
                     memberUri.toString(),
                     "member");

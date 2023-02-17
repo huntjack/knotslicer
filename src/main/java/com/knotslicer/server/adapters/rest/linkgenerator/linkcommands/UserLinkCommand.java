@@ -13,7 +13,8 @@ public class UserLinkCommand extends LinkCommand<UserLightDto> {
     @Override
     public URI execute() {
         URI selfUri = linkReceiver.getUriForUser(uriInfo.getBaseUriBuilder(), dto.getUserId());
-        dto.addLink(selfUri.toString(), "self");
+        dto.addLink(selfUri.toString(),
+                "self");
         return selfUri;
     }
 }

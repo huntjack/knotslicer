@@ -14,19 +14,17 @@ public class ProjectLinkCommand extends LinkCommand<ProjectDto> {
     }
     @Override
     public URI execute() {
-        Map<String,Long> primaryKeys = new HashMap<>(3);
-        primaryKeys.put(
-                "projectOwnerId",
+        Map<String,Long> ids = new HashMap<>(3);
+        ids.put("projectOwnerId",
                 dto.getUserId());
-        primaryKeys.put(
-                "projectId",
+        ids.put("projectId",
                 dto.getProjectId());
         URI projectUri = linkReceiver
                 .getUriForProject(
                         uriInfo.getBaseUriBuilder(),
-                        primaryKeys);
-        dto.addLink(
-                projectUri.toString(),
+                        ids);
+        dto.addLink(projectUri
+                        .toString(),
                 "self");
         URI userUri = linkReceiver
                 .getUriForUser(

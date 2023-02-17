@@ -29,37 +29,26 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
                 schedule,
                 memberId);
         Long userId = scheduleDto.getUserId();
-        Map<String,Long> primaryKeys =
-                packPrimaryKeys(
-                        memberId,
-                        userId);
+        Map<String,Long> ids = packIds(memberId, userId);
         return entityDtoMapper.toDto(
                 schedule,
-                primaryKeys);
+                ids);
     }
-    private Map<String,Long> packPrimaryKeys(Long memberId, Long userId) {
-        Map<String,Long> primaryKeys = new HashMap<>(3);
-        primaryKeys.put(
-                "memberId",
-                memberId);
-        primaryKeys.put(
-                "userId",
-                userId);
-        return primaryKeys;
+    private Map<String,Long> packIds(Long memberId, Long userId) {
+        Map<String,Long> ids = new HashMap<>(3);
+        ids.put("memberId", memberId);
+        ids.put("userId", userId);
+        return ids;
     }
     @Override
-    public ScheduleDto get(Map<String,Long> primaryKeys) {
-        Long scheduleId = primaryKeys.get("scheduleId");
+    public ScheduleDto get(Map<String,Long> ids) {
+        Long scheduleId = ids.get("scheduleId");
         Optional<Schedule> optionalSchedule = scheduleDao.get(scheduleId);
         Schedule schedule = unpackOptionalSchedule(optionalSchedule);
-        return entityDtoMapper.toDto(schedule, primaryKeys);
+        return entityDtoMapper.toDto(schedule, ids);
     }
     private Schedule unpackOptionalSchedule(Optional<Schedule> optionalSchedule) {
         return optionalSchedule.orElseThrow(() -> new EntityNotFoundException("Schedule not found."));
-    }
-    @Override
-    public ScheduleDto getWithChildren(Map<String,Long> primaryKeys) {
-        return null;
     }
 
     @Override
@@ -78,20 +67,17 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
                 memberId);
 
         Long userId = scheduleDto.getUserId();
-        Map<String,Long> primaryKeys =
-                packPrimaryKeys(
-                        memberId,
-                        userId);
+        Map<String,Long> ids = packIds(memberId, userId);
         return entityDtoMapper.toDto(
                 updatedSchedule,
-                primaryKeys);
+                ids);
     }
 
     @Override
-    public void delete(Map<String,Long> primaryKeys) {
-        Long scheduleId = primaryKeys
+    public void delete(Map<String,Long> ids) {
+        Long scheduleId = ids
                 .get("scheduleId");
-        Long memberId = primaryKeys
+        Long memberId = ids
                 .get("memberId");
         scheduleDao.delete(
                 scheduleId,

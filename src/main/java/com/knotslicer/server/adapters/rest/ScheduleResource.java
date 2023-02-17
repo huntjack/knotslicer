@@ -13,6 +13,9 @@ public interface ScheduleResource {
                  Long memberId,
                  Long userId,
                  UriInfo uriInfo);
+    Response getParentWithAllChildren(Long memberId,
+                                      Long userId,
+                                      UriInfo uriInfo);
     Response update(ScheduleDto scheduleDto,
                     Long scheduleId,
                     Long memberId,

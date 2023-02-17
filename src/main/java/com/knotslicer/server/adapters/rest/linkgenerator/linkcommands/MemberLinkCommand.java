@@ -14,30 +14,26 @@ public class MemberLinkCommand extends LinkCommand<MemberDto> {
     }
     @Override
     public URI execute() {
-        Map<String,Long> primaryKeys = new HashMap<>(6);
-        primaryKeys.put(
-                "userId",
+        Map<String,Long> ids = new HashMap<>(6);
+        ids.put("userId",
                 dto.getUserId());
-        primaryKeys.put(
-                "memberId",
+        ids.put("memberId",
                 dto.getMemberId());
-        primaryKeys.put(
-                "projectId",
+        ids.put("projectId",
                 dto.getProjectId());
-        primaryKeys.put(
-                "projectOwnerId",
+        ids.put("projectOwnerId",
                 dto.getProjectOwnerId());
         URI memberUri = linkReceiver
                 .getUriForMember(
                         uriInfo.getBaseUriBuilder(),
-                        primaryKeys);
+                        ids);
         dto.addLink(
                 memberUri.toString(),
                 "self");
         URI projectUri = linkReceiver
                 .getUriForProject(
                         uriInfo.getBaseUriBuilder(),
-                        primaryKeys);
+                        ids);
         dto.addLink(
                 projectUri.toString(),
                 "project");

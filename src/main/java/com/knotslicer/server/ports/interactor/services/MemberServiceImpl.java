@@ -3,8 +3,8 @@ package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.ports.entitygateway.MemberDao;
+import com.knotslicer.server.ports.entitygateway.ScheduleDao;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
-import com.knotslicer.server.ports.interactor.datatransferobjects.MemberLightDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,11 +16,13 @@ import java.util.Optional;
 
 @MemberService
 @ApplicationScoped
-public class MemberServiceImpl implements Service<MemberDto> {
+public class MemberServiceImpl implements ParentService<MemberDto> {
     @Inject
     EntityDtoMapper entityDtoMapper;
     @Inject
     MemberDao memberDao;
+    @Inject
+    ScheduleDao scheduleDao;
 
     @Override
     public MemberDto create(MemberDto memberDto) {
@@ -32,54 +34,60 @@ public class MemberServiceImpl implements Service<MemberDto> {
                 memberDto.getProjectId());
         memberDto.setMemberId(
                 member.getMemberId());
-        Map<String,Long> primaryKeys =
-                addExtraKeys(memberDto);
+        Map<String,Long> ids =
+                addExtraIds(memberDto);
         return entityDtoMapper.toDto(
                 member,
-                primaryKeys);
+                ids);
     }
-    private Map<String,Long> addExtraKeys(MemberDto memberDto) {
-        Map<String,Long> primaryKeys = new HashMap<>();
-        primaryKeys.put(
-                "userId",
+    private Map<String,Long> addExtraIds(MemberDto memberDto) {
+        Map<String,Long> ids = new HashMap<>();
+        ids.put("userId",
                 memberDto.getUserId());
         Long memberId = memberDto.getMemberId();
         Long projectId = memberDao
                 .getSecondaryParentId(memberId);
-        primaryKeys.put("projectId", projectId);
+        ids.put("projectId", projectId);
         Long projectOwnerId = memberDao
                 .getParentIdOfSecondaryParent(projectId);
-        primaryKeys.put("projectOwnerId", projectOwnerId);
-        return primaryKeys;
+        ids.put("projectOwnerId", projectOwnerId);
+        return ids;
     }
     @Override
-    public MemberDto get(Map<String,Long> primaryKeys) {
-        Long memberId = primaryKeys.get("memberId");
+    public MemberDto get(Map<String,Long> ids) {
+        Long memberId = ids.get("memberId");
         Optional<Member> optionalMember = memberDao
                 .get(memberId);
         Member member = unpackOptionalMember(optionalMember);
-        addExtraKeys(primaryKeys);
+        addExtraIds(ids);
         return entityDtoMapper.toDto(
                 member,
-                primaryKeys);
+                ids);
     }
-    private void addExtraKeys(Map<String,Long> primaryKeys) {
-        Long memberId = primaryKeys.get("memberId");
+    private void addExtraIds(Map<String,Long> ids) {
+        Long memberId = ids.get("memberId");
         Long projectId = memberDao
                 .getSecondaryParentId(memberId);
-        primaryKeys.put("projectId", projectId);
+        ids.put("projectId", projectId);
         Long projectOwnerId = memberDao
                 .getParentIdOfSecondaryParent(projectId);
-        primaryKeys.put("projectOwnerId", projectOwnerId);
+        ids.put("projectOwnerId", projectOwnerId);
     }
     private Member unpackOptionalMember(Optional<Member> optionalMember) {
         return optionalMember.orElseThrow(() -> new EntityNotFoundException("Member not found."));
     }
     @Override
-    public MemberDto getWithChildren(Map<String,Long> primaryKeys) {
-        return null;
+    public MemberDto getWithChildren(Map<String,Long> ids) {
+        Long memberId = ids.get("memberId");
+        Optional<Member> optionalMember = scheduleDao.getPrimaryParentWithChildren(memberId);
+        Member member = unpackOptionalMember(optionalMember);
+        addExtraIds(ids);
+        MemberDto memberDto = entityDtoMapper.toDto(member, ids);
+        return entityDtoMapper
+                .addScheduleDtosToMemberDto(
+                        memberDto,
+                        member);
     }
-
     @Override
     public MemberDto update(MemberDto memberDto) {
         Long memberId = memberDto.getMemberId();
@@ -88,23 +96,22 @@ public class MemberServiceImpl implements Service<MemberDto> {
         Member memberToBeModified = unpackOptionalMember(optionalMember);
 
         memberToBeModified = entityDtoMapper
-                .toEntity(
-                        memberDto,
+                .toEntity(memberDto,
                         memberToBeModified);
 
         Long userId = memberDto.getUserId();
-        Member updatedMember = memberDao
-                .update(memberToBeModified, userId);
+        Member updatedMember =
+                memberDao.update(memberToBeModified, userId);
 
-        Map<String, Long> primaryKeys = addExtraKeys(memberDto);
+        Map<String, Long> ids = addExtraIds(memberDto);
         return entityDtoMapper.toDto(
                 updatedMember,
-                primaryKeys);
+                ids);
     }
     @Override
-    public void delete(Map<String,Long> primaryKeys) {
-        Long memberId = primaryKeys.get("memberId");
-        Long userId = primaryKeys.get("userId");
+    public void delete(Map<String,Long> ids) {
+        Long memberId = ids.get("memberId");
+        Long userId = ids.get("userId");
         memberDao.delete(
                 memberId,
                 userId);

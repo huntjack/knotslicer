@@ -35,7 +35,11 @@ public class UserResourceImpl implements UserResource {
     public Response createUser(UserDto userRequestDto,
                                @Context UriInfo uriInfo) {
         UserDto userResponseDto = userService.createUser(userRequestDto);
-        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
+        LinkCommand<UserLightDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        userResponseDto,
+                        uriInfo);
         URI selfUri = addLinks(linkCommand);
         return Response.created(selfUri)
                 .entity(userResponseDto)
@@ -54,7 +58,11 @@ public class UserResourceImpl implements UserResource {
     public Response getUser(@PathParam("userId") Long userId,
                             @Context UriInfo uriInfo) {
         UserLightDto userResponseDto = userService.getUser(userId);
-        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
+        LinkCommand<UserLightDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        userResponseDto,
+                        uriInfo);
         addLinks(linkCommand);
         return Response.ok()
                 .entity(userResponseDto)
@@ -71,7 +79,11 @@ public class UserResourceImpl implements UserResource {
                                @Context UriInfo uriInfo) {
         userRequestDto.setUserId(userId);
         UserLightDto userResponseDto = userService.updateUser(userRequestDto);
-        LinkCommand linkCommand = linkCreator.createLinkCommand(linkReceiver, userResponseDto, uriInfo);
+        LinkCommand<UserLightDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        userResponseDto,
+                        uriInfo);
         addLinks(linkCommand);
         return Response.ok()
                 .entity(userResponseDto)
