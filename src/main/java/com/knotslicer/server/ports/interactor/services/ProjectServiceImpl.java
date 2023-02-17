@@ -15,12 +15,9 @@ import java.util.Optional;
 @ProjectService
 @ApplicationScoped
 public class ProjectServiceImpl implements ParentService<ProjectDto> {
-    @Inject
-    EntityDtoMapper entityDtoMapper;
-    @Inject
-    ProjectDao projectDao;
-    @Inject
-    MemberDao memberDao;
+    private EntityDtoMapper entityDtoMapper;
+    private ProjectDao projectDao;
+    private MemberDao memberDao;
 
     @Override
     public ProjectDto create(ProjectDto projectDto) {
@@ -75,4 +72,11 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
         Long userId = ids.get("userId");
         projectDao.delete(projectId, userId);
     }
+    @Inject
+    public ProjectServiceImpl(EntityDtoMapper entityDtoMapper, ProjectDao projectDao, MemberDao memberDao) {
+        this.entityDtoMapper = entityDtoMapper;
+        this.projectDao = projectDao;
+        this.memberDao = memberDao;
+    }
+    protected ProjectServiceImpl() {}
 }

@@ -17,12 +17,9 @@ import java.util.Optional;
 @MemberService
 @ApplicationScoped
 public class MemberServiceImpl implements ParentService<MemberDto> {
-    @Inject
-    EntityDtoMapper entityDtoMapper;
-    @Inject
-    MemberDao memberDao;
-    @Inject
-    ScheduleDao scheduleDao;
+    private EntityDtoMapper entityDtoMapper;
+    private MemberDao memberDao;
+    private ScheduleDao scheduleDao;
 
     @Override
     public MemberDto create(MemberDto memberDto) {
@@ -116,4 +113,11 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
                 memberId,
                 userId);
     }
+    @Inject
+    public MemberServiceImpl(EntityDtoMapper entityDtoMapper, MemberDao memberDao, ScheduleDao scheduleDao) {
+        this.entityDtoMapper = entityDtoMapper;
+        this.memberDao = memberDao;
+        this.scheduleDao = scheduleDao;
+    }
+    protected MemberServiceImpl() {}
 }

@@ -20,13 +20,9 @@ import java.util.Map;
 @Path("/users/{userId}/members")
 @RequestScoped
 public class MemberResourceImpl implements MemberResource {
-    @Inject
-    @MemberService
+
     private ParentService<MemberDto> memberService;
-    @Inject
-    @MemberLinkCreator
     private LinkCreator<MemberDto> linkCreator;
-    @Inject
     private LinkReceiver linkReceiver;
 
     @POST
@@ -115,4 +111,13 @@ public class MemberResourceImpl implements MemberResource {
                 .noContent()
                 .build();
     }
+    @Inject
+    public MemberResourceImpl(@MemberService ParentService<MemberDto> memberService,
+                              @MemberLinkCreator LinkCreator<MemberDto> linkCreator,
+                              LinkReceiver linkReceiver) {
+        this.memberService = memberService;
+        this.linkCreator = linkCreator;
+        this.linkReceiver = linkReceiver;
+    }
+    protected MemberResourceImpl(){}
 }

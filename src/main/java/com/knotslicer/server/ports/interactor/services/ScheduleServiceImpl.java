@@ -15,10 +15,8 @@ import java.util.Optional;
 @ScheduleService
 @ApplicationScoped
 public class ScheduleServiceImpl implements Service<ScheduleDto> {
-    @Inject
-    EntityDtoMapper entityDtoMapper;
-    @Inject
-    ScheduleDao scheduleDao;
+    private EntityDtoMapper entityDtoMapper;
+    private ScheduleDao scheduleDao;
 
     @Override
     public ScheduleDto create(ScheduleDto scheduleDto) {
@@ -83,4 +81,10 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
                 scheduleId,
                 memberId);
     }
+    @Inject
+    public ScheduleServiceImpl(EntityDtoMapper entityDtoMapper, ScheduleDao scheduleDao) {
+        this.entityDtoMapper = entityDtoMapper;
+        this.scheduleDao = scheduleDao;
+    }
+    protected ScheduleServiceImpl() {}
 }

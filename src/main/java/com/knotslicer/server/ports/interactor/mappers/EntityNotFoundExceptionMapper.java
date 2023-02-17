@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotFoundException> {
     private static final Logger logger
             = LoggerFactory.getLogger(EntityNotFoundExceptionMapper.class);
-    @Inject
-    private ErrorDtoFactory errorDtoFactory;
+    private final ErrorDtoFactory errorDtoFactory;
+
     @Override
     @Produces(MediaType.APPLICATION_JSON)
     public Response toResponse(EntityNotFoundException exception) {
@@ -26,5 +26,9 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
         return Response.status(Response.Status.NOT_FOUND)
                 .entity(errorDto)
                 .build();
+    }
+    @Inject
+    public EntityNotFoundExceptionMapper(ErrorDtoFactory errorDtoFactory) {
+        this.errorDtoFactory = errorDtoFactory;
     }
 }

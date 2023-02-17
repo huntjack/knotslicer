@@ -13,10 +13,8 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class UserServiceImpl implements UserService {
-    @Inject
-    EntityDtoMapper entityDtoMapper;
-    @Inject
-    UserDao userDao;
+    private EntityDtoMapper entityDtoMapper;
+    private UserDao userDao;
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -45,4 +43,10 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         userDao.delete(userId);
     }
+    @Inject
+    public UserServiceImpl(EntityDtoMapper entityDtoMapper, UserDao userDao) {
+        this.entityDtoMapper = entityDtoMapper;
+        this.userDao = userDao;
+    }
+    protected UserServiceImpl() {}
 }

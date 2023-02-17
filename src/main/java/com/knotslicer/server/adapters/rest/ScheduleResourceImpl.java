@@ -26,19 +26,10 @@ import java.util.Map;
 @Path("/users/{userId}/members/{memberId}/schedules")
 @RequestScoped
 public class ScheduleResourceImpl implements ScheduleResource {
-    @Inject
-    @ScheduleService
     private Service<ScheduleDto> scheduleService;
-    @Inject
-    @MemberService
     private ParentService<MemberDto> memberService;
-    @Inject
-    @ScheduleLinkCreator
-    LinkCreator<ScheduleDto> linkCreator;
-    @Inject
-    @MemberWithSchedulesLinkCreator
+    private LinkCreator<ScheduleDto> linkCreator;
     private LinkCreator<MemberDto> memberWithSchedulesLinkCreator;
-    @Inject
     private LinkReceiver linkReceiver;
 
     @POST
@@ -164,4 +155,17 @@ public class ScheduleResourceImpl implements ScheduleResource {
         ids.put("memberId", memberId);
         return ids;
     }
+    @Inject
+    public ScheduleResourceImpl(@ScheduleService Service<ScheduleDto> scheduleService,
+                                @MemberService ParentService<MemberDto> memberService,
+                                @ScheduleLinkCreator LinkCreator<ScheduleDto> linkCreator,
+                                @MemberWithSchedulesLinkCreator LinkCreator<MemberDto> memberWithSchedulesLinkCreator,
+                                LinkReceiver linkReceiver) {
+        this.scheduleService = scheduleService;
+        this.memberService = memberService;
+        this.linkCreator = linkCreator;
+        this.memberWithSchedulesLinkCreator = memberWithSchedulesLinkCreator;
+        this.linkReceiver = linkReceiver;
+    }
+    protected ScheduleResourceImpl() {}
 }

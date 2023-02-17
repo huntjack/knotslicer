@@ -21,13 +21,10 @@ import java.net.URI;
 @Path("/users")
 @RequestScoped
 public class UserResourceImpl implements UserResource {
-    @Inject
     private UserService userService;
-    @Inject
-    @UserLinkCreator
     private LinkCreator<UserLightDto> linkCreator;
-    @Inject
     private LinkReceiver linkReceiver;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -99,4 +96,13 @@ public class UserResourceImpl implements UserResource {
                 .noContent()
                 .build();
     }
+    @Inject
+    public UserResourceImpl(UserService userService,
+                            @UserLinkCreator LinkCreator<UserLightDto> linkCreator,
+                            LinkReceiver linkReceiver) {
+        this.userService = userService;
+        this.linkCreator = linkCreator;
+        this.linkReceiver = linkReceiver;
+    }
+    protected UserResourceImpl() {}
 }

@@ -4,6 +4,7 @@ import com.knotslicer.server.domain.User;
 import com.knotslicer.server.domain.UserImpl;
 import com.knotslicer.server.ports.entitygateway.UserDao;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -14,7 +15,8 @@ import java.util.Optional;
 @Transactional(rollbackOn={Exception.class})
 public class UserDaoImpl implements UserDao {
     @PersistenceContext(unitName = "knotslicer_database")
-    EntityManager entityManager;
+    private EntityManager entityManager;
+
     @Override
     public User create(User user) {
         entityManager.persist(user);

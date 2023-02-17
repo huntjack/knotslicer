@@ -13,9 +13,7 @@ import java.util.Map;
 
 @ApplicationScoped
 public class EntityDtoMapperImpl implements EntityDtoMapper {
-    @Inject
     private EntityCreator entityCreator;
-    @Inject
     private DtoCreator dtoCreator;
     @Override
     public UserDto toDto(User userInput) {
@@ -306,4 +304,5 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         this.entityCreator = entityCreator;
         this.dtoCreator = dtoCreator;
     }
+    protected EntityDtoMapperImpl() {}
 }

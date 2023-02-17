@@ -3,6 +3,7 @@ package com.knotslicer.server.adapters.jpa;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ScheduleDao;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public class ScheduleDaoImpl implements ScheduleDao {
 
     @PersistenceContext(unitName = "knotslicer_database")
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     @Override
     public Schedule create(Schedule schedule, Long memberId) {

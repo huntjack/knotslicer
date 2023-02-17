@@ -20,16 +20,9 @@ import java.util.Map;
 @Path("/users/{userId}/projects")
 @RequestScoped
 public class ProjectResourceImpl implements ProjectResource {
-    @Inject
-    @ProjectService
     private ParentService<ProjectDto> projectService;
-    @Inject
-    @ProjectLinkCreator
     private LinkCreator<ProjectDto> linkCreator;
-    @Inject
-    @ProjectWithMembersLinkCreator
     private LinkCreator<ProjectDto> projectWithMembersLinkCreator;
-    @Inject
     private LinkReceiver linkReceiver;
 
     @POST
@@ -138,4 +131,15 @@ public class ProjectResourceImpl implements ProjectResource {
                 .noContent()
                 .build();
     }
+    @Inject
+    public ProjectResourceImpl(@ProjectService ParentService<ProjectDto> projectService,
+                               @ProjectLinkCreator LinkCreator<ProjectDto> linkCreator,
+                               @ProjectWithMembersLinkCreator LinkCreator<ProjectDto> projectWithMembersLinkCreator,
+                               LinkReceiver linkReceiver) {
+        this.projectService = projectService;
+        this.linkCreator = linkCreator;
+        this.projectWithMembersLinkCreator = projectWithMembersLinkCreator;
+        this.linkReceiver = linkReceiver;
+    }
+    protected ProjectResourceImpl(){}
 }

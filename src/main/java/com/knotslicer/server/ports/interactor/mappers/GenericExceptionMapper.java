@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 public class GenericExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger logger
             = LoggerFactory.getLogger(GenericExceptionMapper.class);
-    @Inject
-    private ErrorDtoFactory errorDtoFactory;
+    private final ErrorDtoFactory errorDtoFactory;
+
     @Override
     @Produces(MediaType.APPLICATION_JSON)
     public Response toResponse(Exception exception) {
@@ -25,5 +25,9 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(errorDto)
                 .build();
+    }
+    @Inject
+    public GenericExceptionMapper(ErrorDtoFactory errorDtoFactory) {
+        this.errorDtoFactory = errorDtoFactory;
     }
 }
