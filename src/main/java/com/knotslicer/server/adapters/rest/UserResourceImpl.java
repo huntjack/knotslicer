@@ -43,7 +43,7 @@ public class UserResourceImpl implements UserResource {
                 .type("application/json")
                 .build();
     }
-    private URI addLinks(LinkCommand linkCommand) {
+    private URI addLinks(LinkCommand<UserLightDto> linkCommand) {
         Invoker invoker =
                 linkCreator.createInvoker(linkCommand);
         return invoker.executeCommand();

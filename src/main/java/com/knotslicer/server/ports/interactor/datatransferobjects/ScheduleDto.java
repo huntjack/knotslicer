@@ -11,8 +11,6 @@ public interface ScheduleDto extends Linkable {
     void setScheduleId(Long scheduleId);
     Long getMemberId();
     void setMemberId(Long memberId);
-    Long getUserId();
-    public void setUserId(Long userId);
     LocalDateTime getStartTimeUtc();
     void setStartTimeUtc(LocalDateTime startTimeUtc);
     LocalDateTime getEndTimeUtc();

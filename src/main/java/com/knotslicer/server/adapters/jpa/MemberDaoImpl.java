@@ -3,7 +3,6 @@ package com.knotslicer.server.adapters.jpa;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.MemberDao;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -58,6 +57,16 @@ public class MemberDaoImpl implements MemberDao {
         Member member = entityManager.find(MemberImpl.class, memberId);
         return Optional.ofNullable(member);
     }
+    @Override
+    public Optional<User> getPrimaryParentWithChildren(Long userId) {
+        User user = getUserWithMembersFromJpa(userId);
+        return Optional.ofNullable(user);
+    }
+    @Override
+    public Optional<Project> getProjectWithMembers(Long projectId) {
+        Project project = getProjectWithMembersFromJpa(projectId);
+        return Optional.ofNullable(project);
+    }
 
     @Override
     public Member update(Member inputMember, Long userId) {
@@ -89,17 +98,17 @@ public class MemberDaoImpl implements MemberDao {
         userImpl.removeMember(memberImpl);
         entityManager.flush();
     }
-    @Override
-    public Optional<User> getPrimaryParentWithChildren(Long userId) {
-        User user = getUserWithMembersFromJpa(userId);
-        return Optional.ofNullable(user);
-    }
-    @Override
-    public Optional<Project> getProjectWithMembers(Long projectId) {
-        Project project = getProjectWithMembersFromJpa(projectId);
-        return Optional.ofNullable(project);
-    }
 
+    @Override
+    public Long getPrimaryParentId(Long memberId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery
+                        ("SELECT user FROM User user " +
+                                "INNER JOIN user.members m " +
+                                "WHERE m.memberId = :memberId", UserImpl.class)
+                .setParameter("memberId", memberId);
+        User user = query.getSingleResult();
+        return user.getUserId();
+    }
     @Override
     public Long getSecondaryParentId(Long memberId) {
         TypedQuery<ProjectImpl> query = entityManager.createQuery
@@ -109,16 +118,5 @@ public class MemberDaoImpl implements MemberDao {
                 .setParameter("memberId", memberId);
         Project project = query.getSingleResult();
         return project.getProjectId();
-    }
-
-    @Override
-    public Long getParentIdOfSecondaryParent(Long projectId) {
-        TypedQuery<UserImpl> query = entityManager.createQuery
-                        ("SELECT user FROM User user " +
-                                "INNER JOIN user.projects p " +
-                                "WHERE p.projectId = :projectId", UserImpl.class)
-                .setParameter("projectId", projectId);
-        User user = query.getSingleResult();
-        return user.getUserId();
     }
 }

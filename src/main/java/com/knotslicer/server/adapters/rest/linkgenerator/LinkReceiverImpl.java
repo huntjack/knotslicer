@@ -1,5 +1,7 @@
 package com.knotslicer.server.adapters.rest.linkgenerator;
 
+import com.knotslicer.server.adapters.rest.MemberResourceImpl;
+import com.knotslicer.server.adapters.rest.ProjectResourceImpl;
 import com.knotslicer.server.adapters.rest.UserResourceImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
@@ -18,37 +20,32 @@ public class LinkReceiverImpl implements LinkReceiver {
                 .build();
     }
     @Override
-    public URI getUriForProject(UriBuilder uriBuilder, Map<String,Long> ids) {
-        String baseUri = uriBuilder
-                .path(UserResourceImpl.class)
-                .build()
-                .toString();
-        String secondHalfOfUri = "/{projectOwnerId}/projects/{projectId}";
-        String template = baseUri + secondHalfOfUri;
-        UriBuilder finalUriBuilder = UriBuilder.fromPath(template);
-        return finalUriBuilder
-                .buildFromMap(ids);
+    public URI getUriForProject(UriBuilder uriBuilder, Long projectId) {
+        return uriBuilder
+                .path(ProjectResourceImpl.class)
+                .path(Long.toString(projectId))
+                .build();
     }
     @Override
-    public URI getUriForMember(UriBuilder baseUriBuilder, Map<String,Long> ids) {
-        String baseUri = baseUriBuilder
-                .path(UserResourceImpl.class)
-                .build()
-                .toString();
-        String secondHalfOfUri = "/{userId}/members/{memberId}";
-        String template = baseUri + secondHalfOfUri;
-        UriBuilder uriBuilder = UriBuilder.fromPath(template);
+    public URI getUriForMember(UriBuilder uriBuilder, Long memberId) {
         return uriBuilder
-                .buildFromMap(ids);
+                .path(MemberResourceImpl.class)
+                .path(Long.toString(memberId))
+                .build();
     }
-    public URI getUriForSchedule(UriBuilder baseUriBuilder, Map<String,Long> ids) {
+    public URI getUriForSchedule(UriBuilder baseUriBuilder, Long scheduleId, Long memberId) {
         String baseUri = baseUriBuilder
-                .path(UserResourceImpl.class)
+                .path(MemberResourceImpl.class)
                 .build()
                 .toString();
-        String secondHalfOfUri = "/{userId}/members/{memberId}/schedules/{scheduleId}";
+        String secondHalfOfUri = "/{memberId}/schedules/{scheduleId}";
         String template = baseUri + secondHalfOfUri;
         UriBuilder uriBuilder = UriBuilder.fromPath(template);
+        Map<String,Long> ids = new HashMap<>(3);
+        ids.put("memberId",
+                memberId);
+        ids.put("scheduleId",
+                scheduleId);
         return uriBuilder
                 .buildFromMap(ids);
     }

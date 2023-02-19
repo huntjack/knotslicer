@@ -50,6 +50,16 @@ public class ProjectDaoImpl implements ProjectDao {
         return Optional.ofNullable(project);
     }
     @Override
+    public Long getPrimaryParentId(Long projectId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery
+                        ("SELECT user FROM User user " +
+                                "INNER JOIN user.projects project " +
+                                "WHERE project.projectId = :projectId", UserImpl.class)
+                .setParameter("projectId", projectId);
+        User user = query.getSingleResult();
+        return user.getUserId();
+    }
+    @Override
     public Optional<User> getPrimaryParentWithChildren(Long userId) {
         User user = getUserWithProjectsFromJpa(userId);
         return Optional.ofNullable(user);

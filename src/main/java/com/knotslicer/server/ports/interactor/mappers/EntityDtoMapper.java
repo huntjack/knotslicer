@@ -3,8 +3,6 @@ package com.knotslicer.server.ports.interactor.mappers;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.domain.*;
 
-import java.util.Map;
-
 public interface EntityDtoMapper {
     UserDto toDto(User userInput);
     UserLightDto toLightDto(User userInput);
@@ -14,17 +12,16 @@ public interface EntityDtoMapper {
     ProjectDto addMemberDtosToProjectDto(ProjectDto projectDto, Project projectInput);
     Project toEntity(ProjectDto projectDtoInput);
     Project toEntity(ProjectDto projectDtoInput, Project projectToBeModified);
-    MemberLightDto toDto(Member memberInput, Long userId, Long projectId);
-    MemberDto toDto(Member memberInput, Map<String,Long> ids);
+    MemberDto toDto(Member memberInput, Long userId, Long projectId);
     MemberDto addScheduleDtosToMemberDto(MemberDto memberDto, Member memberInput);
-    Member toEntity(MemberLightDto memberDtoInput);
-    Member toEntity(MemberLightDto memberDtoInput, Member memberToBeModified);
+    Member toEntity(MemberDto memberDtoInput);
+    Member toEntity(MemberDto memberDtoInput, Member memberToBeModified);
 
     EventDto toDto(Event eventInput, Long userId);
     Event toEntity(EventDto eventDtoInput);
     Event toEntity(EventDto eventDtoInput, Event eventToBeModified);
 
-    ScheduleDto toDto(Schedule scheduleInput, Map<String,Long> ids);
+    ScheduleDto toDto(Schedule scheduleInput, Long memberId);
     Schedule toEntity(ScheduleDto scheduleDtoInput);
     Schedule toEntity(ScheduleDto scheduleDtoInput, Schedule scheduleToBeModified);
 

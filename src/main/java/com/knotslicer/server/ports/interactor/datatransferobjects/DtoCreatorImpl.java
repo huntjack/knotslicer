@@ -17,8 +17,6 @@ public class DtoCreatorImpl implements DtoCreator {
         return new MemberDtoImpl();
     }
     @Override
-    public MemberLightDto createMemberLightDto() {return new MemberLightDtoImpl();}
-    @Override
     public EventDto createEventDto() {return new EventDtoImpl();}
     @Override
     public ScheduleDto createScheduleDto() {return new ScheduleDtoImpl();}

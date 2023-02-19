@@ -3,7 +3,6 @@ package com.knotslicer.server.adapters.jpa;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ScheduleDao;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -46,6 +45,16 @@ public class ScheduleDaoImpl implements ScheduleDao {
     public Optional<Schedule> get(Long scheduleId) {
         Schedule schedule = entityManager.find(ScheduleImpl.class, scheduleId);
         return Optional.ofNullable(schedule);
+    }
+    @Override
+    public Long getPrimaryParentId(Long scheduleId) {
+        TypedQuery<MemberImpl> query = entityManager.createQuery
+                        ("SELECT m FROM Member m " +
+                                "INNER JOIN m.schedules schedule " +
+                                "WHERE schedule.scheduleId = :scheduleId", MemberImpl.class)
+                .setParameter("scheduleId", scheduleId);
+        Member member = query.getSingleResult();
+        return member.getMemberId();
     }
     @Override
     public Optional<Member> getPrimaryParentWithChildren(Long memberId) {

@@ -10,7 +10,6 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     private static final long serialVersionUID = 7000L;
     private Long scheduleId;
     private Long memberId;
-    private Long userId;
     private LocalDateTime startTimeUtc;
     private LocalDateTime endTimeUtc;
     private List<Link> links = new LinkedList<>();
@@ -32,10 +31,6 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     public Long getMemberId() {return memberId;}
     @Override
     public void setMemberId(Long memberId) {this.memberId = memberId;}
-    @Override
-    public Long getUserId() {return userId;}
-    @Override
-    public void setUserId(Long userId) {this.userId = userId;}
     @Override
     public LocalDateTime getStartTimeUtc() {
         return startTimeUtc;

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class GenericExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger logger
             = LoggerFactory.getLogger(GenericExceptionMapper.class);
-    private final ErrorDtoFactory errorDtoFactory;
+    private ErrorDtoFactory errorDtoFactory;
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
@@ -30,4 +30,5 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
     public GenericExceptionMapper(ErrorDtoFactory errorDtoFactory) {
         this.errorDtoFactory = errorDtoFactory;
     }
+    protected GenericExceptionMapper() {}
 }

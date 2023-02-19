@@ -11,7 +11,7 @@ public class ProjectDtoImpl implements ProjectDto, Serializable {
     private Long projectId;
     private String projectName;
     private String projectDescription;
-    private List<MemberLightDto> members = new LinkedList<>();
+    private List<MemberDto> members = new LinkedList<>();
     private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
@@ -49,9 +49,9 @@ public class ProjectDtoImpl implements ProjectDto, Serializable {
         this.projectDescription = projectDescription;
     }
     @Override
-    public List<MemberLightDto> getMembers() {return members;}
+    public List<MemberDto> getMembers() {return members;}
     @Override
-    public void setMembers(List<MemberLightDto> members) {this.members = members;}
+    public void setMembers(List<MemberDto> members) {this.members = members;}
     public List<Link> getLinks() {return links;}
     public void setLinks(List<Link> links) {this.links = links;}
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface LinkReceiver {
     URI getUriForUser(UriBuilder uriBuilder, Long userId);
-    URI getUriForProject(UriBuilder uriBuilder, Map<String, Long> ids);
-    URI getUriForMember(UriBuilder uriBuilder, Map<String, Long> ids);
-    URI getUriForSchedule(UriBuilder baseUriBuilder, Map<String, Long> ids);
+    URI getUriForProject(UriBuilder uriBuilder, Long projectId);
+    URI getUriForMember(UriBuilder uriBuilder, Long memberId);
+    URI getUriForSchedule(UriBuilder baseUriBuilder, Long scheduleId, Long memberId);
 }

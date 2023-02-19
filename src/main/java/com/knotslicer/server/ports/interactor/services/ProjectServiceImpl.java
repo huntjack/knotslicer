@@ -8,8 +8,6 @@ import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.Map;
 import java.util.Optional;
 
 @ProjectService
@@ -29,22 +27,23 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
                 userId);
     }
     @Override
-    public ProjectDto get(Map<String,Long> ids) {
-        Long projectId = ids.get("projectId");
+    public ProjectDto get(Long projectId) {
         Optional<Project> optionalProject = projectDao.get(projectId);
         Project project = unpackOptionalProject(optionalProject);
-        Long userId = ids.get("userId");
+        Long userId = projectDao.getPrimaryParentId(projectId);
         return entityDtoMapper
-                .toDto(project, userId);
+                .toDto(project,
+                        userId);
     }
     @Override
-    public ProjectDto getWithChildren(Map<String,Long> ids) {
-        Long projectId = ids.get("projectId");
+    public ProjectDto getWithChildren(Long projectId) {
         Optional<Project> optionalProject = memberDao.getProjectWithMembers(projectId);
         Project project = unpackOptionalProject(optionalProject);
-        Long userId = ids.get("userId");
-        ProjectDto projectDto = entityDtoMapper
-                .toDto(project, userId);
+        Long userId = projectDao.getPrimaryParentId(projectId);
+        ProjectDto projectDto =
+                entityDtoMapper.toDto(
+                        project,
+                        userId);
         return entityDtoMapper
                 .addMemberDtosToProjectDto(
                         projectDto,
@@ -60,16 +59,15 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
                 projectDao.get(projectId);
         Project projectToBeModified = unpackOptionalProject(optionalProject);
         projectToBeModified = entityDtoMapper.toEntity(projectDto, projectToBeModified);
-        Long userId = projectDto.getUserId();
+        Long userId = projectDao.getPrimaryParentId(projectId);
         Project updatedProject = projectDao.update(projectToBeModified, userId);
         return entityDtoMapper.toDto(
                 updatedProject,
                 userId);
     }
     @Override
-    public void delete(Map<String,Long> ids) {
-        Long projectId = ids.get("projectId");
-        Long userId = ids.get("userId");
+    public void delete(Long projectId) {
+        Long userId = projectDao.getPrimaryParentId(projectId);
         projectDao.delete(projectId, userId);
     }
     @Inject

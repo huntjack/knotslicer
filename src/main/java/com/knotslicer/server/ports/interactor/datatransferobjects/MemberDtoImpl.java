@@ -1,21 +1,20 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MemberDtoImpl implements MemberDto, Serializable {
-    private static final long serialVersionUID = 4000L;
+    private static final long serialVersionUID = 5000L;
     private Long userId;
     private Long memberId;
     private Long projectId;
-    private Long projectOwnerId;
     private String name;
     private String role;
     private String roleDescription;
     private List<ScheduleDto> schedules = new LinkedList<>();
     private List<Link> links = new LinkedList<>();
-
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -39,10 +38,6 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     @Override
     public void setProjectId(Long projectId) {this.projectId = projectId;}
     @Override
-    public Long getProjectOwnerId() {return projectOwnerId;}
-    @Override
-    public void setProjectOwnerId(Long projectOwnerId) {this.projectOwnerId = projectOwnerId;}
-    @Override
     public String getName() {return name;}
     @Override
     public void setName(String name) {this.name = name;}
@@ -54,8 +49,10 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     public String getRoleDescription() {return roleDescription;}
     @Override
     public void setRoleDescription(String roleDescription) {this.roleDescription = roleDescription;}
+
     @Override
     public List<ScheduleDto> getSchedules() {return schedules;}
+
     @Override
     public void setSchedules(List<ScheduleDto> schedules) {this.schedules = schedules;}
 

@@ -7,20 +7,15 @@ import jakarta.ws.rs.core.UriInfo;
 public interface ScheduleResource {
     Response create(ScheduleDto scheduleDto,
                     Long memberId,
-                    Long userId,
                     UriInfo uriInfo);
     Response get(Long scheduleId,
                  Long memberId,
-                 Long userId,
                  UriInfo uriInfo);
     Response getParentWithAllChildren(Long memberId,
-                                      Long userId,
                                       UriInfo uriInfo);
     Response update(ScheduleDto scheduleDto,
                     Long scheduleId,
                     Long memberId,
-                    Long userId,
                    UriInfo uriInfo);
-    Response delete(Long scheduleId,
-                    Long memberId);
+    Response delete(Long scheduleId);
 }

@@ -6,10 +6,8 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class EntityDtoMapperImpl implements EntityDtoMapper {
@@ -82,19 +80,19 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     public ProjectDto addMemberDtosToProjectDto(ProjectDto projectDto, Project projectInput) {
         ProjectImpl projectImpl = (ProjectImpl) projectInput;
         List<MemberImpl> membersImpls = projectImpl.getMembers();
-        List<MemberLightDto> memberLightDtos = new LinkedList<>();
+        List<MemberDto> memberDtos = new LinkedList<>();
         Long projectId = projectImpl.getProjectId();
         for(MemberImpl memberImpl: membersImpls) {
             Long userId = memberImpl
                     .getUser()
                     .getUserId();
-            MemberLightDto memberLightDto = toDto(
+            MemberDto memberDto = toDto(
                     memberImpl,
                     userId,
                     projectId);
-            memberLightDtos.add(memberLightDto);
+            memberDtos.add(memberDto);
         }
-        projectDto.setMembers(memberLightDtos);
+        projectDto.setMembers(memberDtos);
         return projectDto;
     }
     @Override
@@ -115,14 +113,14 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return projectToBeModified;
     }
     @Override
-    public MemberLightDto toDto(Member memberInput, Long userId, Long projectId) {
-        MemberLightDto memberLightDto = dtoCreator.createMemberLightDto();
-        memberLightDto.setUserId(userId);
-        memberLightDto.setProjectId(projectId);
-        setDtoVariables(memberLightDto, memberInput);
-        return memberLightDto;
+    public MemberDto toDto(Member memberInput, Long userId, Long projectId) {
+        MemberDto memberDto = dtoCreator.createMemberDto();
+        memberDto.setUserId(userId);
+        memberDto.setProjectId(projectId);
+        setDtoVariables(memberDto, memberInput);
+        return memberDto;
     }
-    private void setDtoVariables(MemberLightDto memberDtoToBeModified, Member memberInput) {
+    private void setDtoVariables(MemberDto memberDtoToBeModified, Member memberInput) {
         memberDtoToBeModified.setMemberId(
                 memberInput.getMemberId());
         memberDtoToBeModified.setName(
@@ -132,42 +130,27 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         memberDtoToBeModified.setRoleDescription(
                 memberInput.getRoleDescription());
     }
-    @Override
-    public MemberDto toDto(Member memberInput, Map<String,Long> ids) {
-        MemberDto memberDto = dtoCreator.createMemberDto();
-        Long userId = ids.get("userId");
-        memberDto.setUserId(userId);
-        Long projectId = ids.get("projectId");
-        memberDto.setProjectId(projectId);
-        Long projectOwnerId = ids.get("projectOwnerId");
-        memberDto.setProjectOwnerId(projectOwnerId);
-        setDtoVariables(memberDto, memberInput);
-        return memberDto;
-    }
     public MemberDto addScheduleDtosToMemberDto(MemberDto memberDto, Member memberInput) {
         MemberImpl memberImpl = (MemberImpl) memberInput;
         List<ScheduleImpl> scheduleImpls = memberImpl.getSchedules();
         List<ScheduleDto> scheduleDtos = new LinkedList<>();
-        Map<String,Long> ids = new HashMap<>(3);
-        ids.put("memberId",
-                memberDto.getMemberId());
-        ids.put("userId",
-                memberDto.getUserId());
+        Long memberId = memberDto.getMemberId();
+
         for(ScheduleImpl scheduleImpl: scheduleImpls) {
             ScheduleDto scheduleDto =
-                    toDto(scheduleImpl, ids);
+                    toDto(scheduleImpl, memberId);
             scheduleDtos.add(scheduleDto);
         }
         memberDto.setSchedules(scheduleDtos);
         return memberDto;
     }
     @Override
-    public Member toEntity(MemberLightDto memberDtoInput) {
+    public Member toEntity(MemberDto memberDtoInput) {
         Member member = entityCreator.createMember();
         setEntityVariables(member, memberDtoInput);
         return member;
     }
-    private void setEntityVariables(Member memberToBeModified, MemberLightDto memberDtoInput) {
+    private void setEntityVariables(Member memberToBeModified, MemberDto memberDtoInput) {
         memberToBeModified.setName(
                 memberDtoInput.getName());
         memberToBeModified.setRole(
@@ -176,13 +159,13 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 memberDtoInput.getRoleDescription());
     }
     @Override
-    public Member toEntity(MemberLightDto memberDtoInput, Member memberToBeModified) {
+    public Member toEntity(MemberDto memberDtoInput, Member memberToBeModified) {
         setEntityVariables(memberToBeModified, memberDtoInput);
         return memberToBeModified;
     }
     @Override
     public EventDto toDto(Event eventInput, Long userId) {
-        EventDto eventDto = dtoCreator.createEventDto();;
+        EventDto eventDto = dtoCreator.createEventDto();
         eventDto.setUserId(userId);
         eventDto.setEventId(
                 eventInput.getEventId());
@@ -214,12 +197,9 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return eventToBeModified;
     }
     @Override
-    public ScheduleDto toDto(Schedule scheduleInput, Map<String,Long> ids) {
+    public ScheduleDto toDto(Schedule scheduleInput, Long memberId) {
         ScheduleDto scheduleDto = dtoCreator.createScheduleDto();
-        Long memberId = ids.get("memberId");
-        Long userId = ids.get("userId");
         scheduleDto.setMemberId(memberId);
-        scheduleDto.setUserId(userId);
         scheduleDto.setScheduleId(
                 scheduleInput.getScheduleId());
         scheduleDto.setStartTimeUtc(

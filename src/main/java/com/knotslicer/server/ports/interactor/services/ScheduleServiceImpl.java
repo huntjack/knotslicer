@@ -7,9 +7,6 @@ import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @ScheduleService
@@ -26,32 +23,26 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
         schedule = scheduleDao.create(
                 schedule,
                 memberId);
-        Long userId = scheduleDto.getUserId();
-        Map<String,Long> ids = packIds(memberId, userId);
         return entityDtoMapper.toDto(
                 schedule,
-                ids);
-    }
-    private Map<String,Long> packIds(Long memberId, Long userId) {
-        Map<String,Long> ids = new HashMap<>(3);
-        ids.put("memberId", memberId);
-        ids.put("userId", userId);
-        return ids;
+                memberId);
     }
     @Override
-    public ScheduleDto get(Map<String,Long> ids) {
-        Long scheduleId = ids.get("scheduleId");
+    public ScheduleDto get(Long scheduleId) {
         Optional<Schedule> optionalSchedule = scheduleDao.get(scheduleId);
         Schedule schedule = unpackOptionalSchedule(optionalSchedule);
-        return entityDtoMapper.toDto(schedule, ids);
+        Long memberId = scheduleDao.getPrimaryParentId(scheduleId);
+        return entityDtoMapper.toDto(
+                schedule,
+                memberId);
     }
     private Schedule unpackOptionalSchedule(Optional<Schedule> optionalSchedule) {
         return optionalSchedule.orElseThrow(() -> new EntityNotFoundException("Schedule not found."));
     }
-
     @Override
     public ScheduleDto update(ScheduleDto scheduleDto) {
         Long scheduleId = scheduleDto.getScheduleId();
+        Long memberId = scheduleDto.getMemberId();
         Optional<Schedule> optionalSchedule =
                 scheduleDao.get(scheduleId);
         Schedule scheduleToBeModified = unpackOptionalSchedule(optionalSchedule);
@@ -59,24 +50,17 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
         scheduleToBeModified = entityDtoMapper.toEntity(
                         scheduleDto,
                         scheduleToBeModified);
-        Long memberId = scheduleDto.getMemberId();
         Schedule updatedSchedule = scheduleDao.update(
                 scheduleToBeModified,
                 memberId);
 
-        Long userId = scheduleDto.getUserId();
-        Map<String,Long> ids = packIds(memberId, userId);
         return entityDtoMapper.toDto(
                 updatedSchedule,
-                ids);
+                memberId);
     }
-
     @Override
-    public void delete(Map<String,Long> ids) {
-        Long scheduleId = ids
-                .get("scheduleId");
-        Long memberId = ids
-                .get("memberId");
+    public void delete(Long scheduleId) {
+        Long memberId = scheduleDao.getPrimaryParentId(scheduleId);
         scheduleDao.delete(
                 scheduleId,
                 memberId);

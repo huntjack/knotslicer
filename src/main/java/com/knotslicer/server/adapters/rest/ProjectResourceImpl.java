@@ -14,10 +14,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
-@Path("/users/{userId}/projects")
+@Path("/projects")
 @RequestScoped
 public class ProjectResourceImpl implements ProjectResource {
     private ParentService<ProjectDto> projectService;
@@ -30,9 +28,7 @@ public class ProjectResourceImpl implements ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response create(ProjectDto projectRequestDto,
-                           @PathParam("userId") Long userId,
                            @Context UriInfo uriInfo) {
-        projectRequestDto.setUserId(userId);
         ProjectDto projectResponseDto = projectService.create(projectRequestDto);
         LinkCommand<ProjectDto> linkCommand =
                 linkCreator.createLinkCommand(
@@ -45,7 +41,7 @@ public class ProjectResourceImpl implements ProjectResource {
                 .type("application/json")
                 .build();
     }
-    private URI addLinks(LinkCommand linkCommand) {
+    private URI addLinks(LinkCommand<ProjectDto> linkCommand) {
         Invoker invoker =
                 linkCreator.createInvoker(linkCommand);
         return invoker.executeCommand();
@@ -55,10 +51,8 @@ public class ProjectResourceImpl implements ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response get(@PathParam("projectId") Long projectId,
-                        @PathParam("userId") Long userId,
                         @Context UriInfo uriInfo) {
-        Map<String,Long> ids = packIds(projectId, userId);
-        ProjectDto projectResponseDto = projectService.get(ids);
+        ProjectDto projectResponseDto = projectService.get(projectId);
         LinkCommand<ProjectDto> linkCommand =
                 linkCreator.createLinkCommand(
                         linkReceiver,
@@ -70,21 +64,13 @@ public class ProjectResourceImpl implements ProjectResource {
                 .type("application/json")
                 .build();
     }
-    private Map<String,Long> packIds(Long projectId, Long userId) {
-        Map<String,Long> ids = new HashMap<>();
-        ids.put("projectId", projectId);
-        ids.put("userId", userId);
-        return ids;
-    }
     @GET
     @Path("/{projectId}/members")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response getWithMembers(@PathParam("projectId") Long projectId,
-                                    @PathParam("userId") Long userId,
                                     @Context UriInfo uriInfo) {
-        Map<String,Long> ids = packIds(projectId, userId);
-        ProjectDto projectResponseDto = projectService.getWithChildren(ids);
+        ProjectDto projectResponseDto = projectService.getWithChildren(projectId);
         LinkCommand<ProjectDto> linkCommand =
                 projectWithMembersLinkCreator.createLinkCommand(
                         linkReceiver,
@@ -103,10 +89,8 @@ public class ProjectResourceImpl implements ProjectResource {
     @Override
     public Response update(ProjectDto projectRequestDto,
                            @PathParam("projectId") Long projectId,
-                           @PathParam("userId") Long userId,
                            @Context UriInfo uriInfo) {
         projectRequestDto.setProjectId(projectId);
-        projectRequestDto.setUserId(userId);
         ProjectDto projectResponseDto =
                 projectService.update(projectRequestDto);
         LinkCommand<ProjectDto> linkCommand =
@@ -123,10 +107,8 @@ public class ProjectResourceImpl implements ProjectResource {
     @DELETE
     @Path("/{projectId}")
     @Override
-    public Response delete(@PathParam("projectId") Long projectId,
-                           @PathParam("userId") Long userId) {
-        Map<String,Long> ids = packIds(projectId, userId);
-        projectService.delete(ids);
+    public Response delete(@PathParam("projectId") Long projectId) {
+        projectService.delete(projectId);
         return Response
                 .noContent()
                 .build();
