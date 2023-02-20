@@ -31,5 +31,5 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
     public EntityNotFoundExceptionMapper(ErrorDtoFactory errorDtoFactory) {
         this.errorDtoFactory = errorDtoFactory;
     }
-    protected EntityNotFoundExceptionMapper(){}
+    public EntityNotFoundExceptionMapper(){}
 }

@@ -30,5 +30,5 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
     public GenericExceptionMapper(ErrorDtoFactory errorDtoFactory) {
         this.errorDtoFactory = errorDtoFactory;
     }
-    protected GenericExceptionMapper() {}
+    public GenericExceptionMapper() {}
 }

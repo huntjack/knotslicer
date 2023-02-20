@@ -7,7 +7,7 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkComman
 import jakarta.ws.rs.core.UriInfo;
 
 public interface LinkCreator<D> {
-    LinkCommand createLinkCommand(LinkReceiver linkReceiver, D d, UriInfo uriInfo);
+    LinkCommand<D> createLinkCommand(LinkReceiver linkReceiver, D d, UriInfo uriInfo);
     default Invoker createInvoker(LinkCommand linkCommand) {
         return new InvokerImpl(linkCommand);
     }

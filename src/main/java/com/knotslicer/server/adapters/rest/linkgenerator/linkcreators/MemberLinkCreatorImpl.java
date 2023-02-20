@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.UriInfo;
 @ApplicationScoped
 public class MemberLinkCreatorImpl implements LinkCreator<MemberDto> {
     @Override
-    public LinkCommand createLinkCommand(LinkReceiver linkReceiver, MemberDto memberDto, UriInfo uriInfo) {
+    public LinkCommand<MemberDto> createLinkCommand(LinkReceiver linkReceiver, MemberDto memberDto, UriInfo uriInfo) {
         return new MemberLinkCommand(linkReceiver, memberDto, uriInfo);
     }
 }
