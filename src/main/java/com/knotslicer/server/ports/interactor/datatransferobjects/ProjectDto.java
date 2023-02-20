@@ -16,4 +16,6 @@ public interface ProjectDto extends Linkable {
     void setProjectDescription(String projectDescription);
     List<MemberDto> getMembers();
     void setMembers(List<MemberDto> members);
+    List<Link> getLinks();
+    void setLinks(List<Link> links);
 }

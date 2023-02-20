@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 
 public class MemberServiceTest {
     private ParentService<MemberDto> memberService;
@@ -36,66 +37,74 @@ public class MemberServiceTest {
     private MemberDao memberDao;
     @Mock
     private ScheduleDao scheduleDao;
-    private Member member = entityCreator.createMember();
-    private Schedule schedule1 = entityCreator.createSchedule();
-    private Schedule schedule2 = entityCreator.createSchedule();
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
         memberService = new MemberServiceImpl(entityDtoMapper, memberDao, scheduleDao);
-        prepareData();
     }
-    private void prepareData() {
+    @Test
+    public void givenCorrectMemberId_whenGetWithChildren_thenReturnMemberDtoWithScheduleDtos() {
+        Member member = entityCreator.createMember();
         member.setName("member1");
         member.setRole("member1 role");
         member.setRoleDescription("member1 role description");
+        Schedule schedule1 = entityCreator.createSchedule();
         schedule1.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 16, 0));
         schedule1.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 21, 0));
         MemberImpl memberImpl = (MemberImpl) member;
         ScheduleImpl scheduleImpl1 = (ScheduleImpl) schedule1;
         memberImpl.addSchedule(scheduleImpl1);
+        Schedule schedule2 = entityCreator.createSchedule();
         schedule2.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 20, 0));
         schedule2.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 28, 1, 0));
         ScheduleImpl scheduleImpl2 = (ScheduleImpl) schedule2;
         memberImpl.addSchedule(scheduleImpl2);
-    }
-    @Test
-    public void givenMemberId_whenGetWithChildren_thenReturnMemberDtoWithScheduleDtos() {
+
         Mockito.when(
-                scheduleDao.getPrimaryParentWithChildren(5L))
+                scheduleDao.getPrimaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .ofNullable(member));
+        Long userId = 10L;
         Mockito.when(
-                memberDao.getPrimaryParentId(5L))
-                .thenReturn(10L);
-        Mockito.when(memberDao.getSecondaryParentId(5L))
-                .thenReturn(20L);
+                memberDao.getPrimaryParentId(anyLong()))
+                .thenReturn(userId);
+        Long projectId = 20L;
+        Mockito.when(memberDao.getSecondaryParentId(anyLong()))
+                .thenReturn(projectId);
+
         MemberDto memberDto =
                 memberService.getWithChildren(5L);
+        checkMember(memberDto,
+                member,
+                userId,
+                projectId);
 
+        List<ScheduleDto> scheduleDtos =
+                memberDto.getSchedules();
+        ScheduleDto scheduleDto1 = scheduleDtos.get(0);
+        checkSchedule(scheduleDto1, schedule1);
+
+        ScheduleDto scheduleDto2 = scheduleDtos.get(1);
+        checkSchedule(scheduleDto2, schedule2);
+    }
+    private void checkMember(MemberDto memberDto, Member member, Long userId, Long projectId) {
         assertEquals(member.getName(),
                 memberDto.getName());
         assertEquals(member.getRole(),
                 memberDto.getRole());
         assertEquals(member.getRoleDescription(),
                 memberDto.getRoleDescription());
-        assertEquals(10L,
+        assertEquals(userId,
                 memberDto.getUserId());
-        assertEquals(20L,
+        assertEquals(projectId,
                 memberDto.getProjectId());
-        List<ScheduleDto> scheduleDtos =
-                memberDto.getSchedules();
-        ScheduleDto scheduleDto1 = scheduleDtos.get(0);
-        assertEquals(schedule1.getStartTimeUtc(),
-                scheduleDto1.getStartTimeUtc());
-        assertEquals(schedule1.getEndTimeUtc(),
-                scheduleDto1.getEndTimeUtc());
-        ScheduleDto scheduleDto2 = scheduleDtos.get(1);
-        assertEquals(schedule2.getStartTimeUtc(),
-                scheduleDto2.getStartTimeUtc());
-        assertEquals(schedule2.getEndTimeUtc(),
-                scheduleDto2.getEndTimeUtc());
+    }
+    private void checkSchedule(ScheduleDto scheduleDto, Schedule schedule) {
+        assertEquals(schedule.getStartTimeUtc(),
+                scheduleDto.getStartTimeUtc());
+        assertEquals(schedule.getEndTimeUtc(),
+                scheduleDto.getEndTimeUtc());
     }
     @AfterEach
     public void shutdown() throws Exception {

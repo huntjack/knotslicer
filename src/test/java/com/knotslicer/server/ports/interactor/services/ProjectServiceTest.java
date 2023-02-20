@@ -17,20 +17,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 
 public class ProjectServiceTest {
     private ParentService<ProjectDto> projectService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
-    private Project project = entityCreator.createProject();
-    private Member member1 = entityCreator.createMember();
-    private Member member2 = entityCreator.createMember();
     @Mock
     private ProjectDao projectDao;
     @Mock
@@ -41,12 +38,14 @@ public class ProjectServiceTest {
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
         projectService = new ProjectServiceImpl(entityDtoMapper, projectDao, memberDao);
-        prepareData();
     }
-    private void prepareData() {
+    @Test
+    public void givenCorrectProjectId_whenGetWithChildren_thenReturnProjectDtoWithMemberDtos() {
+        Project project = entityCreator.createProject();
         project.setProjectName("project1");
         project.setProjectDescription("project1 description");
         ProjectImpl projectImpl = (ProjectImpl) project;
+        Member member1 = entityCreator.createMember();
         member1.setName("member1");
         member1.setRole("member1 role");
         member1.setRoleDescription("member1 role description");
@@ -54,6 +53,7 @@ public class ProjectServiceTest {
         UserImpl userImpl1 = (UserImpl) entityCreator.createUser();
         userImpl1.addMember(memberImpl1);
         projectImpl.addMember(memberImpl1);
+        Member member2 = entityCreator.createMember();
         member2.setName("member2");
         member2.setRole("member2 role");
         member2.setRoleDescription("member2 role description");
@@ -61,42 +61,43 @@ public class ProjectServiceTest {
         UserImpl userImpl2 = (UserImpl) entityCreator.createUser();
         userImpl2.addMember(memberImpl2);
         projectImpl.addMember(memberImpl2);
-    }
 
-    @Test
-    public void givenProjectId_whenGetWithChildren_thenReturnProjectDtoWithMemberDtos() {
         Mockito.when(
-                memberDao.getProjectWithMembers(7L))
+                memberDao.getProjectWithMembers(anyLong()))
                 .thenReturn(Optional
                         .ofNullable(project));
+        Long userId = 25L;
         Mockito.when(
-                projectDao.getPrimaryParentId(7L))
-                .thenReturn(25L);
+                projectDao.getPrimaryParentId(anyLong()))
+                .thenReturn(userId);
+
         ProjectDto projectDto =
                 projectService.getWithChildren(7L);
+        checkProject(projectDto, project, userId);
 
+        List<MemberDto> memberDtos =
+                projectDto.getMembers();
+        MemberDto memberDto1 = memberDtos.get(0);
+        checkMember(memberDto1, member1);
+
+        MemberDto memberDto2 = memberDtos.get(1);
+        checkMember(memberDto2, member2);
+    }
+    private void checkProject(ProjectDto projectDto, Project project, Long userId) {
         assertEquals(project.getProjectName(),
                 projectDto.getProjectName());
         assertEquals(project.getProjectDescription(),
                 projectDto.getProjectDescription());
-        assertEquals(25L,
+        assertEquals(userId,
                 projectDto.getUserId());
-        List<MemberDto> memberDtos =
-                projectDto.getMembers();
-        MemberDto memberDto1 = memberDtos.get(0);
-        assertEquals(member1.getName(),
-                memberDto1.getName());
-        assertEquals(member1.getRole(),
-                memberDto1.getRole());
-        assertEquals(member1.getRoleDescription(),
-                memberDto1.getRoleDescription());
-        MemberDto memberDto2 = memberDtos.get(1);
-        assertEquals(member2.getName(),
-                memberDto2.getName());
-        assertEquals(member2.getRole(),
-                memberDto2.getRole());
-        assertEquals(member2.getRoleDescription(),
-                memberDto2.getRoleDescription());
+    }
+    private void checkMember(MemberDto memberDto, Member member) {
+        assertEquals(member.getName(),
+                memberDto.getName());
+        assertEquals(member.getRole(),
+                memberDto.getRole());
+        assertEquals(member.getRoleDescription(),
+                memberDto.getRoleDescription());
     }
     @AfterEach
     public void shutdown() throws Exception {

@@ -49,13 +49,12 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     public String getRoleDescription() {return roleDescription;}
     @Override
     public void setRoleDescription(String roleDescription) {this.roleDescription = roleDescription;}
-
     @Override
     public List<ScheduleDto> getSchedules() {return schedules;}
-
     @Override
     public void setSchedules(List<ScheduleDto> schedules) {this.schedules = schedules;}
-
+    @Override
     public List<Link> getLinks() {return links;}
+    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }

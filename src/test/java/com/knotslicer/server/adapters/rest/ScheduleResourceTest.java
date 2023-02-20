@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,7 +32,7 @@ public class ScheduleResourceTest extends JerseyTest {
     private LinkCreator<ScheduleDto> linkCreator;
     private LinkCreator<MemberDto> memberWithSchedulesLinkCreator;
     private LinkReceiver linkReceiver;
-    private DtoCreator dtoCreator;
+    private DtoCreator dtoCreator = new DtoCreatorImpl();
     private AutoCloseable closeable;
 
     @Override
@@ -39,7 +41,6 @@ public class ScheduleResourceTest extends JerseyTest {
         linkCreator = new ScheduleLinkCreatorImpl();
         memberWithSchedulesLinkCreator = new MemberWithSchedulesLinkCreatorImpl();
         linkReceiver = new LinkReceiverImpl();
-        dtoCreator = new DtoCreatorImpl();
         return new ResourceConfig()
                 .register(new ScheduleResourceImpl(
                         scheduleService,
@@ -63,7 +64,7 @@ public class ScheduleResourceTest extends JerseyTest {
         assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getMediaType());
     }
     @Test
-    public void givenIncorrectMemberId_whenGet_thenResponseInternalServerError() {
+    public void givenIncorrectMemberId_whenGet_thenResponseNotFound() {
         ScheduleDto scheduleDto = dtoCreator.createScheduleDto();
         scheduleDto.setScheduleId(2L);
         scheduleDto.setMemberId(1L);
@@ -75,8 +76,89 @@ public class ScheduleResourceTest extends JerseyTest {
         assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getMediaType());
     }
     @Test
-    public void givenCorrectMemberId_whenGetParentWithAllChildren_thenScheduleLinksAreOkay() {
+    public void givenCorrectMemberId_whenGetParentWithAllChildren_thenLinksAreCorrect() {
+        MemberDto memberDto = dtoCreator.createMemberDto();
+        memberDto.setMemberId(1L);
+        memberDto.setUserId(1L);
+        memberDto.setProjectId(1L);
+        ScheduleDto scheduleDto1 = dtoCreator.createScheduleDto();
+        scheduleDto1.setScheduleId(1L);
+        scheduleDto1.setMemberId(1L);
+        ScheduleDto scheduleDto2 = dtoCreator.createScheduleDto();
+        scheduleDto2.setScheduleId(2L);
+        scheduleDto2.setMemberId(1L);
+        List<ScheduleDto> scheduleDtos = new LinkedList<>();
+        scheduleDtos.add(scheduleDto1);
+        scheduleDtos.add(scheduleDto2);
+        memberDto.setSchedules(scheduleDtos);
+        Long memberId = memberDto.getMemberId();
 
+        Mockito.when(
+                memberService.getWithChildren(memberId))
+                .thenReturn(memberDto);
+
+        MemberDto memberResponseDto = target("/members/1/schedules")
+                .request()
+                .get(MemberDto.class);
+        checkMember(memberResponseDto,
+                memberDto.getMemberId(),
+                memberDto.getProjectId(),
+                memberDto.getUserId());
+
+        ScheduleDto scheduleResponseDtoOne =
+                memberResponseDto
+                        .getSchedules()
+                        .get(0);
+        checkSchedule(scheduleResponseDtoOne, scheduleDto1.getScheduleId(), scheduleDto1.getMemberId());
+
+        ScheduleDto scheduleResponseDtoTwo =
+                memberResponseDto
+                        .getSchedules()
+                        .get(1);
+        checkSchedule(scheduleResponseDtoTwo, scheduleDto2.getScheduleId(), scheduleDto2.getMemberId());
+    }
+    private void checkMember(MemberDto memberResponseDto, Long memberId, Long projectId, Long userId) {
+        List<Link> listOfMemberDtoLinks = memberResponseDto.getLinks();
+        Link memberSelfLink = listOfMemberDtoLinks.get(0);
+        assertEquals("self",
+                memberSelfLink.getRel());
+        assertTrue(memberSelfLink
+                .getLink()
+                .contains("/members/" +
+                        memberId.toString()),
+                "MemberDto's self link is incorrect.");
+        Link memberProjectLink = listOfMemberDtoLinks.get(1);
+        assertEquals("project",
+                memberProjectLink.getRel());
+        assertTrue(memberProjectLink
+                .getLink()
+                .contains("/projects/" +
+                        projectId.toString()),
+                "MemberDto's project link is incorrect.");
+        Link memberUserLink = listOfMemberDtoLinks.get(2);
+        assertEquals("user",
+                memberUserLink.getRel());
+        assertTrue(memberUserLink
+                .getLink()
+                .contains("/users/" +
+                        userId.toString()),
+                "MemberDto's user link is incorrect.");
+    }
+    private void checkSchedule(ScheduleDto scheduleResponseDto, Long scheduleId, Long memberId) {
+        Link scheduleDtoLink =
+                scheduleResponseDto
+                        .getLinks()
+                        .get(0);
+        assertEquals("schedule",
+                scheduleDtoLink
+                        .getRel());
+        assertTrue(scheduleDtoLink
+                .getLink()
+                .contains("/members/" +
+                        memberId.toString() +
+                        "/schedules/" +
+                        scheduleId.toString()),
+                "ScheduleDto's schedule link is incorrect.");
     }
     @AfterEach
     public void shutdown() throws Exception {

@@ -47,6 +47,8 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     public void setEndTimeUtc(LocalDateTime endTimeUtc) {
         this.endTimeUtc = endTimeUtc;
     }
+    @Override
     public List<Link> getLinks() {return links;}
+    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }
