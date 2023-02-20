@@ -2,19 +2,19 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 
 import java.io.Serializable;
-import java.time.ZoneId;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class MemberDtoImpl implements MemberDto, Serializable {
-    private static final long serialVersionUID = 4000L;
+    private static final long serialVersionUID = 5000L;
     private Long userId;
     private Long memberId;
+    private Long projectId;
     private String name;
     private String role;
     private String roleDescription;
-    private ZoneId timeZone;
-    private List<Link> links = new ArrayList<>();
+    private List<ScheduleDto> schedules = new LinkedList<>();
+    private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -34,39 +34,27 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     @Override
     public void setMemberId(Long memberId) {this.memberId = memberId;}
     @Override
-    public String getName() {
-        return name;
-    }
+    public Long getProjectId() {return projectId;}
     @Override
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setProjectId(Long projectId) {this.projectId = projectId;}
     @Override
-    public String getRole() {
-        return role;
-    }
+    public String getName() {return name;}
     @Override
-    public void setRole(String role) {
-        this.role = role;
-    }
+    public void setName(String name) {this.name = name;}
     @Override
-    public String getRoleDescription() {
-        return roleDescription;
-    }
+    public String getRole() {return role;}
     @Override
-    public void setRoleDescription(String roleDescription) {
-        this.roleDescription = roleDescription;
-    }
+    public void setRole(String role) {this.role = role;}
     @Override
-    public ZoneId getTimeZone() {
-        return timeZone;
-    }
+    public String getRoleDescription() {return roleDescription;}
     @Override
-    public void setTimeZone(ZoneId timeZone) {
-        this.timeZone = timeZone;
-    }
-
+    public void setRoleDescription(String roleDescription) {this.roleDescription = roleDescription;}
+    @Override
+    public List<ScheduleDto> getSchedules() {return schedules;}
+    @Override
+    public void setSchedules(List<ScheduleDto> schedules) {this.schedules = schedules;}
+    @Override
     public List<Link> getLinks() {return links;}
-
+    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }

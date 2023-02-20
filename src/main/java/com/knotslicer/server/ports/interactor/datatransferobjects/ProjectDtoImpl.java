@@ -1,7 +1,8 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
+
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ProjectDtoImpl implements ProjectDto, Serializable {
@@ -10,7 +11,8 @@ public class ProjectDtoImpl implements ProjectDto, Serializable {
     private Long projectId;
     private String projectName;
     private String projectDescription;
-    private List<Link> links = new ArrayList<>();
+    private List<MemberDto> members = new LinkedList<>();
+    private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();
@@ -46,6 +48,12 @@ public class ProjectDtoImpl implements ProjectDto, Serializable {
     public void setProjectDescription(String projectDescription) {
         this.projectDescription = projectDescription;
     }
+    @Override
+    public List<MemberDto> getMembers() {return members;}
+    @Override
+    public void setMembers(List<MemberDto> members) {this.members = members;}
+    @Override
     public List<Link> getLinks() {return links;}
+    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }

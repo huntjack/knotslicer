@@ -3,7 +3,7 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class DtoFactoryImpl implements DtoFactory {
+public class DtoCreatorImpl implements DtoCreator {
     @Override
     public UserDto createUserDto() {return new UserDtoImpl();}
     @Override
@@ -17,19 +17,11 @@ public class DtoFactoryImpl implements DtoFactory {
         return new MemberDtoImpl();
     }
     @Override
-    public EventDto createEventDto() {
-        return new EventDtoImpl();
-    }
+    public EventDto createEventDto() {return new EventDtoImpl();}
     @Override
-    public ScheduleDto createScheduleDto() {
-        return new ScheduleDtoImpl();
-    }
+    public ScheduleDto createScheduleDto() {return new ScheduleDtoImpl();}
     @Override
-    public PollDto createPollDto() {
-        return new PollDtoImpl();
-    }
+    public PollDto createPollDto() {return new PollDtoImpl();}
     @Override
-    public PollAnswerDto createPollAnswerDto() {
-        return new PollAnswerDtoImpl();
-    }
+    public PollAnswerDto createPollAnswerDto() {return new PollAnswerDtoImpl();}
 }

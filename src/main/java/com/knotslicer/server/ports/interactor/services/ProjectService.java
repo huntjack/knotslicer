@@ -1,10 +1,16 @@
 package com.knotslicer.server.ports.interactor.services;
 
-import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public interface ProjectService {
-    ProjectDto createProject(ProjectDto projectDto);
-    ProjectDto getProject(Long projectId, Long userId);
-    ProjectDto updateProject(ProjectDto projectDto);
-    void deleteUser(Long projectId, Long userId);
-}
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import jakarta.inject.Qualifier;
+
+@Qualifier
+@Retention(RUNTIME)
+@Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface ProjectService {}

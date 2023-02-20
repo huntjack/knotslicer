@@ -5,8 +5,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 public interface ProjectResource {
-    Response createProject(ProjectDto projectRequestDto,Long userId, UriInfo uriInfo);
-    Response getProject(Long projectId, Long userId, UriInfo uriInfo);
-    Response updateProject(ProjectDto projectRequestDto, Long projectId, Long userId, UriInfo uriInfo);
-    Response deleteProject(Long projectId, Long userId);
+    Response create(ProjectDto projectDto, UriInfo uriInfo);
+    Response get(Long id, UriInfo uriInfo);
+    Response update(ProjectDto projectDto, Long id, UriInfo uriInfo);
+    Response delete(Long id);
+    Response getWithMembers(Long id, UriInfo uriInfo);
 }

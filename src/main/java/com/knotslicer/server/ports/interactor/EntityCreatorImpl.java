@@ -4,7 +4,7 @@ import com.knotslicer.server.domain.*;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class EntityFactoryImpl implements EntityFactory {
+public class EntityCreatorImpl implements EntityCreator {
     @Override
     public User createUser() {return new UserImpl();}
     @Override

@@ -1,6 +1,8 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -10,7 +12,7 @@ import java.util.UUID;
 public class ProjectImpl implements Project {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long projectId;
     @Column(unique=true, updatable = false, nullable = false)
     private String projectBusinessKey;
@@ -21,7 +23,7 @@ public class ProjectImpl implements Project {
     @JoinColumn(name="userId")
     private UserImpl user;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
-    private List<MemberImpl> members;
+    private List<MemberImpl> members = new ArrayList<>();
 
     public void addMember(MemberImpl member) {
         member.setProject(this);

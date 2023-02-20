@@ -1,6 +1,6 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
-public interface DtoFactory {
+public interface DtoCreator {
     UserDto createUserDto();
     UserLightDto createUserLightDto();
     ProjectDto createProjectDto();

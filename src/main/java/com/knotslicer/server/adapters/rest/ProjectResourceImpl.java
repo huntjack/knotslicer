@@ -1,78 +1,84 @@
 package com.knotslicer.server.adapters.rest;
 
+import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
+import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectWithMembersLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.services.ProjectService;
+import com.knotslicer.server.ports.interactor.services.ParentService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
-@Path("/users/{userId}/projects")
+@Path("/projects")
 @RequestScoped
 public class ProjectResourceImpl implements ProjectResource {
-    @Inject
-    private ProjectService projectService;
+    private ParentService<ProjectDto> projectService;
+    private LinkCreator<ProjectDto> linkCreator;
+    private LinkCreator<ProjectDto> projectWithMembersLinkCreator;
+    private LinkReceiver linkReceiver;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response createProject(ProjectDto projectRequestDto, @PathParam("userId") Long userId, @Context UriInfo uriInfo) {
-        projectRequestDto.setUserId(userId);
-        ProjectDto projectResponseDto = projectService.createProject(projectRequestDto);
-        addLinks(uriInfo, projectResponseDto);
-        URI selfUri = getUriForSelf(uriInfo, projectResponseDto);
+    public Response create(ProjectDto projectRequestDto,
+                           @Context UriInfo uriInfo) {
+        ProjectDto projectResponseDto = projectService.create(projectRequestDto);
+        LinkCommand<ProjectDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
+        URI selfUri = addLinks(linkCommand);
         return Response.created(selfUri)
                 .entity(projectResponseDto)
                 .type("application/json")
                 .build();
     }
-    private void addLinks(UriInfo uriInfo, ProjectDto projectResponseDto) {
-        URI selfUri = getUriForSelf(uriInfo,
-                projectResponseDto);
-        URI userUri = getUriForUser(uriInfo,
-                projectResponseDto);
-        projectResponseDto.addLink(selfUri.toString(), "self");
-        projectResponseDto.addLink(userUri.toString(), "user");
-    }
-    private URI getUriForSelf(UriInfo uriInfo, ProjectDto projectResponseDto) {
-        String baseUri = uriInfo
-                .getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .build()
-                .toString();
-        String secondHalfOfUri = "/{userId}/projects/{projectId}";
-        String template = baseUri + secondHalfOfUri;
-        Map<String, Long> parameters = new HashMap<>();
-        parameters.put(
-                "userId",
-                projectResponseDto.getUserId());
-        parameters.put(
-                "projectId",
-                projectResponseDto.getProjectId());
-        UriBuilder uriBuilder = UriBuilder.fromPath(template);
-        return uriBuilder
-                .buildFromMap(parameters);
-    }
-    private URI getUriForUser(UriInfo uriInfo, ProjectDto projectResponseDto) {
-        return uriInfo.getBaseUriBuilder()
-                .path(UserResourceImpl.class)
-                .path(Long.toString(projectResponseDto.getUserId()))
-                .build();
+    private URI addLinks(LinkCommand<ProjectDto> linkCommand) {
+        Invoker invoker =
+                linkCreator.createInvoker(linkCommand);
+        return invoker.executeCommand();
     }
     @GET
     @Path("/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getProject(@PathParam("projectId") Long projectId,
-                               @PathParam("userId") Long userId,
-                               @Context UriInfo uriInfo) {
-        ProjectDto projectDto = projectService.getProject(projectId, userId);
-        addLinks(uriInfo, projectDto);
+    public Response get(@PathParam("projectId") Long projectId,
+                        @Context UriInfo uriInfo) {
+        ProjectDto projectResponseDto = projectService.get(projectId);
+        LinkCommand<ProjectDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
         return Response.ok()
-                .entity(projectDto)
+                .entity(projectResponseDto)
+                .type("application/json")
+                .build();
+    }
+    @GET
+    @Path("/{projectId}/members")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Override
+    public Response getWithMembers(@PathParam("projectId") Long projectId,
+                                    @Context UriInfo uriInfo) {
+        ProjectDto projectResponseDto = projectService.getWithChildren(projectId);
+        LinkCommand<ProjectDto> linkCommand =
+                projectWithMembersLinkCreator.createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(projectResponseDto)
                 .type("application/json")
                 .build();
     }
@@ -81,14 +87,18 @@ public class ProjectResourceImpl implements ProjectResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response updateProject(ProjectDto projectRequestDto,
-                                  @PathParam("projectId") Long projectId,
-                                  @PathParam("userId") Long userId,
-                                  @Context UriInfo uriInfo) {
+    public Response update(ProjectDto projectRequestDto,
+                           @PathParam("projectId") Long projectId,
+                           @Context UriInfo uriInfo) {
         projectRequestDto.setProjectId(projectId);
-        projectRequestDto.setUserId(userId);
-        ProjectDto projectResponseDto = projectService.updateProject(projectRequestDto);
-        addLinks(uriInfo, projectResponseDto);
+        ProjectDto projectResponseDto =
+                projectService.update(projectRequestDto);
+        LinkCommand<ProjectDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        projectResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
         return Response.ok()
                 .entity(projectResponseDto)
                 .type("application/json")
@@ -97,9 +107,21 @@ public class ProjectResourceImpl implements ProjectResource {
     @DELETE
     @Path("/{projectId}")
     @Override
-    public Response deleteProject(@PathParam("projectId")Long projectId, @PathParam("userId") Long userId) {
-        projectService.deleteUser(projectId, userId);
-        return Response.noContent()
+    public Response delete(@PathParam("projectId") Long projectId) {
+        projectService.delete(projectId);
+        return Response
+                .noContent()
                 .build();
     }
+    @Inject
+    public ProjectResourceImpl(@ProjectService ParentService<ProjectDto> projectService,
+                               @ProjectLinkCreator LinkCreator<ProjectDto> linkCreator,
+                               @ProjectWithMembersLinkCreator LinkCreator<ProjectDto> projectWithMembersLinkCreator,
+                               LinkReceiver linkReceiver) {
+        this.projectService = projectService;
+        this.linkCreator = linkCreator;
+        this.projectWithMembersLinkCreator = projectWithMembersLinkCreator;
+        this.linkReceiver = linkReceiver;
+    }
+    protected ProjectResourceImpl(){}
 }

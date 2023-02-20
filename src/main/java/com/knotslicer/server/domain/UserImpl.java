@@ -3,6 +3,7 @@ package com.knotslicer.server.domain;
 import jakarta.persistence.*;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -12,7 +13,7 @@ import java.util.UUID;
 public class UserImpl implements User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long userId;
     @Column(unique=true, updatable = false, nullable = false)
     private String userBusinessKey;
@@ -23,11 +24,11 @@ public class UserImpl implements User {
     private String userDescription;
     private ZoneId timeZone;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
-    private List<ProjectImpl> projects;
+    private List<ProjectImpl> projects = new ArrayList<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
-    private List<MemberImpl> members;
+    private List<MemberImpl> members = new ArrayList<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
-    private List<EventImpl> events;
+    private List<EventImpl> events = new ArrayList<>();
 
     public void addProject(ProjectImpl project) {
         project.setUser(this);

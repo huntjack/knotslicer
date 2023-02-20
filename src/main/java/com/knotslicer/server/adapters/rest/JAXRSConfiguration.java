@@ -1,4 +1,4 @@
-package com.knotslicer.server.ports.interactor;
+package com.knotslicer.server.adapters.rest;
 
 import jakarta.annotation.sql.DataSourceDefinition;
 import jakarta.enterprise.context.ApplicationScoped;

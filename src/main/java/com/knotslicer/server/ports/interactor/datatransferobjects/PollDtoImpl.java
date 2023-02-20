@@ -2,16 +2,16 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PollDtoImpl implements PollDto, Serializable {
-    private static final long serialVersionUID = 7000L;
+    private static final long serialVersionUID = 8000L;
     private Long eventId;
     private Long pollId;
     private LocalDateTime startTimeUtc;
     private LocalDateTime endTimeUtc;
-    private List<Link> links = new ArrayList<>();
+    private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();

@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 
 @JsonDeserialize(as = PollAnswerDtoImpl.class)
-public interface PollAnswerDto {
-    void addLink(String url, String rel);
+public interface PollAnswerDto extends Linkable {
     Long getPollId();
     void setPollId(Long pollId);
     Long getPollAnswerId();

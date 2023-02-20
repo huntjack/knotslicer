@@ -2,15 +2,15 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
-    private static final long serialVersionUID = 8000L;
+    private static final long serialVersionUID = 9000L;
     private Long pollId;
     private Long pollAnswerId;
     private Boolean approved;
-    private List<Link> links = new ArrayList<>();
+    private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
         Link link = createLink();

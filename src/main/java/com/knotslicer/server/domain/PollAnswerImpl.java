@@ -9,7 +9,7 @@ import java.util.UUID;
 public class PollAnswerImpl implements PollAnswer {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long pollAnswerId;
     @Column(unique=true, updatable = false, nullable = false)
     private String pollAnswerBusinessKey;
