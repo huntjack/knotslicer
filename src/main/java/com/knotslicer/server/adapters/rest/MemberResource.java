@@ -5,10 +5,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 public interface MemberResource {
-    Response create(MemberDto memberRequestDto,
-                    UriInfo uriInfo);
-    Response get(Long memberId,
-                 UriInfo uriInfo);
+    Response create(MemberDto memberRequestDto, UriInfo uriInfo);
+    Response get(Long memberId, UriInfo uriInfo);
     Response update(MemberDto memberRequestDto,
                     Long memberId,
                     UriInfo uriInfo);

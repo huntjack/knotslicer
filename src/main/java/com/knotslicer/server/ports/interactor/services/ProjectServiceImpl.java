@@ -71,7 +71,9 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
         projectDao.delete(projectId, userId);
     }
     @Inject
-    public ProjectServiceImpl(EntityDtoMapper entityDtoMapper, ProjectDao projectDao, MemberDao memberDao) {
+    public ProjectServiceImpl(EntityDtoMapper entityDtoMapper,
+                              ProjectDao projectDao,
+                              MemberDao memberDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.projectDao = projectDao;
         this.memberDao = memberDao;

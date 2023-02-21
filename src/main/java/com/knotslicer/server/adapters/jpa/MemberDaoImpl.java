@@ -48,9 +48,9 @@ public class MemberDaoImpl implements MemberDao {
         return query.getSingleResult();
     }
     private MemberImpl getMemberFromUser(UserImpl userImpl, Member member) {
-        List<MemberImpl> memberList = userImpl.getMembers();
-        int memberIndex = memberList.indexOf(member);
-        return memberList.get(memberIndex);
+        List<MemberImpl> memberImpls = userImpl.getMembers();
+        int memberIndex = memberImpls.indexOf(member);
+        return memberImpls.get(memberIndex);
     }
     @Override
     public Optional<Member> get(Long memberId) {
@@ -67,7 +67,26 @@ public class MemberDaoImpl implements MemberDao {
         Project project = getProjectWithMembersFromJpa(projectId);
         return Optional.ofNullable(project);
     }
-
+    @Override
+    public Long getPrimaryParentId(Long memberId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery
+                        ("SELECT user FROM User user " +
+                                "INNER JOIN user.members m " +
+                                "WHERE m.memberId = :memberId", UserImpl.class)
+                .setParameter("memberId", memberId);
+        User user = query.getSingleResult();
+        return user.getUserId();
+    }
+    @Override
+    public Long getSecondaryParentId(Long memberId) {
+        TypedQuery<ProjectImpl> query = entityManager.createQuery
+                        ("SELECT project FROM Project project " +
+                                "INNER JOIN project.members m " +
+                                "WHERE m.memberId = :memberId", ProjectImpl.class)
+                .setParameter("memberId", memberId);
+        Project project = query.getSingleResult();
+        return project.getProjectId();
+    }
     @Override
     public Member update(Member inputMember, Long userId) {
         UserImpl userImpl = getUserWithMembersFromJpa(userId);
@@ -97,26 +116,5 @@ public class MemberDaoImpl implements MemberDao {
         MemberImpl memberImpl = entityManager.find(MemberImpl.class, memberId);
         userImpl.removeMember(memberImpl);
         entityManager.flush();
-    }
-
-    @Override
-    public Long getPrimaryParentId(Long memberId) {
-        TypedQuery<UserImpl> query = entityManager.createQuery
-                        ("SELECT user FROM User user " +
-                                "INNER JOIN user.members m " +
-                                "WHERE m.memberId = :memberId", UserImpl.class)
-                .setParameter("memberId", memberId);
-        User user = query.getSingleResult();
-        return user.getUserId();
-    }
-    @Override
-    public Long getSecondaryParentId(Long memberId) {
-        TypedQuery<ProjectImpl> query = entityManager.createQuery
-                        ("SELECT project FROM Project project " +
-                                "INNER JOIN project.members m " +
-                                "WHERE m.memberId = :memberId", ProjectImpl.class)
-                .setParameter("memberId", memberId);
-        Project project = query.getSingleResult();
-        return project.getProjectId();
     }
 }

@@ -37,14 +37,19 @@ public class ScheduleDaoImpl implements ScheduleDao {
         return query.getSingleResult();
     }
     private ScheduleImpl getScheduleFromMember(MemberImpl memberImpl, Schedule schedule) {
-        List<ScheduleImpl> scheduleList = memberImpl.getSchedules();
-        int scheduleIndex = scheduleList.indexOf(schedule);
-        return scheduleList.get(scheduleIndex);
+        List<ScheduleImpl> scheduleImpls = memberImpl.getSchedules();
+        int scheduleIndex = scheduleImpls.indexOf(schedule);
+        return scheduleImpls.get(scheduleIndex);
     }
     @Override
     public Optional<Schedule> get(Long scheduleId) {
         Schedule schedule = entityManager.find(ScheduleImpl.class, scheduleId);
         return Optional.ofNullable(schedule);
+    }
+    @Override
+    public Optional<Member> getPrimaryParentWithChildren(Long memberId) {
+        Member member = getMemberWithSchedulesFromJpa(memberId);
+        return Optional.ofNullable(member);
     }
     @Override
     public Long getPrimaryParentId(Long scheduleId) {
@@ -55,11 +60,6 @@ public class ScheduleDaoImpl implements ScheduleDao {
                 .setParameter("scheduleId", scheduleId);
         Member member = query.getSingleResult();
         return member.getMemberId();
-    }
-    @Override
-    public Optional<Member> getPrimaryParentWithChildren(Long memberId) {
-        Member member = getMemberWithSchedulesFromJpa(memberId);
-        return Optional.ofNullable(member);
     }
     @Override
     public Schedule update(Schedule inputSchedule, Long memberId) {

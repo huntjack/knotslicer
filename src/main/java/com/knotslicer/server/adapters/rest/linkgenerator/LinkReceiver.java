@@ -10,4 +10,5 @@ public interface LinkReceiver {
     URI getUriForProject(UriBuilder uriBuilder, Long projectId);
     URI getUriForMember(UriBuilder uriBuilder, Long memberId);
     URI getUriForSchedule(UriBuilder baseUriBuilder, Long scheduleId, Long memberId);
+    URI getUriForEvent(UriBuilder uriBuilder, Long eventId);
 }

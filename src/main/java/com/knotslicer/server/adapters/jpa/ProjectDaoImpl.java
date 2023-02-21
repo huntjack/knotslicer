@@ -40,14 +40,19 @@ public class ProjectDaoImpl implements ProjectDao {
         return query.getSingleResult();
     }
     private ProjectImpl getProjectFromUser(UserImpl userImpl, Project project) {
-        List<ProjectImpl> projectList = userImpl.getProjects();
-        int projectIndex = projectList.indexOf(project);
-        return projectList.get(projectIndex);
+        List<ProjectImpl> projectImpls = userImpl.getProjects();
+        int projectIndex = projectImpls.indexOf(project);
+        return projectImpls.get(projectIndex);
     }
     @Override
     public Optional<Project> get(Long projectId) {
         Project project = entityManager.find(ProjectImpl.class, projectId);
         return Optional.ofNullable(project);
+    }
+    @Override
+    public Optional<User> getPrimaryParentWithChildren(Long userId) {
+        User user = getUserWithProjectsFromJpa(userId);
+        return Optional.ofNullable(user);
     }
     @Override
     public Long getPrimaryParentId(Long projectId) {
@@ -58,11 +63,6 @@ public class ProjectDaoImpl implements ProjectDao {
                 .setParameter("projectId", projectId);
         User user = query.getSingleResult();
         return user.getUserId();
-    }
-    @Override
-    public Optional<User> getPrimaryParentWithChildren(Long userId) {
-        User user = getUserWithProjectsFromJpa(userId);
-        return Optional.ofNullable(user);
     }
     @Override
     public Project update(Project inputProject, Long userId) {
