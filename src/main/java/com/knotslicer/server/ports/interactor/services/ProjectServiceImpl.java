@@ -58,9 +58,12 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
         Optional<Project> optionalProject =
                 projectDao.get(projectId);
         Project projectToBeModified = unpackOptionalProject(optionalProject);
-        projectToBeModified = entityDtoMapper.toEntity(projectDto, projectToBeModified);
-        Long userId = projectDao.getPrimaryParentId(projectId);
-        Project updatedProject = projectDao.update(projectToBeModified, userId);
+        projectToBeModified = entityDtoMapper
+                .toEntity(projectDto, projectToBeModified);
+        Long userId = projectDao
+                .getPrimaryParentId(projectId);
+        Project updatedProject = projectDao
+                .update(projectToBeModified, userId);
         return entityDtoMapper.toDto(
                 updatedProject,
                 userId);

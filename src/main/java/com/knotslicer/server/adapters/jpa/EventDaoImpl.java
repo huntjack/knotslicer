@@ -43,7 +43,8 @@ public class EventDaoImpl implements EventDao {
     }
     @Override
     public Optional<Event> get(Long eventId) {
-        return Optional.empty();
+        Event event = entityManager.find(EventImpl.class, eventId);
+        return Optional.ofNullable(event);
     }
     @Override
     public Optional<User> getPrimaryParentWithChildren(Long userId) {
@@ -61,8 +62,22 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public Event update(Event event, Long userId) {
-        return null;
+    public Event update(Event inputEvent, Long userId) {
+        UserImpl userImpl = getUserWithEventsFromJpa(userId);
+        entityManager.detach(userImpl);
+        Event eventToBeModified = getEventFromUser(userImpl, inputEvent);
+        eventToBeModified.setEventName(
+                inputEvent.getEventName());
+        eventToBeModified.setSubject(
+                inputEvent.getSubject());
+        eventToBeModified.setEventDescription(
+                inputEvent.getEventDescription());
+        userImpl = entityManager
+                .merge(userImpl);
+        entityManager.flush();
+        Event updatedEvent =
+                getEventFromUser(userImpl, eventToBeModified);
+        return updatedEvent;
     }
 
     @Override

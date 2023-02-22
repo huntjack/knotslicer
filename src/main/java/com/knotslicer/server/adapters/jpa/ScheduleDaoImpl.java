@@ -74,7 +74,8 @@ public class ScheduleDaoImpl implements ScheduleDao {
         memberImpl = entityManager
                 .merge(memberImpl);
         entityManager.flush();
-        Schedule updatedSchedule = getScheduleFromMember(memberImpl, scheduleToBeModified);
+        Schedule updatedSchedule =
+                getScheduleFromMember(memberImpl, scheduleToBeModified);
         return updatedSchedule;
     }
     @Override

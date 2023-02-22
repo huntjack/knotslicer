@@ -23,7 +23,6 @@ import java.net.URI;
 public class EventResourceImpl implements EventResource {
     private ParentService<EventDto> eventService;
     private LinkCreator<EventDto> linkCreator;
-    //private LinkCreator<EventDto> eventWithPollsLinkCreator;
     private LinkReceiver linkReceiver;
 
     @POST
@@ -55,25 +54,38 @@ public class EventResourceImpl implements EventResource {
     @Override
     public Response get(@PathParam("eventId") Long eventId,
                         @Context UriInfo uriInfo) {
-        return null;
-    }
-    @GET
-    @Path("/{eventId}/polls")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Override
-    public Response getWithPolls(@PathParam("eventId") Long eventId,
-                                 @Context UriInfo uriInfo) {
-        return null;
+        EventDto eventResponseDto = eventService.get(eventId);
+        LinkCommand<EventDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        eventResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(eventResponseDto)
+                .type("application/json")
+                .build();
     }
     @PUT
     @Path("/{eventId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response update(EventDto eventDto,
+    public Response update(EventDto eventRequestDto,
                            @PathParam("eventId") Long eventId,
                            @Context UriInfo uriInfo) {
-        return null;
+        eventRequestDto.setEventId(eventId);
+        EventDto eventResponseDto = eventService.update(eventRequestDto);
+        LinkCommand<EventDto> linkCommand =
+                linkCreator.createLinkCommand(
+                        linkReceiver,
+                        eventResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(eventResponseDto)
+                .type("application/json")
+                .build();
     }
     @DELETE
     @Path("/{eventId}")
@@ -87,11 +99,9 @@ public class EventResourceImpl implements EventResource {
     @Inject
     public EventResourceImpl(@EventService ParentService<EventDto> eventService,
                              @EventLinkCreator LinkCreator<EventDto> linkCreator,
-                             //LinkCreator<EventDto> eventWithPollsLinkCreator,
                              LinkReceiver linkReceiver) {
         this.eventService = eventService;
         this.linkCreator = linkCreator;
-        //this.eventWithPollsLinkCreator = eventWithPollsLinkCreator;
         this.linkReceiver = linkReceiver;
     }
     protected EventResourceImpl() {}

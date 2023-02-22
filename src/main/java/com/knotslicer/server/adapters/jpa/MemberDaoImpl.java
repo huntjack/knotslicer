@@ -95,18 +95,16 @@ public class MemberDaoImpl implements MemberDao {
                 getMemberFromUser(
                         userImpl,
                         inputMember);
-        memberToBeModified
-                .setName(
+        memberToBeModified.setName(
                 inputMember.getName());
-        memberToBeModified
-                .setRole(
+        memberToBeModified.setRole(
                         inputMember.getRole());
-        memberToBeModified
-                .setRoleDescription(
+        memberToBeModified.setRoleDescription(
                         inputMember.getRoleDescription());
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
-        Member updatedMember = getMemberFromUser(userImpl, memberToBeModified);
+        Member updatedMember =
+                getMemberFromUser(userImpl, memberToBeModified);
         return updatedMember;
     }
 
