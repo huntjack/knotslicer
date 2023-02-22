@@ -36,7 +36,7 @@ public class EventDaoImpl implements EventDao {
                 .setParameter("userId", userId);
         return query.getSingleResult();
     }
-    private EventImpl getEventFromUser(UserImpl userImpl, Event event) {
+    private Event getEventFromUser(UserImpl userImpl, Event event) {
         List<EventImpl> eventImpls = userImpl.getEvents();
         int eventIndex = eventImpls.indexOf(event);
         return eventImpls.get(eventIndex);

@@ -39,7 +39,7 @@ public class ProjectDaoImpl implements ProjectDao {
                 .setParameter("userId", userId);
         return query.getSingleResult();
     }
-    private ProjectImpl getProjectFromUser(UserImpl userImpl, Project project) {
+    private Project getProjectFromUser(UserImpl userImpl, Project project) {
         List<ProjectImpl> projectImpls = userImpl.getProjects();
         int projectIndex = projectImpls.indexOf(project);
         return projectImpls.get(projectIndex);
