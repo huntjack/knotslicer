@@ -21,18 +21,16 @@ public class EventServiceImpl implements ParentService<EventDto> {
         Event event = entityDtoMapper.toEntity(eventDto);
         Long userId = eventDto.getUserId();
         event = eventDao.create(event, userId);
-        return entityDtoMapper.toDto(
-                event,
-                userId);
+        return entityDtoMapper
+                .toDto(event, userId);
     }
     @Override
     public EventDto get(Long eventId) {
         Optional<Event> optionalEvent = eventDao.get(eventId);
         Event event = unpackOptionalEvent(optionalEvent);
         Long userId = eventDao.getPrimaryParentId(eventId);
-        return entityDtoMapper.toDto(
-                event,
-                userId);
+        return entityDtoMapper
+                .toDto(event, userId);
     }
     private Event unpackOptionalEvent(Optional<Event> optionalEvent) {
         return optionalEvent.orElseThrow(() -> new EntityNotFoundException("Event not found."));
@@ -54,9 +52,8 @@ public class EventServiceImpl implements ParentService<EventDto> {
         Event updatedEvent = eventDao
                 .update(eventToBeModified,
                         userId);
-        return entityDtoMapper.toDto(
-                updatedEvent,
-                userId);
+        return entityDtoMapper
+                .toDto(updatedEvent, userId);
     }
     @Override
     public void delete(Long eventId) {

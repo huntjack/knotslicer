@@ -3,11 +3,11 @@ package com.knotslicer.server.adapters.rest;
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkCreator;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
-import com.knotslicer.server.ports.interactor.services.EventService;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.PollLinkCreator;
+import com.knotslicer.server.ports.interactor.datatransferobjects.PollDto;
 import com.knotslicer.server.ports.interactor.services.ParentService;
+import com.knotslicer.server.ports.interactor.services.PollService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -18,91 +18,90 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-@Path("/events")
+@Path("/polls")
 @RequestScoped
-public class EventResourceImpl implements EventResource {
-    private ParentService<EventDto> eventService;
-    private LinkCreator<EventDto> linkCreator;
+public class PollResourceImpl implements PollResource {
+    private ParentService<PollDto> pollService;
+    private LinkCreator<PollDto> linkCreator;
     private LinkReceiver linkReceiver;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response create(EventDto eventRequestDto,
+    public Response create(PollDto pollRequestDto,
                            @Context UriInfo uriInfo) {
-        EventDto eventResponseDto = eventService.create(eventRequestDto);
-        LinkCommand<EventDto> linkCommand =
-                linkCreator.createLinkCommand(
-                        linkReceiver,
-                        eventResponseDto,
-                        uriInfo);
+        PollDto pollResponseDto = pollService.create(pollRequestDto);
+        LinkCommand<PollDto> linkCommand = linkCreator.createLinkCommand(
+                linkReceiver,
+                pollResponseDto,
+                uriInfo);
         URI selfUri = addLinks(linkCommand);
         return Response.created(selfUri)
-                .entity(eventResponseDto)
+                .entity(pollResponseDto)
                 .type("application/json")
                 .build();
     }
-    private URI addLinks(LinkCommand<EventDto> linkCommand) {
+    private URI addLinks(LinkCommand<PollDto> linkCommand) {
         Invoker invoker =
                 linkCreator.createInvoker(linkCommand);
         return invoker.executeCommand();
     }
     @GET
-    @Path("/{eventId}")
+    @Path("/{pollId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response get(@PathParam("eventId") Long eventId,
+    public Response get(@PathParam("pollId") Long pollId,
                         @Context UriInfo uriInfo) {
-        EventDto eventResponseDto = eventService.get(eventId);
-        LinkCommand<EventDto> linkCommand =
+        PollDto pollResponseDto = pollService.get(pollId);
+        LinkCommand<PollDto> linkCommand =
                 linkCreator.createLinkCommand(
                         linkReceiver,
-                        eventResponseDto,
+                        pollResponseDto,
                         uriInfo);
         addLinks(linkCommand);
         return Response.ok()
-                .entity(eventResponseDto)
+                .entity(pollResponseDto)
                 .type("application/json")
                 .build();
     }
     @PUT
-    @Path("/{eventId}")
+    @Path("/{pollId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response update(EventDto eventRequestDto,
-                           @PathParam("eventId") Long eventId,
+    public Response update(PollDto pollRequestDto,
+                           @PathParam("pollId") Long pollId,
                            @Context UriInfo uriInfo) {
-        eventRequestDto.setEventId(eventId);
-        EventDto eventResponseDto = eventService.update(eventRequestDto);
-        LinkCommand<EventDto> linkCommand =
+        pollRequestDto.setPollId(pollId);
+        PollDto pollResponseDto = pollService.update(pollRequestDto);
+        LinkCommand<PollDto> linkCommand =
                 linkCreator.createLinkCommand(
                         linkReceiver,
-                        eventResponseDto,
+                        pollResponseDto,
                         uriInfo);
         addLinks(linkCommand);
         return Response.ok()
-                .entity(eventResponseDto)
+                .entity(pollResponseDto)
                 .type("application/json")
                 .build();
     }
     @DELETE
-    @Path("/{eventId}")
+    @Path("/{pollId}")
     @Override
-    public Response delete(@PathParam("eventId") Long eventId) {
-        eventService.delete(eventId);
+    public Response delete(@PathParam("pollId") Long pollId) {
+        pollService.delete(pollId);
         return Response
                 .noContent()
                 .build();
     }
     @Inject
-    public EventResourceImpl(@EventService ParentService<EventDto> eventService,
-                             @EventLinkCreator LinkCreator<EventDto> linkCreator,
-                             LinkReceiver linkReceiver) {
-        this.eventService = eventService;
+    public PollResourceImpl(@PollService ParentService<PollDto> pollService,
+                            @PollLinkCreator LinkCreator<PollDto> linkCreator,
+                            LinkReceiver linkReceiver) {
+        this.pollService = pollService;
         this.linkCreator = linkCreator;
         this.linkReceiver = linkReceiver;
     }
-    protected EventResourceImpl() {}
+    protected PollResourceImpl() {}
 }

@@ -1,9 +1,6 @@
 package com.knotslicer.server.adapters.rest.linkgenerator;
 
-import com.knotslicer.server.adapters.rest.EventResourceImpl;
-import com.knotslicer.server.adapters.rest.MemberResourceImpl;
-import com.knotslicer.server.adapters.rest.ProjectResourceImpl;
-import com.knotslicer.server.adapters.rest.UserResourceImpl;
+import com.knotslicer.server.adapters.rest.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
@@ -54,6 +51,12 @@ public class LinkReceiverImpl implements LinkReceiver {
         return uriBuilder
                 .path(EventResourceImpl.class)
                 .path(Long.toString(eventId))
+                .build();
+    }
+    public URI getUriForPoll(UriBuilder uriBuilder, Long pollId) {
+        return uriBuilder
+                .path(PollResourceImpl.class)
+                .path(Long.toString(pollId))
                 .build();
     }
 }

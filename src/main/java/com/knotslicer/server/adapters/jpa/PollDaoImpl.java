@@ -56,15 +56,25 @@ public class PollDaoImpl implements PollDao {
         Event event = query.getSingleResult();
         return event.getEventId();
     }
-
     @Override
-    public Optional<Event> getPrimaryParentWithChildren(Long parentId) {
-        return Optional.empty();
+    public Optional<Event> getPrimaryParentWithChildren(Long eventId) {
+        Event event = getEventWithPollsFromJpa(eventId);
+        return Optional.ofNullable(event);
     }
-
     @Override
     public Poll update(Poll poll, Long eventId) {
-        return null;
+        EventImpl eventImpl = getEventWithPollsFromJpa(eventId);
+        entityManager.detach(eventImpl);
+        Poll pollToBeModified =
+                getPollFromEvent(eventImpl, poll);
+        pollToBeModified.setStartTimeUtc(
+                poll.getStartTimeUtc());
+        pollToBeModified.setEndTimeUtc(
+                poll.getEndTimeUtc());
+        eventImpl = entityManager.merge(eventImpl);
+        entityManager.flush();
+        Poll updatedPoll = getPollFromEvent(eventImpl, pollToBeModified);
+        return updatedPoll;
     }
 
     @Override

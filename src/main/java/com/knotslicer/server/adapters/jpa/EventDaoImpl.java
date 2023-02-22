@@ -47,10 +47,6 @@ public class EventDaoImpl implements EventDao {
         return Optional.ofNullable(event);
     }
     @Override
-    public Optional<User> getPrimaryParentWithChildren(Long userId) {
-        return Optional.empty();
-    }
-    @Override
     public Long getPrimaryParentId(Long eventId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
                         ("SELECT user FROM User user " +
@@ -60,7 +56,11 @@ public class EventDaoImpl implements EventDao {
         User user = query.getSingleResult();
         return user.getUserId();
     }
-
+    @Override
+    public Optional<User> getPrimaryParentWithChildren(Long userId) {
+        User user = getUserWithEventsFromJpa(userId);
+        return Optional.ofNullable(user);
+    }
     @Override
     public Event update(Event inputEvent, Long userId) {
         UserImpl userImpl = getUserWithEventsFromJpa(userId);
