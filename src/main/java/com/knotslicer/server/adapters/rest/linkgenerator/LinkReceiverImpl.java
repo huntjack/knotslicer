@@ -1,5 +1,6 @@
 package com.knotslicer.server.adapters.rest.linkgenerator;
 
+import com.knotslicer.server.adapters.rest.EventResourceImpl;
 import com.knotslicer.server.adapters.rest.MemberResourceImpl;
 import com.knotslicer.server.adapters.rest.ProjectResourceImpl;
 import com.knotslicer.server.adapters.rest.UserResourceImpl;
@@ -48,5 +49,11 @@ public class LinkReceiverImpl implements LinkReceiver {
                 scheduleId);
         return uriBuilder
                 .buildFromMap(ids);
+    }
+    public URI getUriForEvent(UriBuilder uriBuilder, Long eventId) {
+        return uriBuilder
+                .path(EventResourceImpl.class)
+                .path(Long.toString(eventId))
+                .build();
     }
 }

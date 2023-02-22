@@ -32,9 +32,12 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User update(User user) {
         User userToBeModified = entityManager.find(UserImpl.class, user.getUserId());
-        userToBeModified.setUserName(user.getUserName());
-        userToBeModified.setUserDescription(user.getUserDescription());
-        userToBeModified.setTimeZone(user.getTimeZone());
+        userToBeModified.setUserName(
+                user.getUserName());
+        userToBeModified.setUserDescription(
+                user.getUserDescription());
+        userToBeModified.setTimeZone(
+                user.getTimeZone());
         entityManager.flush();
         return userToBeModified;
     }

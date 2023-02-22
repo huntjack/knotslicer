@@ -48,9 +48,9 @@ public class MemberDaoImpl implements MemberDao {
         return query.getSingleResult();
     }
     private MemberImpl getMemberFromUser(UserImpl userImpl, Member member) {
-        List<MemberImpl> memberList = userImpl.getMembers();
-        int memberIndex = memberList.indexOf(member);
-        return memberList.get(memberIndex);
+        List<MemberImpl> memberImpls = userImpl.getMembers();
+        int memberIndex = memberImpls.indexOf(member);
+        return memberImpls.get(memberIndex);
     }
     @Override
     public Optional<Member> get(Long memberId) {
@@ -67,38 +67,6 @@ public class MemberDaoImpl implements MemberDao {
         Project project = getProjectWithMembersFromJpa(projectId);
         return Optional.ofNullable(project);
     }
-
-    @Override
-    public Member update(Member inputMember, Long userId) {
-        UserImpl userImpl = getUserWithMembersFromJpa(userId);
-        entityManager.detach(userImpl);
-        Member memberToBeModified =
-                getMemberFromUser(
-                        userImpl,
-                        inputMember);
-        memberToBeModified
-                .setName(
-                inputMember.getName());
-        memberToBeModified
-                .setRole(
-                        inputMember.getRole());
-        memberToBeModified
-                .setRoleDescription(
-                        inputMember.getRoleDescription());
-        userImpl = entityManager.merge(userImpl);
-        entityManager.flush();
-        Member updatedMember = getMemberFromUser(userImpl, memberToBeModified);
-        return updatedMember;
-    }
-
-    @Override
-    public void delete(Long memberId, Long userId) {
-        UserImpl userImpl = getUserWithMembersFromJpa(userId);
-        MemberImpl memberImpl = entityManager.find(MemberImpl.class, memberId);
-        userImpl.removeMember(memberImpl);
-        entityManager.flush();
-    }
-
     @Override
     public Long getPrimaryParentId(Long memberId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
@@ -118,5 +86,33 @@ public class MemberDaoImpl implements MemberDao {
                 .setParameter("memberId", memberId);
         Project project = query.getSingleResult();
         return project.getProjectId();
+    }
+    @Override
+    public Member update(Member inputMember, Long userId) {
+        UserImpl userImpl = getUserWithMembersFromJpa(userId);
+        entityManager.detach(userImpl);
+        Member memberToBeModified =
+                getMemberFromUser(
+                        userImpl,
+                        inputMember);
+        memberToBeModified.setName(
+                inputMember.getName());
+        memberToBeModified.setRole(
+                        inputMember.getRole());
+        memberToBeModified.setRoleDescription(
+                        inputMember.getRoleDescription());
+        userImpl = entityManager.merge(userImpl);
+        entityManager.flush();
+        Member updatedMember =
+                getMemberFromUser(userImpl, memberToBeModified);
+        return updatedMember;
+    }
+
+    @Override
+    public void delete(Long memberId, Long userId) {
+        UserImpl userImpl = getUserWithMembersFromJpa(userId);
+        MemberImpl memberImpl = entityManager.find(MemberImpl.class, memberId);
+        userImpl.removeMember(memberImpl);
+        entityManager.flush();
     }
 }
