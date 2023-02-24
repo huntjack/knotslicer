@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.UriInfo;
 public interface EventResource {
     Response create(EventDto eventDto, UriInfo uriInfo);
     Response get(Long eventId, UriInfo uriInfo);
+    Response getWithChildren(Long eventId, UriInfo uriInfo);
     Response update(EventDto eventDto,
                     Long eventId,
                     UriInfo uriInfo);

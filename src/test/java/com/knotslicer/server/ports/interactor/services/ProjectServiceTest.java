@@ -45,19 +45,19 @@ public class ProjectServiceTest {
         project.setProjectName("project1");
         project.setProjectDescription("project1 description");
         ProjectImpl projectImpl = (ProjectImpl) project;
-        Member member1 = entityCreator.createMember();
-        member1.setName("member1");
-        member1.setRole("member1 role");
-        member1.setRoleDescription("member1 role description");
-        MemberImpl memberImpl1 = (MemberImpl) member1;
+        Member memberOne = entityCreator.createMember();
+        memberOne.setName("member1");
+        memberOne.setRole("member1 role");
+        memberOne.setRoleDescription("member1 role description");
+        MemberImpl memberImpl1 = (MemberImpl) memberOne;
         UserImpl userImpl1 = (UserImpl) entityCreator.createUser();
         userImpl1.addMember(memberImpl1);
         projectImpl.addMember(memberImpl1);
-        Member member2 = entityCreator.createMember();
-        member2.setName("member2");
-        member2.setRole("member2 role");
-        member2.setRoleDescription("member2 role description");
-        MemberImpl memberImpl2 = (MemberImpl) member2;
+        Member memberTwo = entityCreator.createMember();
+        memberTwo.setName("member2");
+        memberTwo.setRole("member2 role");
+        memberTwo.setRoleDescription("member2 role description");
+        MemberImpl memberImpl2 = (MemberImpl) memberTwo;
         UserImpl userImpl2 = (UserImpl) entityCreator.createUser();
         userImpl2.addMember(memberImpl2);
         projectImpl.addMember(memberImpl2);
@@ -73,17 +73,17 @@ public class ProjectServiceTest {
 
         ProjectDto projectDto =
                 projectService.getWithChildren(7L);
-        checkProject(projectDto, project, userId);
+        checkProject(project, projectDto, userId);
 
         List<MemberDto> memberDtos =
                 projectDto.getMembers();
-        MemberDto memberDto1 = memberDtos.get(0);
-        checkMember(memberDto1, member1);
+        MemberDto memberDtoOne = memberDtos.get(0);
+        checkMember(memberOne, memberDtoOne);
 
-        MemberDto memberDto2 = memberDtos.get(1);
-        checkMember(memberDto2, member2);
+        MemberDto memberDtoTwo = memberDtos.get(1);
+        checkMember(memberTwo, memberDtoTwo);
     }
-    private void checkProject(ProjectDto projectDto, Project project, Long userId) {
+    private void checkProject(Project project, ProjectDto projectDto, Long userId) {
         assertEquals(project.getProjectName(),
                 projectDto.getProjectName());
         assertEquals(project.getProjectDescription(),
@@ -91,7 +91,7 @@ public class ProjectServiceTest {
         assertEquals(userId,
                 projectDto.getUserId());
     }
-    private void checkMember(MemberDto memberDto, Member member) {
+    private void checkMember(Member member, MemberDto memberDto) {
         assertEquals(member.getName(),
                 memberDto.getName());
         assertEquals(member.getRole(),

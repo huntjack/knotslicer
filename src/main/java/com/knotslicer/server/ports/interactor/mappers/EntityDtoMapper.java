@@ -20,6 +20,7 @@ public interface EntityDtoMapper {
     EventDto toDto(Event eventInput, Long userId);
     Event toEntity(EventDto eventDtoInput);
     Event toEntity(EventDto eventDtoInput, Event eventToBeModified);
+    EventDto addPollDtosToEventDto(EventDto eventDto, Event eventInput);
 
     ScheduleDto toDto(Schedule scheduleInput, Long memberId);
     Schedule toEntity(ScheduleDto scheduleDtoInput);

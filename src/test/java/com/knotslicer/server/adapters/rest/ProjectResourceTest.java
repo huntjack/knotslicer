@@ -42,7 +42,7 @@ public class ProjectResourceTest extends JerseyTest {
                         linkReceiver));
     }
     @Test
-    public void givenCorrectProjectId_whenGetWithMembers_thenLinksAreCorrect() {
+    public void givenCorrectProjectId_whenGetWithChildren_thenLinksAreCorrect() {
         ProjectDto projectDto = dtoCreator.createProjectDto();
         projectDto.setProjectId(1L);
         projectDto.setUserId(1L);
@@ -65,23 +65,29 @@ public class ProjectResourceTest extends JerseyTest {
         ProjectDto projectResponseDto = target("/projects/1/members")
                 .request()
                 .get(ProjectDto.class);
-        checkProject(projectResponseDto, projectDto.getProjectId(), projectDto.getUserId());
+        checkProject(projectResponseDto,
+                projectDto.getProjectId(),
+                projectDto.getUserId());
 
         MemberDto memberResponseDtoOne =
                 projectResponseDto
                         .getMembers()
                         .get(0);
-        checkMember(memberResponseDtoOne, memberDto1.getMemberId(), memberDto1.getUserId());
+        checkMember(memberResponseDtoOne,
+                memberDto1.getMemberId(),
+                memberDto1.getUserId());
 
         MemberDto memberResponseDtoTwo =
                 projectResponseDto
                         .getMembers()
                         .get(1);
-        checkMember(memberResponseDtoTwo, memberDto2.getMemberId(), memberDto2.getUserId());
+        checkMember(memberResponseDtoTwo,
+                memberDto2.getMemberId(),
+                memberDto2.getUserId());
     }
     private void checkProject(ProjectDto projectResponseDto, Long projectId, Long userId) {
-        List<Link> listOfProjectDtoLinks = projectResponseDto.getLinks();
-        Link projectSelfLink = listOfProjectDtoLinks.get(0);
+        List<Link> projectDtoLinks = projectResponseDto.getLinks();
+        Link projectSelfLink = projectDtoLinks.get(0);
         assertEquals("self",
                 projectSelfLink.getRel());
         assertTrue(projectSelfLink
@@ -89,7 +95,7 @@ public class ProjectResourceTest extends JerseyTest {
                 .contains("/projects/" +
                         projectId.toString()),
                 "ProjectDto's self link is incorrect.");
-        Link projectUserLink = listOfProjectDtoLinks.get(1);
+        Link projectUserLink = projectDtoLinks.get(1);
         assertEquals("user",
                 projectUserLink.getRel());
         assertTrue(projectUserLink

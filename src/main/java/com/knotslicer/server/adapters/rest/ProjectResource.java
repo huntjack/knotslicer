@@ -11,5 +11,5 @@ public interface ProjectResource {
                     Long projectId,
                     UriInfo uriInfo);
     Response delete(Long projectId);
-    Response getWithMembers(Long projectId, UriInfo uriInfo);
+    Response getWithChildren(Long projectId, UriInfo uriInfo);
 }

@@ -135,7 +135,6 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         List<ScheduleImpl> scheduleImpls = memberImpl.getSchedules();
         List<ScheduleDto> scheduleDtos = new LinkedList<>();
         Long memberId = memberDto.getMemberId();
-
         for(ScheduleImpl scheduleImpl: scheduleImpls) {
             ScheduleDto scheduleDto =
                     toDto(scheduleImpl, memberId);
@@ -195,6 +194,20 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     public Event toEntity(EventDto eventDtoInput, Event eventToBeModified) {
         setEntityVariables(eventToBeModified, eventDtoInput);
         return eventToBeModified;
+    }
+    @Override
+    public EventDto addPollDtosToEventDto(EventDto eventDto, Event eventInput) {
+        EventImpl eventImpl = (EventImpl) eventInput;
+        List<PollImpl> pollImpls = eventImpl.getPolls();
+        List<PollDto> pollDtos = new LinkedList<>();
+        Long eventId = eventDto.getEventId();
+        for(PollImpl pollImpl: pollImpls) {
+            PollDto pollDto =
+                    toDto(pollImpl, eventId);
+            pollDtos.add(pollDto);
+        }
+        eventDto.setPollDtos(pollDtos);
+        return eventDto;
     }
     @Override
     public ScheduleDto toDto(Schedule scheduleInput, Long memberId) {

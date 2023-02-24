@@ -36,7 +36,7 @@ public class ScheduleDaoImpl implements ScheduleDao {
                 .setParameter("memberId", memberId);
         return query.getSingleResult();
     }
-    private ScheduleImpl getScheduleFromMember(MemberImpl memberImpl, Schedule schedule) {
+    private Schedule getScheduleFromMember(MemberImpl memberImpl, Schedule schedule) {
         List<ScheduleImpl> scheduleImpls = memberImpl.getSchedules();
         int scheduleIndex = scheduleImpls.indexOf(schedule);
         return scheduleImpls.get(scheduleIndex);

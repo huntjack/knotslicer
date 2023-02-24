@@ -8,8 +8,8 @@ import java.net.URI;
 import java.util.List;
 
 public class MemberWithSchedulesLinkCommand extends MemberLinkCommand {
-    public MemberWithSchedulesLinkCommand(LinkReceiver linkReceiver, MemberDto memberDto, UriInfo uriInfo) {
-        super(linkReceiver, memberDto, uriInfo);
+    public MemberWithSchedulesLinkCommand(LinkReceiver linkReceiver, MemberDto dto, UriInfo uriInfo) {
+        super(linkReceiver, dto, uriInfo);
     }
     @Override
     public URI execute() {

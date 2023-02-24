@@ -49,16 +49,16 @@ public class MemberServiceTest {
         member.setName("member1");
         member.setRole("member1 role");
         member.setRoleDescription("member1 role description");
-        Schedule schedule1 = entityCreator.createSchedule();
-        schedule1.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 16, 0));
-        schedule1.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 21, 0));
+        Schedule scheduleOne = entityCreator.createSchedule();
+        scheduleOne.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 16, 0));
+        scheduleOne.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 21, 0));
         MemberImpl memberImpl = (MemberImpl) member;
-        ScheduleImpl scheduleImpl1 = (ScheduleImpl) schedule1;
+        ScheduleImpl scheduleImpl1 = (ScheduleImpl) scheduleOne;
         memberImpl.addSchedule(scheduleImpl1);
-        Schedule schedule2 = entityCreator.createSchedule();
-        schedule2.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 20, 0));
-        schedule2.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 28, 1, 0));
-        ScheduleImpl scheduleImpl2 = (ScheduleImpl) schedule2;
+        Schedule scheduleTwo = entityCreator.createSchedule();
+        scheduleTwo.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 20, 0));
+        scheduleTwo.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 28, 1, 0));
+        ScheduleImpl scheduleImpl2 = (ScheduleImpl) scheduleTwo;
         memberImpl.addSchedule(scheduleImpl2);
 
         Mockito.when(
@@ -75,20 +75,20 @@ public class MemberServiceTest {
 
         MemberDto memberDto =
                 memberService.getWithChildren(5L);
-        checkMember(memberDto,
-                member,
+        checkMember(member,
+                memberDto,
                 userId,
                 projectId);
 
         List<ScheduleDto> scheduleDtos =
                 memberDto.getSchedules();
-        ScheduleDto scheduleDto1 = scheduleDtos.get(0);
-        checkSchedule(scheduleDto1, schedule1);
+        ScheduleDto scheduleDtoOne = scheduleDtos.get(0);
+        checkSchedule(scheduleOne, scheduleDtoOne);
 
-        ScheduleDto scheduleDto2 = scheduleDtos.get(1);
-        checkSchedule(scheduleDto2, schedule2);
+        ScheduleDto scheduleDtoTwo = scheduleDtos.get(1);
+        checkSchedule(scheduleTwo, scheduleDtoTwo);
     }
-    private void checkMember(MemberDto memberDto, Member member, Long userId, Long projectId) {
+    private void checkMember(Member member, MemberDto memberDto, Long userId, Long projectId) {
         assertEquals(member.getName(),
                 memberDto.getName());
         assertEquals(member.getRole(),
@@ -100,7 +100,7 @@ public class MemberServiceTest {
         assertEquals(projectId,
                 memberDto.getProjectId());
     }
-    private void checkSchedule(ScheduleDto scheduleDto, Schedule schedule) {
+    private void checkSchedule(Schedule schedule, ScheduleDto scheduleDto) {
         assertEquals(schedule.getStartTimeUtc(),
                 scheduleDto.getStartTimeUtc());
         assertEquals(schedule.getEndTimeUtc(),
