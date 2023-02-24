@@ -46,6 +46,8 @@ public class PollDtoImpl implements PollDto, Serializable {
     public void setEndTimeUtc(LocalDateTime endTimeUtc) {
         this.endTimeUtc = endTimeUtc;
     }
+    @Override
     public List<Link> getLinks() {return links;}
+    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }

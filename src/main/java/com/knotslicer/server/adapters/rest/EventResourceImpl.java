@@ -4,6 +4,7 @@ import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithPollsLinkCreator;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
 import com.knotslicer.server.ports.interactor.services.EventService;
@@ -23,6 +24,7 @@ import java.net.URI;
 public class EventResourceImpl implements EventResource {
     private ParentService<EventDto> eventService;
     private LinkCreator<EventDto> linkCreator;
+    private LinkCreator<EventDto> eventWithPollsLinkCreator;
     private LinkReceiver linkReceiver;
 
     @POST
@@ -66,6 +68,24 @@ public class EventResourceImpl implements EventResource {
                 .type("application/json")
                 .build();
     }
+    @GET
+    @Path("/{eventId}/polls")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Override
+    public Response getWithChildren(@PathParam("eventId") Long eventId,
+                                   @Context UriInfo uriInfo) {
+        EventDto eventResponseDto = eventService.getWithChildren(eventId);
+        LinkCommand<EventDto> linkCommand =
+                eventWithPollsLinkCreator.createLinkCommand(
+                        linkReceiver,
+                        eventResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(eventResponseDto)
+                .type("application/json")
+                .build();
+    }
     @PUT
     @Path("/{eventId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -99,9 +119,11 @@ public class EventResourceImpl implements EventResource {
     @Inject
     public EventResourceImpl(@EventService ParentService<EventDto> eventService,
                              @EventLinkCreator LinkCreator<EventDto> linkCreator,
+                             @EventWithPollsLinkCreator LinkCreator<EventDto> eventWithPollsLinkCreator,
                              LinkReceiver linkReceiver) {
         this.eventService = eventService;
         this.linkCreator = linkCreator;
+        this.eventWithPollsLinkCreator = eventWithPollsLinkCreator;
         this.linkReceiver = linkReceiver;
     }
     protected EventResourceImpl() {}

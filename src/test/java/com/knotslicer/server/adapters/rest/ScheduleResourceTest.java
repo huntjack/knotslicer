@@ -109,13 +109,17 @@ public class ScheduleResourceTest extends JerseyTest {
                 memberResponseDto
                         .getSchedules()
                         .get(0);
-        checkSchedule(scheduleResponseDtoOne, scheduleDto1.getScheduleId(), scheduleDto1.getMemberId());
+        checkSchedule(scheduleResponseDtoOne,
+                scheduleDto1.getScheduleId(),
+                scheduleDto1.getMemberId());
 
         ScheduleDto scheduleResponseDtoTwo =
                 memberResponseDto
                         .getSchedules()
                         .get(1);
-        checkSchedule(scheduleResponseDtoTwo, scheduleDto2.getScheduleId(), scheduleDto2.getMemberId());
+        checkSchedule(scheduleResponseDtoTwo,
+                scheduleDto2.getScheduleId(),
+                scheduleDto2.getMemberId());
     }
     private void checkMember(MemberDto memberResponseDto, Long memberId, Long projectId, Long userId) {
         List<Link> listOfMemberDtoLinks = memberResponseDto.getLinks();

@@ -12,6 +12,7 @@ public class EventDtoImpl implements EventDto, Serializable {
     private String subject;
     private String eventName;
     private String eventDescription;
+    private List<PollDto> pollDtos = new LinkedList<>();
     private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
@@ -55,6 +56,12 @@ public class EventDtoImpl implements EventDto, Serializable {
     public void setEventDescription(String eventDescription) {
         this.eventDescription = eventDescription;
     }
+    @Override
+    public List<PollDto> getPollDtos() {return pollDtos;}
+    @Override
+    public void setPollDtos(List<PollDto> pollDtos) {this.pollDtos = pollDtos;}
+    @Override
     public List<Link> getLinks() {return links;}
+    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }

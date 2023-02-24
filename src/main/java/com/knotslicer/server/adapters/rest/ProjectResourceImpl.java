@@ -68,7 +68,7 @@ public class ProjectResourceImpl implements ProjectResource {
     @Path("/{projectId}/members")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getWithMembers(@PathParam("projectId") Long projectId,
+    public Response getWithChildren(@PathParam("projectId") Long projectId,
                                     @Context UriInfo uriInfo) {
         ProjectDto projectResponseDto = projectService.getWithChildren(projectId);
         LinkCommand<ProjectDto> linkCommand =

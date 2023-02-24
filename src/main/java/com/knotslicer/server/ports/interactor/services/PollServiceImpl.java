@@ -41,7 +41,17 @@ public class PollServiceImpl implements ParentService<PollDto> {
     }
     @Override
     public PollDto update(PollDto pollDto) {
-        return null;
+        Long pollId = pollDto.getPollId();
+        Optional<Poll> optionalPoll = pollDao.get(pollId);
+        Poll pollLToBeModified = unpackOptionalPoll(optionalPoll);
+        pollLToBeModified = entityDtoMapper
+                .toEntity(pollDto, pollLToBeModified);
+        Long eventId = pollDao
+                .getPrimaryParentId(pollId);
+        Poll updatedPoll = pollDao
+                .update(pollLToBeModified, eventId);
+        return entityDtoMapper
+                .toDto(updatedPoll, eventId);
     }
     @Override
     public void delete(Long pollId) {
