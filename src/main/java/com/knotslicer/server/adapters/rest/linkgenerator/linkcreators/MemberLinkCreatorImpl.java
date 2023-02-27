@@ -4,10 +4,14 @@ import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.MemberLinkCommand;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.ws.rs.core.UriInfo;
 
-@MemberLinkCreator
+@ProcessAs(ProcessType.MEMBER)
+@Default
 @ApplicationScoped
 public class MemberLinkCreatorImpl implements LinkCreator<MemberDto> {
     @Override

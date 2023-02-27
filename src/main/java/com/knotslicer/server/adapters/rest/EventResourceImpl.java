@@ -2,14 +2,15 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithPollsLinkCreator;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
-import com.knotslicer.server.ports.interactor.services.EventService;
 import com.knotslicer.server.ports.interactor.services.ParentService;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -117,9 +118,11 @@ public class EventResourceImpl implements EventResource {
                 .build();
     }
     @Inject
-    public EventResourceImpl(@EventService ParentService<EventDto> eventService,
-                             @EventLinkCreator LinkCreator<EventDto> linkCreator,
-                             @EventWithPollsLinkCreator LinkCreator<EventDto> eventWithPollsLinkCreator,
+    public EventResourceImpl(@ProcessAs(ProcessType.EVENT) ParentService<EventDto> eventService,
+                             @ProcessAs(ProcessType.EVENT) @Default
+                             LinkCreator<EventDto> linkCreator,
+                             @ProcessAs(ProcessType.EVENT) @WithChildren
+                                 LinkCreator<EventDto> eventWithPollsLinkCreator,
                              LinkReceiver linkReceiver) {
         this.eventService = eventService;
         this.linkCreator = linkCreator;

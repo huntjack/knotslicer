@@ -29,8 +29,9 @@ public interface EntityDtoMapper {
     PollDto toDto(Poll pollInput, Long eventId);
     Poll toEntity(PollDto pollDtoInput);
     Poll toEntity(PollDto pollDtoInput, Poll pollToBeModified);
+    PollDto addPollAnswerDtosToPollDto(PollDto pollDto, Poll pollInput);
 
-    PollAnswerDto toDto(PollAnswer pollAnswerInput, Long pollId);
+    PollAnswerDto toDto(PollAnswer pollAnswerInput, Long pollId, Long memberId);
     PollAnswer toEntity(PollAnswerDto pollAnswerDtoInput);
     PollAnswer toEntity(PollAnswerDto pollAnswerDtoInput, PollAnswer pollAnswerToBeModified);
 

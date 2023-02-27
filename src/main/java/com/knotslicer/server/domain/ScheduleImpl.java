@@ -10,7 +10,7 @@ import java.util.UUID;
 public class ScheduleImpl implements Schedule {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Long scheduleId;
     @Column(unique=true, updatable = false, nullable = false)
     private String scheduleBusinessKey;
@@ -42,6 +42,8 @@ public class ScheduleImpl implements Schedule {
 
     @Override
     public Long getScheduleId() {return scheduleId;}
+    @Override
+    public void setScheduleId(Long scheduleId) {this.scheduleId = scheduleId;}
     public String getScheduleBusinessKey() {return scheduleBusinessKey;}
     @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}

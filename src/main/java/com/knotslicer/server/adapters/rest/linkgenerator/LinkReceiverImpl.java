@@ -31,6 +31,7 @@ public class LinkReceiverImpl implements LinkReceiver {
                 .path(Long.toString(memberId))
                 .build();
     }
+    @Override
     public URI getUriForSchedule(UriBuilder baseUriBuilder, Long scheduleId, Long memberId) {
         String baseUri = baseUriBuilder
                 .path(MemberResourceImpl.class)
@@ -39,7 +40,7 @@ public class LinkReceiverImpl implements LinkReceiver {
         String secondHalfOfUri = "/{memberId}/schedules/{scheduleId}";
         String template = baseUri + secondHalfOfUri;
         UriBuilder uriBuilder = UriBuilder.fromPath(template);
-        Map<String,Long> ids = new HashMap<>(3);
+        Map<String, Long> ids = new HashMap<>(3);
         ids.put("memberId",
                 memberId);
         ids.put("scheduleId",
@@ -47,16 +48,35 @@ public class LinkReceiverImpl implements LinkReceiver {
         return uriBuilder
                 .buildFromMap(ids);
     }
+    @Override
     public URI getUriForEvent(UriBuilder uriBuilder, Long eventId) {
         return uriBuilder
                 .path(EventResourceImpl.class)
                 .path(Long.toString(eventId))
                 .build();
     }
+    @Override
     public URI getUriForPoll(UriBuilder uriBuilder, Long pollId) {
         return uriBuilder
                 .path(PollResourceImpl.class)
                 .path(Long.toString(pollId))
                 .build();
+    }
+    @Override
+    public URI getUriForPollAnswer(UriBuilder baseUriBuilder, Long pollAnswerId, Long pollId) {
+        String baseUri = baseUriBuilder
+                .path(PollResourceImpl.class)
+                .build()
+                .toString();
+        String secondHalfOfUri = "/{pollId}/pollanswers/{pollAnswerId}";
+        String template = baseUri + secondHalfOfUri;
+        UriBuilder uriBuilder = UriBuilder.fromPath(template);
+        Map<String,Long> ids = new HashMap<>(3);
+        ids.put("pollId",
+                pollId);
+        ids.put("pollAnswerId",
+                pollAnswerId);
+        return uriBuilder
+                .buildFromMap(ids);
     }
 }

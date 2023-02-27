@@ -1,8 +1,8 @@
 package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
-import com.knotslicer.server.ports.entitygateway.ProjectDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -29,9 +29,9 @@ public class ProjectServiceTest {
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
     @Mock
-    private ProjectDao projectDao;
+    private ChildWithOneRequiredParentDao<Project, User> projectDao;
     @Mock
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
     private AutoCloseable closeable;
 
     @BeforeEach
@@ -42,10 +42,12 @@ public class ProjectServiceTest {
     @Test
     public void givenCorrectProjectId_whenGetWithChildren_thenReturnProjectDtoWithMemberDtos() {
         Project project = entityCreator.createProject();
+        project.setProjectId(1L);
         project.setProjectName("project1");
         project.setProjectDescription("project1 description");
         ProjectImpl projectImpl = (ProjectImpl) project;
         Member memberOne = entityCreator.createMember();
+        memberOne.setMemberId(1L);
         memberOne.setName("member1");
         memberOne.setRole("member1 role");
         memberOne.setRoleDescription("member1 role description");
@@ -54,6 +56,7 @@ public class ProjectServiceTest {
         userImpl1.addMember(memberImpl1);
         projectImpl.addMember(memberImpl1);
         Member memberTwo = entityCreator.createMember();
+        memberTwo.setMemberId(2L);
         memberTwo.setName("member2");
         memberTwo.setRole("member2 role");
         memberTwo.setRoleDescription("member2 role description");
@@ -63,9 +66,9 @@ public class ProjectServiceTest {
         projectImpl.addMember(memberImpl2);
 
         Mockito.when(
-                memberDao.getProjectWithMembers(anyLong()))
+                memberDao.getSecondaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
-                        .ofNullable(project));
+                        .of(project));
         Long userId = 25L;
         Mockito.when(
                 projectDao.getPrimaryParentId(anyLong()))
@@ -84,6 +87,8 @@ public class ProjectServiceTest {
         checkMember(memberTwo, memberDtoTwo);
     }
     private void checkProject(Project project, ProjectDto projectDto, Long userId) {
+        assertEquals(project.getProjectId(),
+                projectDto.getProjectId());
         assertEquals(project.getProjectName(),
                 projectDto.getProjectName());
         assertEquals(project.getProjectDescription(),
@@ -92,6 +97,8 @@ public class ProjectServiceTest {
                 projectDto.getUserId());
     }
     private void checkMember(Member member, MemberDto memberDto) {
+        assertEquals(member.getMemberId(),
+                memberDto.getMemberId());
         assertEquals(member.getName(),
                 memberDto.getName());
         assertEquals(member.getRole(),

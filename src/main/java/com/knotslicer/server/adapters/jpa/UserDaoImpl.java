@@ -30,14 +30,14 @@ public class UserDaoImpl implements UserDao {
         return Optional.ofNullable(user);
     }
     @Override
-    public User update(User user) {
-        User userToBeModified = entityManager.find(UserImpl.class, user.getUserId());
+    public User update(User userInput) {
+        User userToBeModified = entityManager.find(UserImpl.class, userInput.getUserId());
         userToBeModified.setUserName(
-                user.getUserName());
+                userInput.getUserName());
         userToBeModified.setUserDescription(
-                user.getUserDescription());
+                userInput.getUserDescription());
         userToBeModified.setTimeZone(
-                user.getTimeZone());
+                userInput.getTimeZone());
         entityManager.flush();
         return userToBeModified;
     }

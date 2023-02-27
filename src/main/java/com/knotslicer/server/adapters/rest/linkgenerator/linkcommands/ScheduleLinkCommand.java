@@ -18,7 +18,9 @@ public class ScheduleLinkCommand extends LinkCommand<ScheduleDto> {
                 uriInfo.getBaseUriBuilder(),
                 dto.getScheduleId(),
                 dto.getMemberId());
-        dto.addLink(scheduleUri.toString(), "self");
+        dto.addLink(
+                scheduleUri.toString(),
+                "self");
         URI memberUri = linkReceiver.getUriForMember(
                 uriInfo.getBaseUriBuilder(),
                 dto.getMemberId());

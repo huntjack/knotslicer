@@ -4,7 +4,8 @@ import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.UserLinkCreator;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.services.UserService;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserDto;
@@ -98,7 +99,7 @@ public class UserResourceImpl implements UserResource {
     }
     @Inject
     public UserResourceImpl(UserService userService,
-                            @UserLinkCreator LinkCreator<UserLightDto> linkCreator,
+                            @ProcessAs(ProcessType.USER) LinkCreator<UserLightDto> linkCreator,
                             LinkReceiver linkReceiver) {
         this.userService = userService;
         this.linkCreator = linkCreator;

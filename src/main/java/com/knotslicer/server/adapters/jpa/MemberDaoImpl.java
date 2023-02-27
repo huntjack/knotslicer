@@ -1,7 +1,9 @@
 package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,9 +13,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@ProcessAs(ProcessType.MEMBER)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class MemberDaoImpl implements MemberDao {
+public class MemberDaoImpl implements ChildWithTwoParentsDao<Member,User,Project> {
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
 
@@ -63,7 +66,7 @@ public class MemberDaoImpl implements MemberDao {
         return Optional.ofNullable(user);
     }
     @Override
-    public Optional<Project> getProjectWithMembers(Long projectId) {
+    public Optional<Project> getSecondaryParentWithChildren(Long projectId) {
         Project project = getProjectWithMembersFromJpa(projectId);
         return Optional.ofNullable(project);
     }
@@ -88,19 +91,19 @@ public class MemberDaoImpl implements MemberDao {
         return project.getProjectId();
     }
     @Override
-    public Member update(Member inputMember, Long userId) {
+    public Member update(Member memberInput, Long userId) {
         UserImpl userImpl = getUserWithMembersFromJpa(userId);
         entityManager.detach(userImpl);
         Member memberToBeModified =
                 getMemberFromUser(
                         userImpl,
-                        inputMember);
+                        memberInput);
         memberToBeModified.setName(
-                inputMember.getName());
+                memberInput.getName());
         memberToBeModified.setRole(
-                        inputMember.getRole());
+                memberInput.getRole());
         memberToBeModified.setRoleDescription(
-                        inputMember.getRoleDescription());
+                memberInput.getRoleDescription());
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
         Member updatedMember =

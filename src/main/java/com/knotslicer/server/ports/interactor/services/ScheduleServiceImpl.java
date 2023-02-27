@@ -1,7 +1,10 @@
 package com.knotslicer.server.ports.interactor.services;
 
+import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Schedule;
-import com.knotslicer.server.ports.entitygateway.ScheduleDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
@@ -9,11 +12,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
-@ScheduleService
+@ProcessAs(ProcessType.SCHEDULE)
 @ApplicationScoped
 public class ScheduleServiceImpl implements Service<ScheduleDto> {
     private EntityDtoMapper entityDtoMapper;
-    private ScheduleDao scheduleDao;
+    private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
 
     @Override
     public ScheduleDto create(ScheduleDto scheduleDto) {
@@ -42,7 +45,6 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
     @Override
     public ScheduleDto update(ScheduleDto scheduleDto) {
         Long scheduleId = scheduleDto.getScheduleId();
-        Long memberId = scheduleDto.getMemberId();
         Optional<Schedule> optionalSchedule =
                 scheduleDao.get(scheduleId);
         Schedule scheduleToBeModified = unpackOptionalSchedule(optionalSchedule);
@@ -50,6 +52,7 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
         scheduleToBeModified = entityDtoMapper.toEntity(
                         scheduleDto,
                         scheduleToBeModified);
+        Long memberId = scheduleDto.getMemberId();
         Schedule updatedSchedule = scheduleDao.update(
                 scheduleToBeModified,
                 memberId);
@@ -66,7 +69,9 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
                 memberId);
     }
     @Inject
-    public ScheduleServiceImpl(EntityDtoMapper entityDtoMapper, ScheduleDao scheduleDao) {
+    public ScheduleServiceImpl(EntityDtoMapper entityDtoMapper,
+                               @ProcessAs(ProcessType.SCHEDULE)
+                               ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.scheduleDao = scheduleDao;
     }

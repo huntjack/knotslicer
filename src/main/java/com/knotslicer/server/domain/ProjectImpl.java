@@ -12,7 +12,7 @@ import java.util.UUID;
 public class ProjectImpl implements Project {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Long projectId;
     @Column(unique=true, updatable = false, nullable = false)
     private String projectBusinessKey;
@@ -55,6 +55,9 @@ public class ProjectImpl implements Project {
     public ProjectImpl() {this.projectBusinessKey = UUID.randomUUID().toString();}
     @Override
     public Long getProjectId() {return projectId;}
+    @Override
+    public void setProjectId(Long projectId) {this.projectId = projectId;}
+
     public String getProjectBusinessKey() {return projectBusinessKey;}
     @Override
     public String getProjectName() {return projectName;}

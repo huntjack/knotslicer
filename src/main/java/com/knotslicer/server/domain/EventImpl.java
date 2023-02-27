@@ -9,7 +9,7 @@ import java.util.*;
 public class EventImpl implements Event {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Long eventId;
     @Column(unique=true, updatable = false, nullable = false)
     private String eventBusinessKey;
@@ -66,6 +66,9 @@ public class EventImpl implements Event {
 
     @Override
     public Long getEventId() {return eventId;}
+    @Override
+    public void setEventId(Long eventId) {this.eventId = eventId;}
+
     public String getEventBusinessKey() {return eventBusinessKey;}
     @Override
     public String getSubject() {return subject;}

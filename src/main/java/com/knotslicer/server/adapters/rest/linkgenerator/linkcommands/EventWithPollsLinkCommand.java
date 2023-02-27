@@ -16,7 +16,7 @@ public class EventWithPollsLinkCommand extends EventLinkCommand {
     @Override
     public URI execute() {
         URI eventUri = super.execute();
-        List<PollDto> pollDtos = dto.getPollDtos();
+        List<PollDto> pollDtos = dto.getPolls();
         for(PollDto pollDto: pollDtos) {
             URI pollUri = linkReceiver.getUriForPoll(
                     uriInfo.getBaseUriBuilder(),

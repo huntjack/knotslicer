@@ -1,7 +1,9 @@
 package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.ScheduleDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -10,9 +12,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@ProcessAs(ProcessType.SCHEDULE)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class ScheduleDaoImpl implements ScheduleDao {
+public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, Member> {
 
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
@@ -62,15 +65,15 @@ public class ScheduleDaoImpl implements ScheduleDao {
         return member.getMemberId();
     }
     @Override
-    public Schedule update(Schedule inputSchedule, Long memberId) {
+    public Schedule update(Schedule scheduleInput, Long memberId) {
         MemberImpl memberImpl = getMemberWithSchedulesFromJpa(memberId);
         entityManager.detach(memberImpl);
         Schedule scheduleToBeModified =
-                getScheduleFromMember(memberImpl, inputSchedule);
+                getScheduleFromMember(memberImpl, scheduleInput);
         scheduleToBeModified.setStartTimeUtc(
-                inputSchedule.getStartTimeUtc());
+                scheduleInput.getStartTimeUtc());
         scheduleToBeModified.setEndTimeUtc(
-                inputSchedule.getEndTimeUtc());
+                scheduleInput.getEndTimeUtc());
         memberImpl = entityManager
                 .merge(memberImpl);
         entityManager.flush();

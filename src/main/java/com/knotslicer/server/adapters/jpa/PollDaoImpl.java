@@ -1,7 +1,9 @@
 package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.PollDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,9 +13,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@ProcessAs(ProcessType.POLL)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class PollDaoImpl implements PollDao {
+public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
 
@@ -62,15 +65,15 @@ public class PollDaoImpl implements PollDao {
         return Optional.ofNullable(event);
     }
     @Override
-    public Poll update(Poll poll, Long eventId) {
+    public Poll update(Poll pollInput, Long eventId) {
         EventImpl eventImpl = getEventWithPollsFromJpa(eventId);
         entityManager.detach(eventImpl);
         Poll pollToBeModified =
-                getPollFromEvent(eventImpl, poll);
+                getPollFromEvent(eventImpl, pollInput);
         pollToBeModified.setStartTimeUtc(
-                poll.getStartTimeUtc());
+                pollInput.getStartTimeUtc());
         pollToBeModified.setEndTimeUtc(
-                poll.getEndTimeUtc());
+                pollInput.getEndTimeUtc());
         eventImpl = entityManager.merge(eventImpl);
         entityManager.flush();
         Poll updatedPoll = getPollFromEvent(eventImpl, pollToBeModified);

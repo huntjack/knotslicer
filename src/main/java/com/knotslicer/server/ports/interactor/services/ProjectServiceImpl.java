@@ -1,8 +1,12 @@
 package com.knotslicer.server.ports.interactor.services;
 
+import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Project;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
-import com.knotslicer.server.ports.entitygateway.ProjectDao;
+import com.knotslicer.server.domain.User;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
@@ -10,12 +14,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
-@ProjectService
+@ProcessAs(ProcessType.PROJECT)
 @ApplicationScoped
 public class ProjectServiceImpl implements ParentService<ProjectDto> {
     private EntityDtoMapper entityDtoMapper;
-    private ProjectDao projectDao;
-    private MemberDao memberDao;
+    private ChildWithOneRequiredParentDao<Project, User> projectDao;
+    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
 
     @Override
     public ProjectDto create(ProjectDto projectDto) {
@@ -37,7 +41,7 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
     }
     @Override
     public ProjectDto getWithChildren(Long projectId) {
-        Optional<Project> optionalProject = memberDao.getProjectWithMembers(projectId);
+        Optional<Project> optionalProject = memberDao.getSecondaryParentWithChildren(projectId);
         Project project = unpackOptionalProject(optionalProject);
         Long userId = projectDao.getPrimaryParentId(projectId);
         ProjectDto projectDto =
@@ -75,8 +79,10 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
     }
     @Inject
     public ProjectServiceImpl(EntityDtoMapper entityDtoMapper,
-                              ProjectDao projectDao,
-                              MemberDao memberDao) {
+                              @ProcessAs(ProcessType.PROJECT)
+                              ChildWithOneRequiredParentDao<Project, User> projectDao,
+                              @ProcessAs(ProcessType.MEMBER)
+                                  ChildWithTwoParentsDao<Member, User, Project> memberDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.projectDao = projectDao;
         this.memberDao = memberDao;

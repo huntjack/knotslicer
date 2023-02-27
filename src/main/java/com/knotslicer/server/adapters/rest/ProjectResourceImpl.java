@@ -2,14 +2,15 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectLinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectWithMembersLinkCreator;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
-import com.knotslicer.server.ports.interactor.services.ProjectService;
 import com.knotslicer.server.ports.interactor.services.ParentService;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
@@ -114,9 +115,12 @@ public class ProjectResourceImpl implements ProjectResource {
                 .build();
     }
     @Inject
-    public ProjectResourceImpl(@ProjectService ParentService<ProjectDto> projectService,
-                               @ProjectLinkCreator LinkCreator<ProjectDto> linkCreator,
-                               @ProjectWithMembersLinkCreator LinkCreator<ProjectDto> projectWithMembersLinkCreator,
+    public ProjectResourceImpl(@ProcessAs(ProcessType.PROJECT)
+                                   ParentService<ProjectDto> projectService,
+                               @ProcessAs(ProcessType.PROJECT) @Default
+                               LinkCreator<ProjectDto> linkCreator,
+                               @ProcessAs(ProcessType.PROJECT) @WithChildren
+                                   LinkCreator<ProjectDto> projectWithMembersLinkCreator,
                                LinkReceiver linkReceiver) {
         this.projectService = projectService;
         this.linkCreator = linkCreator;

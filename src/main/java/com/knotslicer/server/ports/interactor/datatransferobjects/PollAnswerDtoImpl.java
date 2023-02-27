@@ -8,6 +8,7 @@ import java.util.List;
 public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
     private static final long serialVersionUID = 9000L;
     private Long pollId;
+    private Long memberId;
     private Long pollAnswerId;
     private Boolean approved;
     private List<Link> links = new LinkedList<>();
@@ -26,6 +27,10 @@ public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
     @Override
     public void setPollId(Long pollId) {this.pollId = pollId;}
     @Override
+    public Long getMemberId() {return memberId;}
+    @Override
+    public void setMemberId(Long memberId) {this.memberId = memberId;}
+    @Override
     public Long getPollAnswerId() {return pollAnswerId;}
     @Override
     public void setPollAnswerId(Long pollAnswerId) {this.pollAnswerId = pollAnswerId;}
@@ -37,6 +42,8 @@ public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
     public void setApproved(Boolean approved) {
         this.approved = approved;
     }
+    @Override
     public List<Link> getLinks() {return links;}
+    @Override
     public void setLinks(List<Link> links) {this.links = links;}
 }

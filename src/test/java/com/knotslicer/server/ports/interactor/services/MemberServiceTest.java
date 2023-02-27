@@ -1,11 +1,8 @@
 package com.knotslicer.server.ports.interactor.services;
 
-import com.knotslicer.server.domain.Member;
-import com.knotslicer.server.domain.MemberImpl;
-import com.knotslicer.server.domain.Schedule;
-import com.knotslicer.server.domain.ScheduleImpl;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
-import com.knotslicer.server.ports.entitygateway.ScheduleDao;
+import com.knotslicer.server.domain.*;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -34,9 +31,9 @@ public class MemberServiceTest {
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
     @Mock
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
-    private ScheduleDao scheduleDao;
+    private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
@@ -46,25 +43,32 @@ public class MemberServiceTest {
     @Test
     public void givenCorrectMemberId_whenGetWithChildren_thenReturnMemberDtoWithScheduleDtos() {
         Member member = entityCreator.createMember();
+        member.setMemberId(1L);
         member.setName("member1");
         member.setRole("member1 role");
         member.setRoleDescription("member1 role description");
         Schedule scheduleOne = entityCreator.createSchedule();
-        scheduleOne.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 16, 0));
-        scheduleOne.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 21, 0));
+        scheduleOne.setScheduleId(1L);
+        scheduleOne.setStartTimeUtc(
+                LocalDateTime.of(2022, Month.DECEMBER, 27, 16, 0));
+        scheduleOne.setEndTimeUtc(
+                LocalDateTime.of(2022, Month.DECEMBER, 27, 21, 0));
         MemberImpl memberImpl = (MemberImpl) member;
         ScheduleImpl scheduleImpl1 = (ScheduleImpl) scheduleOne;
         memberImpl.addSchedule(scheduleImpl1);
         Schedule scheduleTwo = entityCreator.createSchedule();
-        scheduleTwo.setStartTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 27, 20, 0));
-        scheduleTwo.setEndTimeUtc(LocalDateTime.of(2022, Month.DECEMBER, 28, 1, 0));
+        scheduleTwo.setScheduleId(2L);
+        scheduleTwo.setStartTimeUtc(
+                LocalDateTime.of(2022, Month.DECEMBER, 27, 20, 0));
+        scheduleTwo.setEndTimeUtc(
+                LocalDateTime.of(2022, Month.DECEMBER, 28, 1, 0));
         ScheduleImpl scheduleImpl2 = (ScheduleImpl) scheduleTwo;
         memberImpl.addSchedule(scheduleImpl2);
 
         Mockito.when(
                 scheduleDao.getPrimaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
-                        .ofNullable(member));
+                        .of(member));
         Long userId = 10L;
         Mockito.when(
                 memberDao.getPrimaryParentId(anyLong()))
@@ -89,6 +93,8 @@ public class MemberServiceTest {
         checkSchedule(scheduleTwo, scheduleDtoTwo);
     }
     private void checkMember(Member member, MemberDto memberDto, Long userId, Long projectId) {
+        assertEquals(member.getMemberId(),
+                memberDto.getMemberId());
         assertEquals(member.getName(),
                 memberDto.getName());
         assertEquals(member.getRole(),
@@ -101,6 +107,8 @@ public class MemberServiceTest {
                 memberDto.getProjectId());
     }
     private void checkSchedule(Schedule schedule, ScheduleDto scheduleDto) {
+        assertEquals(schedule.getScheduleId(),
+                scheduleDto.getScheduleId());
         assertEquals(schedule.getStartTimeUtc(),
                 scheduleDto.getStartTimeUtc());
         assertEquals(schedule.getEndTimeUtc(),

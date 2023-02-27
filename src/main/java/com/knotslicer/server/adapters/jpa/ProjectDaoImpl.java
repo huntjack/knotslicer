@@ -4,7 +4,9 @@ import com.knotslicer.server.domain.Project;
 import com.knotslicer.server.domain.ProjectImpl;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.domain.UserImpl;
-import com.knotslicer.server.ports.entitygateway.ProjectDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -14,9 +16,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@ProcessAs(ProcessType.PROJECT)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class ProjectDaoImpl implements ProjectDao {
+public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, User> {
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
 
@@ -65,15 +68,15 @@ public class ProjectDaoImpl implements ProjectDao {
         return user.getUserId();
     }
     @Override
-    public Project update(Project inputProject, Long userId) {
+    public Project update(Project projectInput, Long userId) {
         UserImpl userImpl = getUserWithProjectsFromJpa(userId);
         entityManager.detach(userImpl);
         Project projectToBeModified =
-                getProjectFromUser(userImpl, inputProject);
+                getProjectFromUser(userImpl, projectInput);
         projectToBeModified.setProjectName(
-                        inputProject.getProjectName());
+                projectInput.getProjectName());
         projectToBeModified.setProjectDescription(
-                        inputProject.getProjectDescription());
+                projectInput.getProjectDescription());
         userImpl = entityManager
                 .merge(userImpl);
         entityManager.flush();
