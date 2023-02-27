@@ -2,8 +2,13 @@ package com.knotslicer.server.ports.interactor.services;
 
 
 import com.knotslicer.server.domain.Member;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
-import com.knotslicer.server.ports.entitygateway.ScheduleDao;
+import com.knotslicer.server.domain.Project;
+import com.knotslicer.server.domain.Schedule;
+import com.knotslicer.server.domain.User;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
@@ -11,12 +16,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
-@MemberService
+@ProcessAs(ProcessType.MEMBER)
 @ApplicationScoped
 public class MemberServiceImpl implements ParentService<MemberDto> {
     private EntityDtoMapper entityDtoMapper;
-    private MemberDao memberDao;
-    private ScheduleDao scheduleDao;
+    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
 
     @Override
     public MemberDto create(MemberDto memberDto) {
@@ -93,7 +98,11 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
                 userId);
     }
     @Inject
-    public MemberServiceImpl(EntityDtoMapper entityDtoMapper, MemberDao memberDao, ScheduleDao scheduleDao) {
+    public MemberServiceImpl(EntityDtoMapper entityDtoMapper,
+                             @ProcessAs(ProcessType.MEMBER)
+                             ChildWithTwoParentsDao<Member, User, Project> memberDao,
+                             @ProcessAs(ProcessType.SCHEDULE)
+                             ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.memberDao = memberDao;
         this.scheduleDao = scheduleDao;

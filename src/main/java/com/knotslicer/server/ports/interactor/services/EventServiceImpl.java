@@ -1,8 +1,11 @@
 package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.Event;
-import com.knotslicer.server.ports.entitygateway.EventDao;
-import com.knotslicer.server.ports.entitygateway.PollDao;
+import com.knotslicer.server.domain.Poll;
+import com.knotslicer.server.domain.User;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
@@ -11,12 +14,12 @@ import jakarta.inject.Inject;
 
 import java.util.Optional;
 
-@EventService
+@ProcessAs(ProcessType.EVENT)
 @ApplicationScoped
 public class EventServiceImpl implements ParentService<EventDto> {
     private EntityDtoMapper entityDtoMapper;
-    private EventDao eventDao;
-    private PollDao pollDao;
+    private ChildWithOneRequiredParentDao<Event, User> eventDao;
+    private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
 
     @Override
     public EventDto create(EventDto eventDto) {
@@ -71,7 +74,11 @@ public class EventServiceImpl implements ParentService<EventDto> {
         eventDao.delete(eventId, userId);
     }
     @Inject
-    public EventServiceImpl(EntityDtoMapper entityDtoMapper, EventDao eventDao, PollDao pollDao) {
+    public EventServiceImpl(EntityDtoMapper entityDtoMapper,
+                            @ProcessAs(ProcessType.EVENT)
+                            ChildWithOneRequiredParentDao<Event, User> eventDao,
+                            @ProcessAs(ProcessType.POLL)
+                            ChildWithOneRequiredParentDao<Poll, Event> pollDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.eventDao = eventDao;
         this.pollDao = pollDao;

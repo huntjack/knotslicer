@@ -12,7 +12,7 @@ import java.util.UUID;
 public class PollImpl implements Poll {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Long pollId;
     @Column(unique=true, updatable = false, nullable = false)
     private String pollBusinessKey;
@@ -55,6 +55,8 @@ public class PollImpl implements Poll {
 
     @Override
     public Long getPollId() {return pollId;}
+    @Override
+    public void setPollId(Long pollId) {this.pollId = pollId;}
     public String getPollBusinessKey() {return pollBusinessKey;}
     @Override
     public LocalDateTime getStartTimeUtc() {return startTimeUtc;}

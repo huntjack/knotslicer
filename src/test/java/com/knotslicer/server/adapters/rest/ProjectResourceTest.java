@@ -19,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+
 
 public class ProjectResourceTest extends JerseyTest {
     @Mock
@@ -43,91 +45,95 @@ public class ProjectResourceTest extends JerseyTest {
     }
     @Test
     public void givenCorrectProjectId_whenGetWithChildren_thenLinksAreCorrect() {
-        ProjectDto projectDto = dtoCreator.createProjectDto();
-        projectDto.setProjectId(1L);
-        projectDto.setUserId(1L);
-        MemberDto memberDto1 = dtoCreator.createMemberDto();
-        memberDto1.setMemberId(1L);
-        memberDto1.setUserId(1L);
-        MemberDto memberDto2 = dtoCreator.createMemberDto();
-        memberDto2.setMemberId(2L);
-        memberDto2.setUserId(2L);
+        ProjectDto projectDtoDummy = dtoCreator.createProjectDto();
+        projectDtoDummy.setProjectId(1L);
+        projectDtoDummy.setUserId(1L);
+        MemberDto memberDtoDummyOne = dtoCreator.createMemberDto();
+        memberDtoDummyOne.setMemberId(1L);
+        memberDtoDummyOne.setUserId(1L);
+        MemberDto memberDtoDummyTwo = dtoCreator.createMemberDto();
+        memberDtoDummyTwo.setMemberId(2L);
+        memberDtoDummyTwo.setUserId(2L);
         List<MemberDto> memberDtos = new LinkedList<>();
-        memberDtos.add(memberDto1);
-        memberDtos.add(memberDto2);
-        projectDto.setMembers(memberDtos);
-        Long projectId = projectDto.getProjectId();
+        memberDtos.add(memberDtoDummyOne);
+        memberDtos.add(memberDtoDummyTwo);
+        projectDtoDummy.setMembers(memberDtos);
 
         Mockito.when(
-                projectService.getWithChildren(projectId))
-                .thenReturn(projectDto);
+                projectService.getWithChildren(anyLong()))
+                .thenReturn(projectDtoDummy);
 
         ProjectDto projectResponseDto = target("/projects/1/members")
                 .request()
                 .get(ProjectDto.class);
-        checkProject(projectResponseDto,
-                projectDto.getProjectId(),
-                projectDto.getUserId());
+        checkProject(projectResponseDto, projectDtoDummy);
+
+        List<MemberDto> memberResponseDtos =
+                projectResponseDto.getMembers();
 
         MemberDto memberResponseDtoOne =
-                projectResponseDto
-                        .getMembers()
-                        .get(0);
-        checkMember(memberResponseDtoOne,
-                memberDto1.getMemberId(),
-                memberDto1.getUserId());
+                memberResponseDtos.get(0);
+        checkMember(memberResponseDtoOne, memberDtoDummyOne);
 
         MemberDto memberResponseDtoTwo =
-                projectResponseDto
-                        .getMembers()
-                        .get(1);
-        checkMember(memberResponseDtoTwo,
-                memberDto2.getMemberId(),
-                memberDto2.getUserId());
+                memberResponseDtos.get(1);
+        checkMember(memberResponseDtoTwo, memberDtoDummyTwo);
     }
-    private void checkProject(ProjectDto projectResponseDto, Long projectId, Long userId) {
+    private void checkProject(ProjectDto projectResponseDto, ProjectDto projectDtoDummy) {
         List<Link> projectDtoLinks = projectResponseDto.getLinks();
-        Link projectSelfLink = projectDtoLinks.get(0);
+        Link selfLink = projectDtoLinks.get(0);
         assertEquals("self",
-                projectSelfLink.getRel());
-        assertTrue(projectSelfLink
+                selfLink.getRel());
+        String projectId = projectDtoDummy
+                .getProjectId()
+                .toString();
+        assertTrue(selfLink
                 .getLink()
                 .contains("/projects/" +
-                        projectId.toString()),
+                        projectId),
                 "ProjectDto's self link is incorrect.");
-        Link projectUserLink = projectDtoLinks.get(1);
+        Link userLink = projectDtoLinks.get(1);
         assertEquals("user",
-                projectUserLink.getRel());
-        assertTrue(projectUserLink
+                userLink.getRel());
+        String userId = projectDtoDummy
+                .getUserId()
+                .toString();
+        assertTrue(userLink
                 .getLink()
                 .contains("/users/" +
-                        userId.toString()),
+                        userId),
                 "ProjectDto's user link is incorrect.");
     }
-    private void checkMember(MemberDto memberResponseDto, Long memberId, Long userId) {
-        Link memberResponseDtoMemberLink =
+    private void checkMember(MemberDto memberResponseDto, MemberDto memberDtoDummy) {
+        Link memberLink =
                 memberResponseDto
                         .getLinks()
                         .get(0);
         assertEquals("member",
-                memberResponseDtoMemberLink
+                memberLink
                         .getRel());
-        assertTrue(memberResponseDtoMemberLink
+        String memberId = memberDtoDummy
+                .getMemberId()
+                .toString();
+        assertTrue(memberLink
                 .getLink()
                 .contains("/members/" +
-                        memberId.toString()),
+                        memberId),
                 "MemberDto's member link is incorrect.");
-        Link memberResponseDtoUserLink =
+        Link userLink =
                 memberResponseDto
                         .getLinks()
                         .get(1);
         assertEquals("user",
-                memberResponseDtoUserLink
+                userLink
                         .getRel());
-        assertTrue(memberResponseDtoUserLink
+        String userId = memberDtoDummy
+                .getUserId()
+                .toString();
+        assertTrue(userLink
                 .getLink()
                 .contains("/users/" +
-                        userId.toString()),
+                        userId),
                 "MemberDto's user link is incorrect");
     }
     @AfterEach

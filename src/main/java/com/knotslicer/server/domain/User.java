@@ -5,6 +5,7 @@ import java.time.ZoneId;
 
 public interface User {
     Long getUserId();
+    void setUserId(Long userId);
     String getEmail();
     void setEmail(String email);
     String getUserName();

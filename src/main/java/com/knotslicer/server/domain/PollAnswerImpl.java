@@ -9,7 +9,7 @@ import java.util.UUID;
 public class PollAnswerImpl implements PollAnswer {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Long pollAnswerId;
     @Column(unique=true, updatable = false, nullable = false)
     private String pollAnswerBusinessKey;
@@ -43,6 +43,8 @@ public class PollAnswerImpl implements PollAnswer {
 
     @Override
     public Long getPollAnswerId() {return pollAnswerId;}
+    @Override
+    public void setPollAnswerId(Long pollAnswerId) {this.pollAnswerId = pollAnswerId;}
     public String getPollAnswerBusinessKey() {return pollAnswerBusinessKey;}
     @Override
     public Boolean isApproved() {return approved;}

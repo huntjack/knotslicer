@@ -2,10 +2,11 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.MemberWithSchedulesLinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ScheduleLinkCreator;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
@@ -128,10 +129,11 @@ public class ScheduleResourceImpl implements ScheduleResource {
                 .build();
     }
     @Inject
-    public ScheduleResourceImpl(@ScheduleService Service<ScheduleDto> scheduleService,
-                                @MemberService ParentService<MemberDto> memberService,
-                                @ScheduleLinkCreator LinkCreator<ScheduleDto> linkCreator,
-                                @MemberWithSchedulesLinkCreator LinkCreator<MemberDto> memberWithSchedulesLinkCreator,
+    public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE) Service<ScheduleDto> scheduleService,
+                                @ProcessAs(ProcessType.MEMBER) ParentService<MemberDto> memberService,
+                                @ProcessAs(ProcessType.SCHEDULE) LinkCreator<ScheduleDto> linkCreator,
+                                @ProcessAs(ProcessType.MEMBER) @WithChildren
+                                    LinkCreator<MemberDto> memberWithSchedulesLinkCreator,
                                 LinkReceiver linkReceiver) {
         this.scheduleService = scheduleService;
         this.memberService = memberService;

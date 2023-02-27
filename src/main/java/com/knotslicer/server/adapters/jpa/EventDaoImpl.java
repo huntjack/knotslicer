@@ -1,7 +1,9 @@
 package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.EventDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,9 +13,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@ProcessAs(ProcessType.EVENT)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class EventDaoImpl implements EventDao {
+public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> {
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
 
@@ -62,16 +65,16 @@ public class EventDaoImpl implements EventDao {
         return Optional.ofNullable(user);
     }
     @Override
-    public Event update(Event inputEvent, Long userId) {
+    public Event update(Event eventInput, Long userId) {
         UserImpl userImpl = getUserWithEventsFromJpa(userId);
         entityManager.detach(userImpl);
-        Event eventToBeModified = getEventFromUser(userImpl, inputEvent);
+        Event eventToBeModified = getEventFromUser(userImpl, eventInput);
         eventToBeModified.setEventName(
-                inputEvent.getEventName());
+                eventInput.getEventName());
         eventToBeModified.setSubject(
-                inputEvent.getSubject());
+                eventInput.getSubject());
         eventToBeModified.setEventDescription(
-                inputEvent.getEventDescription());
+                eventInput.getEventDescription());
         userImpl = entityManager
                 .merge(userImpl);
         entityManager.flush();

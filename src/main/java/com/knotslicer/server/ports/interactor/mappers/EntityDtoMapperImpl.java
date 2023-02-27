@@ -117,24 +117,21 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         MemberDto memberDto = dtoCreator.createMemberDto();
         memberDto.setUserId(userId);
         memberDto.setProjectId(projectId);
-        setDtoVariables(memberDto, memberInput);
-        return memberDto;
-    }
-    private void setDtoVariables(MemberDto memberDtoToBeModified, Member memberInput) {
-        memberDtoToBeModified.setMemberId(
+        memberDto.setMemberId(
                 memberInput.getMemberId());
-        memberDtoToBeModified.setName(
+        memberDto.setName(
                 memberInput.getName());
-        memberDtoToBeModified.setRole(
+        memberDto.setRole(
                 memberInput.getRole());
-        memberDtoToBeModified.setRoleDescription(
+        memberDto.setRoleDescription(
                 memberInput.getRoleDescription());
+        return memberDto;
     }
     public MemberDto addScheduleDtosToMemberDto(MemberDto memberDto, Member memberInput) {
         MemberImpl memberImpl = (MemberImpl) memberInput;
         List<ScheduleImpl> scheduleImpls = memberImpl.getSchedules();
         List<ScheduleDto> scheduleDtos = new LinkedList<>();
-        Long memberId = memberDto.getMemberId();
+        Long memberId = memberInput.getMemberId();
         for(ScheduleImpl scheduleImpl: scheduleImpls) {
             ScheduleDto scheduleDto =
                     toDto(scheduleImpl, memberId);
@@ -200,13 +197,13 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         EventImpl eventImpl = (EventImpl) eventInput;
         List<PollImpl> pollImpls = eventImpl.getPolls();
         List<PollDto> pollDtos = new LinkedList<>();
-        Long eventId = eventDto.getEventId();
+        Long eventId = eventImpl.getEventId();
         for(PollImpl pollImpl: pollImpls) {
             PollDto pollDto =
                     toDto(pollImpl, eventId);
             pollDtos.add(pollDto);
         }
-        eventDto.setPollDtos(pollDtos);
+        eventDto.setPolls(pollDtos);
         return eventDto;
     }
     @Override
@@ -267,10 +264,30 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         setEntityVariables(pollToBeModified, pollDtoInput);
         return pollToBeModified;
     }
+    public PollDto addPollAnswerDtosToPollDto(PollDto pollDto, Poll pollInput) {
+        PollImpl pollImpl = (PollImpl) pollInput;
+        List<PollAnswerImpl> pollAnswerImpls =
+                pollImpl.getPollAnswers();
+        List<PollAnswerDto> pollAnswerDtos = new LinkedList<>();
+        Long pollId = pollInput.getPollId();
+        for(PollAnswerImpl pollAnswerImpl : pollAnswerImpls) {
+            Long memberId = pollAnswerImpl
+                    .getMember()
+                    .getMemberId();
+            PollAnswerDto pollAnswerDto =
+                    toDto(pollAnswerImpl,
+                            pollId,
+                            memberId);
+            pollAnswerDtos.add(pollAnswerDto);
+        }
+        pollDto.setPollAnswers(pollAnswerDtos);
+        return pollDto;
+    }
     @Override
-    public PollAnswerDto toDto(PollAnswer pollAnswerInput, Long pollId) {
+    public PollAnswerDto toDto(PollAnswer pollAnswerInput, Long pollId, Long memberId) {
         PollAnswerDto pollAnswerDto = dtoCreator.createPollAnswerDto();
         pollAnswerDto.setPollId(pollId);
+        pollAnswerDto.setMemberId(memberId);
         pollAnswerDto.setPollAnswerId(
                 pollAnswerInput.getPollAnswerId());
         pollAnswerDto.setApproved(

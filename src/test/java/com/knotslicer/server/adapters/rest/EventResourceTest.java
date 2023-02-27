@@ -19,8 +19,8 @@ import org.mockito.MockitoAnnotations;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 
 public class EventResourceTest extends JerseyTest {
     @Mock
@@ -45,75 +45,76 @@ public class EventResourceTest extends JerseyTest {
     }
     @Test
     public void givenCorrectEventId_whenGetWithChildren_thenLinksAreCorrect() {
-        EventDto eventDto = dtoCreator.createEventDto();
-        eventDto.setEventId(1L);
-        eventDto.setUserId(1L);
-        PollDto pollDtoOne = dtoCreator.createPollDto();
-        pollDtoOne.setPollId(1L);
-        pollDtoOne.setEventId(1L);
-        PollDto pollDtoTwo = dtoCreator.createPollDto();
-        pollDtoTwo.setPollId(2L);
-        pollDtoTwo.setEventId(1L);
+        EventDto eventDtoDummy = dtoCreator.createEventDto();
+        eventDtoDummy.setEventId(1L);
+        eventDtoDummy.setUserId(1L);
+        PollDto pollDtoDummyOne = dtoCreator.createPollDto();
+        pollDtoDummyOne.setPollId(1L);
+        pollDtoDummyOne.setEventId(1L);
+        PollDto pollDtoDummyTwo = dtoCreator.createPollDto();
+        pollDtoDummyTwo.setPollId(2L);
+        pollDtoDummyTwo.setEventId(1L);
         List<PollDto> pollDtos = new LinkedList<>();
-        pollDtos.add(pollDtoOne);
-        pollDtos.add(pollDtoTwo);
-        eventDto.setPollDtos(pollDtos);
-        Long eventId = eventDto.getEventId();
+        pollDtos.add(pollDtoDummyOne);
+        pollDtos.add(pollDtoDummyTwo);
+        eventDtoDummy.setPolls(pollDtos);
 
         Mockito.when(
-                eventService.getWithChildren(eventId))
-                .thenReturn(eventDto);
+                eventService.getWithChildren(anyLong()))
+                .thenReturn(eventDtoDummy);
 
         EventDto eventResponseDto = target("/events/1/polls")
                 .request()
                 .get(EventDto.class);
-        Long userId = eventDto.getUserId();
-        checkEvent(eventResponseDto,
-                eventId,
-                userId);
+        checkEvent(eventResponseDto, eventDtoDummy);
+
+        List<PollDto> pollResponseDtos =
+                eventResponseDto.getPolls();
 
         PollDto pollResponseDtoOne =
-                eventResponseDto
-                        .getPollDtos()
-                        .get(0);
+                pollResponseDtos.get(0);
         checkPolls(pollResponseDtoOne,
-                pollDtoOne.getPollId());
+                pollDtoDummyOne.getPollId());
 
         PollDto pollResponseDtoTwo =
-                eventResponseDto
-                        .getPollDtos()
-                        .get(1);
+                pollResponseDtos.get(1);
         checkPolls(pollResponseDtoTwo,
-                pollDtoTwo.getPollId());
+                pollDtoDummyTwo.getPollId());
     }
-    private void checkEvent(EventDto eventResponseDto, Long eventId, Long userId) {
+    private void checkEvent(EventDto eventResponseDto, EventDto eventDtoDummy) {
         List<Link> eventDtoLinks = eventResponseDto.getLinks();
-        Link eventSelfLink = eventDtoLinks.get(0);
+        Link selfLink = eventDtoLinks.get(0);
         assertEquals("self",
-                eventSelfLink.getRel());
-        assertTrue(eventSelfLink
+                selfLink.getRel());
+        String eventId = eventDtoDummy
+                .getEventId()
+                .toString();
+        assertTrue(selfLink
                         .getLink()
                         .contains("/events/" +
-                                eventId.toString()),
+                                eventId),
                 "EventDto's self link is incorrect.");
-        Link eventUserLink = eventDtoLinks.get(1);
+        Link userLink = eventDtoLinks.get(1);
         assertEquals("user",
-                eventUserLink.getRel());
-        assertTrue(eventUserLink
+                userLink.getRel());
+        String userId = eventDtoDummy
+                .getUserId()
+                .toString();
+        assertTrue(userLink
                         .getLink()
                         .contains("/users/" +
-                                userId.toString()),
+                                userId),
                 "EventDto's user link is incorrect.");
     }
     private void checkPolls(PollDto pollResponseDto, Long pollId) {
-        Link pollDtoLink =
+        Link pollLink =
                 pollResponseDto
                         .getLinks()
                         .get(0);
         assertEquals("poll",
-                pollDtoLink
+                pollLink
                         .getRel());
-        assertTrue(pollDtoLink
+        assertTrue(pollLink
                 .getLink()
                 .contains("/polls/" +
                         pollId.toString()),

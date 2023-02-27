@@ -11,6 +11,7 @@ public class PollDtoImpl implements PollDto, Serializable {
     private Long pollId;
     private LocalDateTime startTimeUtc;
     private LocalDateTime endTimeUtc;
+    private List<PollAnswerDto> pollAnswers = new LinkedList<>();
     private List<Link> links = new LinkedList<>();
     @Override
     public void addLink(String url, String rel) {
@@ -46,6 +47,10 @@ public class PollDtoImpl implements PollDto, Serializable {
     public void setEndTimeUtc(LocalDateTime endTimeUtc) {
         this.endTimeUtc = endTimeUtc;
     }
+    @Override
+    public List<PollAnswerDto> getPollAnswers() {return pollAnswers;}
+    @Override
+    public void setPollAnswers(List<PollAnswerDto> pollAnswers) {this.pollAnswers = pollAnswers;}
     @Override
     public List<Link> getLinks() {return links;}
     @Override

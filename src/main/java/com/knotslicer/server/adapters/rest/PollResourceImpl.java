@@ -4,11 +4,12 @@ import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.PollLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.PollDto;
 import com.knotslicer.server.ports.interactor.services.ParentService;
-import com.knotslicer.server.ports.interactor.services.PollService;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -96,8 +97,10 @@ public class PollResourceImpl implements PollResource {
                 .build();
     }
     @Inject
-    public PollResourceImpl(@PollService ParentService<PollDto> pollService,
-                            @PollLinkCreator LinkCreator<PollDto> linkCreator,
+    public PollResourceImpl(@ProcessAs(ProcessType.POLL)
+                                ParentService<PollDto> pollService,
+                            @ProcessAs(ProcessType.POLL) @Default
+                            LinkCreator<PollDto> linkCreator,
                             LinkReceiver linkReceiver) {
         this.pollService = pollService;
         this.linkCreator = linkCreator;

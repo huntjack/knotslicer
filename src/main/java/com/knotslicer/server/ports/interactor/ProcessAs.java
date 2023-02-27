@@ -1,4 +1,4 @@
-package com.knotslicer.server.ports.interactor.services;
+package com.knotslicer.server.ports.interactor;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -13,4 +13,6 @@ import jakarta.inject.Qualifier;
 @Qualifier
 @Retention(RUNTIME)
 @Target({TYPE, METHOD, FIELD, PARAMETER})
-public @interface ProjectService {}
+public @interface ProcessAs {
+    ProcessType value();
+}

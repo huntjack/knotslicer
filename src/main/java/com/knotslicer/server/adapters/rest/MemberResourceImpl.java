@@ -4,11 +4,12 @@ import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.MemberLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
-import com.knotslicer.server.ports.interactor.services.MemberService;
 import com.knotslicer.server.ports.interactor.services.ParentService;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
@@ -94,8 +95,10 @@ public class MemberResourceImpl implements MemberResource {
                 .build();
     }
     @Inject
-    public MemberResourceImpl(@MemberService ParentService<MemberDto> memberService,
-                              @MemberLinkCreator LinkCreator<MemberDto> linkCreator,
+    public MemberResourceImpl(@ProcessAs(ProcessType.MEMBER)
+                                  ParentService<MemberDto> memberService,
+                              @ProcessAs(ProcessType.MEMBER) @Default
+                              LinkCreator<MemberDto> linkCreator,
                               LinkReceiver linkReceiver) {
         this.memberService = memberService;
         this.linkCreator = linkCreator;

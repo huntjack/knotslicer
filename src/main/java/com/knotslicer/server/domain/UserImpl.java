@@ -13,7 +13,7 @@ import java.util.UUID;
 public class UserImpl implements User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Long userId;
     @Column(unique=true, updatable = false, nullable = false)
     private String userBusinessKey;
@@ -80,6 +80,8 @@ public class UserImpl implements User {
 
     @Override
     public Long getUserId() {return userId;}
+    @Override
+    public void setUserId(Long userId) {this.userId = userId;}
     public String getUserBusinessKey() {return userBusinessKey;}
     @Override
     public String getEmail() {return email;}

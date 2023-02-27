@@ -9,7 +9,7 @@ import java.util.*;
 public class MemberImpl implements Member {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Long memberId;
     @Column(unique=true, updatable = false, nullable = false)
     private String memberBusinessKey;
@@ -27,6 +27,8 @@ public class MemberImpl implements Member {
     private Set<EventImpl> events = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
     private List<ScheduleImpl> schedules = new ArrayList<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", orphanRemoval = true)
+    private List<PollAnswerImpl> pollAnswers = new ArrayList<>();
 
     public void addEvent(EventImpl event) {
         events.add(event);
@@ -43,6 +45,14 @@ public class MemberImpl implements Member {
     public void removeSchedule(ScheduleImpl schedule) {
         schedules.remove(schedule);
         schedule.setMember(null);
+    }
+    public void addPollAnswer(PollAnswerImpl pollAnswer) {
+        pollAnswer.setMember(this);
+        pollAnswers.add(pollAnswer);
+    }
+    public void removePollAnswer(PollAnswerImpl pollAnswer) {
+        pollAnswers.remove(pollAnswer);
+        pollAnswer.setMember(null);
     }
 
     @Override
@@ -67,6 +77,8 @@ public class MemberImpl implements Member {
 
     @Override
     public Long getMemberId() {return memberId;}
+    @Override
+    public void setMemberId(Long memberId) {this.memberId = memberId;}
     public String getMemberBusinessKey() {return memberBusinessKey;}
     @Override
     public String getName() {return name;}
@@ -89,4 +101,6 @@ public class MemberImpl implements Member {
     public void setEvents(Set<EventImpl> events) {this.events = events;}
     public List<ScheduleImpl> getSchedules() {return schedules;}
     public void setSchedules(List<ScheduleImpl> schedules) {this.schedules = schedules;}
+    public List<PollAnswerImpl> getPollAnswers() {return pollAnswers;}
+    public void setPollAnswers(List<PollAnswerImpl> pollAnswers) {this.pollAnswers = pollAnswers;}
 }
