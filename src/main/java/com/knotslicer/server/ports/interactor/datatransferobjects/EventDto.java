@@ -18,6 +18,4 @@ public interface EventDto extends Linkable {
     void setEventDescription(String eventDescription);
     List<PollDto> getPolls();
     void setPolls(List<PollDto> pollDtos);
-    List<Link> getLinks();
-    void setLinks(List<Link> links);
 }

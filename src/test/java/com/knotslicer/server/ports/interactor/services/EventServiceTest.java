@@ -75,15 +75,15 @@ public class EventServiceTest {
                 .thenReturn(userId);
         EventDto eventDto = eventService.getWithChildren(5L);
 
-        checkEvent(event, eventDto, userId);
+        checkEventDto(event, eventDto, userId);
         List<PollDto> pollDtos =
                 eventDto.getPolls();
         PollDto pollDtoOne = pollDtos.get(0);
-        checkPoll(pollOne, pollDtoOne);
+        checkPollDto(pollOne, pollDtoOne);
         PollDto pollDtoTwo = pollDtos.get(1);
-        checkPoll(pollTwo, pollDtoTwo);
+        checkPollDto(pollTwo, pollDtoTwo);
     }
-    private void checkEvent(Event event, EventDto eventDto, Long userId) {
+    private void checkEventDto(Event event, EventDto eventDto, Long userId) {
         assertEquals(event.getEventId(),
                 eventDto.getEventId());
         assertEquals(event.getEventName(),
@@ -95,7 +95,7 @@ public class EventServiceTest {
         assertEquals(userId,
                 eventDto.getUserId());
     }
-    private void checkPoll(Poll poll, PollDto pollDto) {
+    private void checkPollDto(Poll poll, PollDto pollDto) {
         assertEquals(poll.getPollId(),
                 pollDto.getPollId());
         assertEquals(poll.getStartTimeUtc(),

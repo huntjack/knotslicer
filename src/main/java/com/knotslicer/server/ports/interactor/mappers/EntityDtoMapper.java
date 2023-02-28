@@ -6,6 +6,9 @@ import com.knotslicer.server.domain.*;
 public interface EntityDtoMapper {
     UserDto toDto(User userInput);
     UserLightDto toLightDto(User userInput);
+    UserLightDto addProjectDtosToUserLightDto(UserLightDto userLightDto, User userInput);
+    UserLightDto addMemberDtosToUserLightDto(UserLightDto userLightDto, User userInput);
+    UserLightDto addEventDtosToUserLightDto(UserLightDto userLightDto, User userInput);
     User toEntity(UserDto userDtoInput);
     User toEntity(UserLightDto userLightDtoInput, User userToBeModified);
     ProjectDto toDto(Project projectInput, Long userId);
@@ -18,18 +21,18 @@ public interface EntityDtoMapper {
     Member toEntity(MemberDto memberDtoInput, Member memberToBeModified);
 
     EventDto toDto(Event eventInput, Long userId);
+    EventDto addPollDtosToEventDto(EventDto eventDto, Event eventInput);
     Event toEntity(EventDto eventDtoInput);
     Event toEntity(EventDto eventDtoInput, Event eventToBeModified);
-    EventDto addPollDtosToEventDto(EventDto eventDto, Event eventInput);
 
     ScheduleDto toDto(Schedule scheduleInput, Long memberId);
     Schedule toEntity(ScheduleDto scheduleDtoInput);
     Schedule toEntity(ScheduleDto scheduleDtoInput, Schedule scheduleToBeModified);
 
     PollDto toDto(Poll pollInput, Long eventId);
+    PollDto addPollAnswerDtosToPollDto(PollDto pollDto, Poll pollInput);
     Poll toEntity(PollDto pollDtoInput);
     Poll toEntity(PollDto pollDtoInput, Poll pollToBeModified);
-    PollDto addPollAnswerDtosToPollDto(PollDto pollDto, Poll pollInput);
 
     PollAnswerDto toDto(PollAnswer pollAnswerInput, Long pollId, Long memberId);
     PollAnswer toEntity(PollAnswerDto pollAnswerDtoInput);

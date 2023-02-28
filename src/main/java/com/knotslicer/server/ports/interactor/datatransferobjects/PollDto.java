@@ -16,6 +16,4 @@ public interface PollDto extends Linkable {
     void setEndTimeUtc(LocalDateTime endTimeUtc);
     List<PollAnswerDto> getPollAnswers();
     void setPollAnswers(List<PollAnswerDto> pollAnswerDtos);
-    List<Link> getLinks();
-    void setLinks(List<Link> links);
 }

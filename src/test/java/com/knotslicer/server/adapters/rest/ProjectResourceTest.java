@@ -21,7 +21,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
-
 public class ProjectResourceTest extends JerseyTest {
     @Mock
     private ParentService<ProjectDto> projectService;
@@ -66,15 +65,13 @@ public class ProjectResourceTest extends JerseyTest {
         ProjectDto projectResponseDto = target("/projects/1/members")
                 .request()
                 .get(ProjectDto.class);
-        checkProject(projectResponseDto, projectDtoDummy);
 
+        checkProject(projectResponseDto, projectDtoDummy);
         List<MemberDto> memberResponseDtos =
                 projectResponseDto.getMembers();
-
         MemberDto memberResponseDtoOne =
                 memberResponseDtos.get(0);
         checkMember(memberResponseDtoOne, memberDtoDummyOne);
-
         MemberDto memberResponseDtoTwo =
                 memberResponseDtos.get(1);
         checkMember(memberResponseDtoTwo, memberDtoDummyTwo);

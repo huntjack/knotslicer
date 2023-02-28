@@ -106,15 +106,13 @@ public class ScheduleResourceTest extends JerseyTest {
         MemberDto memberResponseDto = target("/members/1/schedules")
                 .request()
                 .get(MemberDto.class);
-        checkMember(memberResponseDto, memberDtoDummy);
 
+        checkMember(memberResponseDto, memberDtoDummy);
         List<ScheduleDto> scheduleResponseDtos =
                 memberResponseDto.getSchedules();
-
         ScheduleDto scheduleResponseDtoOne =
                 scheduleResponseDtos.get(0);
         checkSchedule(scheduleResponseDtoOne, scheduleDtoDummyOne);
-
         ScheduleDto scheduleResponseDtoTwo =
                 scheduleResponseDtos.get(1);
         checkSchedule(scheduleResponseDtoTwo, scheduleDtoDummyTwo);

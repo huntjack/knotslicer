@@ -20,6 +20,4 @@ public interface MemberDto extends Linkable {
     void setRoleDescription(String roleDescription);
     List<ScheduleDto> getSchedules();
     void setSchedules(List<ScheduleDto> schedules);
-    List<Link> getLinks();
-    public void setLinks(List<Link> links);
 }

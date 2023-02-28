@@ -26,6 +26,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+
 public class PollAnswerResourceTest extends JerseyTest {
     @Mock
     private Service<PollAnswerDto> pollAnswerService;
@@ -100,15 +101,13 @@ public class PollAnswerResourceTest extends JerseyTest {
 
         Mockito.when(pollService.getWithChildren(anyLong()))
                 .thenReturn(pollDtoDummy);
-
         PollDto pollResponseDto = target("/polls/1/pollanswers")
                 .request()
                 .get(PollDto.class);
-        checkPoll(pollResponseDto, pollDtoDummy);
 
+        checkPoll(pollResponseDto, pollDtoDummy);
         List<PollAnswerDto> pollAnswerResponseDtos =
                 pollResponseDto.getPollAnswers();
-
         PollAnswerDto pollAnswerResponseDtoOne =
                 pollAnswerResponseDtos.get(0);
         checkPollAnswer(pollAnswerResponseDtoOne, pollAnswerDtoDummyOne);

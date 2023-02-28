@@ -62,20 +62,17 @@ public class EventResourceTest extends JerseyTest {
         Mockito.when(
                 eventService.getWithChildren(anyLong()))
                 .thenReturn(eventDtoDummy);
-
         EventDto eventResponseDto = target("/events/1/polls")
                 .request()
                 .get(EventDto.class);
-        checkEvent(eventResponseDto, eventDtoDummy);
 
+        checkEvent(eventResponseDto, eventDtoDummy);
         List<PollDto> pollResponseDtos =
                 eventResponseDto.getPolls();
-
         PollDto pollResponseDtoOne =
                 pollResponseDtos.get(0);
         checkPolls(pollResponseDtoOne,
                 pollDtoDummyOne.getPollId());
-
         PollDto pollResponseDtoTwo =
                 pollResponseDtos.get(1);
         checkPolls(pollResponseDtoTwo,

@@ -74,18 +74,17 @@ public class PollServiceTest {
         Mockito.when(
                 pollDao.getPrimaryParentId(anyLong()))
                 .thenReturn(eventId);
-
         PollDto pollDto = pollService.getWithChildren(5L);
 
-        checkPoll(poll, pollDto, eventId);
+        checkPollDto(poll, pollDto, eventId);
         List<PollAnswerDto> pollAnswerDtos =
                 pollDto.getPollAnswers();
         PollAnswerDto pollAnswerDtoOne = pollAnswerDtos.get(0);
-        checkPollAnswer(pollAnswerOne, pollAnswerDtoOne);
+        checkPollAnswerDto(pollAnswerOne, pollAnswerDtoOne);
         PollAnswerDto pollAnswerDtoTwo = pollAnswerDtos.get(1);
-        checkPollAnswer(pollAnswerTwo, pollAnswerDtoTwo);
+        checkPollAnswerDto(pollAnswerTwo, pollAnswerDtoTwo);
     }
-    private void checkPoll(Poll poll, PollDto pollDto, Long eventId) {
+    private void checkPollDto(Poll poll, PollDto pollDto, Long eventId) {
         assertEquals(poll.getPollId(),
                 pollDto.getPollId());
         assertEquals(poll.getStartTimeUtc(),
@@ -95,7 +94,7 @@ public class PollServiceTest {
         assertEquals(eventId,
                 pollDto.getEventId());
     }
-    private void checkPollAnswer(PollAnswer pollAnswer, PollAnswerDto pollAnswerDto) {
+    private void checkPollAnswerDto(PollAnswer pollAnswer, PollAnswerDto pollAnswerDto) {
         assertEquals(pollAnswer.getPollAnswerId(),
                 pollAnswerDto.getPollAnswerId());
         assertEquals(pollAnswer.isApproved(),

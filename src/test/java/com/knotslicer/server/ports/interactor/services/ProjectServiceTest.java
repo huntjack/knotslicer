@@ -73,20 +73,19 @@ public class ProjectServiceTest {
         Mockito.when(
                 projectDao.getPrimaryParentId(anyLong()))
                 .thenReturn(userId);
-
         ProjectDto projectDto =
                 projectService.getWithChildren(7L);
-        checkProject(project, projectDto, userId);
 
+        checkProjectDto(project, projectDto, userId);
         List<MemberDto> memberDtos =
                 projectDto.getMembers();
         MemberDto memberDtoOne = memberDtos.get(0);
-        checkMember(memberOne, memberDtoOne);
+        checkMemberDto(memberOne, memberDtoOne);
 
         MemberDto memberDtoTwo = memberDtos.get(1);
-        checkMember(memberTwo, memberDtoTwo);
+        checkMemberDto(memberTwo, memberDtoTwo);
     }
-    private void checkProject(Project project, ProjectDto projectDto, Long userId) {
+    private void checkProjectDto(Project project, ProjectDto projectDto, Long userId) {
         assertEquals(project.getProjectId(),
                 projectDto.getProjectId());
         assertEquals(project.getProjectName(),
@@ -96,7 +95,7 @@ public class ProjectServiceTest {
         assertEquals(userId,
                 projectDto.getUserId());
     }
-    private void checkMember(Member member, MemberDto memberDto) {
+    private void checkMemberDto(Member member, MemberDto memberDto) {
         assertEquals(member.getMemberId(),
                 memberDto.getMemberId());
         assertEquals(member.getName(),
