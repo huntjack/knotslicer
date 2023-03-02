@@ -21,7 +21,7 @@ public class UserDaoImpl implements UserDao {
     public User create(User user) {
         entityManager.persist(user);
         entityManager.flush();
-        entityManager.refresh(user);
+        //entityManager.refresh(user);
         return user;
     }
     @Override

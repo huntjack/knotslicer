@@ -11,9 +11,9 @@ public class UserLightDtoImpl implements UserLightDto, Serializable {
     private String userName;
     private String userDescription;
     private ZoneId timeZone;
-    private List<ProjectDto> projects;
-    private List<MemberDto> members;
-    private List<EventDto> events;
+    private List<ProjectDto> projects = new LinkedList<>();
+    private List<MemberDto> members = new LinkedList<>();
+    private List<EventDto> events = new LinkedList<>();
     private List<Link> links = new LinkedList<>();
 
     @Override

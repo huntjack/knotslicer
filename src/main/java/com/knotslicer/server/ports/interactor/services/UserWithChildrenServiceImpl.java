@@ -40,6 +40,10 @@ public class UserWithChildrenServiceImpl implements UserWithChildrenService {
 
     @Override
     public UserLightDto getWithMembers(Long userId) {
+        Optional<User> optionalUser = memberDao.getPrimaryParentWithChildren(userId);
+        User user = unpackOptionalUser(optionalUser);
+        UserLightDto userLightDto = entityDtoMapper.toLightDto(user);
+
         return null;
     }
 

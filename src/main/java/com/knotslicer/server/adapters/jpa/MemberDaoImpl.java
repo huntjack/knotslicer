@@ -31,7 +31,7 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member,User,Project
         memberImpl = getMemberFromUser(userImpl, memberImpl);
         projectImpl.addMember(memberImpl);
         entityManager.flush();
-        entityManager.refresh(memberImpl);
+        //entityManager.refresh(memberImpl);
         return memberImpl;
     }
     private UserImpl getUserWithMembersFromJpa(Long userId) {

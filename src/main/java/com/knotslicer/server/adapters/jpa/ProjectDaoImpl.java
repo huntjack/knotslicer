@@ -31,7 +31,7 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
         project = getProjectFromUser(userImpl, project);
-        entityManager.refresh(project);
+        //entityManager.refresh(project);
         return project;
     }
     private UserImpl getUserWithProjectsFromJpa(Long userId) {
