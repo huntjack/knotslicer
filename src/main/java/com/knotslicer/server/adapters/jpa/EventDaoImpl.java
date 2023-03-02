@@ -27,14 +27,14 @@ public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> 
         userImpl.addEvent((EventImpl) event);
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
-        event = getEventFromUser(userImpl, event);
-        entityManager.refresh(event);
-        return event;
+        return getEventFromUser(
+                userImpl,
+                event);
     }
     private UserImpl getUserWithEventsFromJpa(Long userId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
                         ("SELECT user FROM User user " +
-                                "INNER JOIN FETCH user.events " +
+                                "LEFT JOIN FETCH user.events " +
                                 "WHERE user.userId = :userId", UserImpl.class)
                 .setParameter("userId", userId);
         return query.getSingleResult();
@@ -78,9 +78,9 @@ public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> 
         userImpl = entityManager
                 .merge(userImpl);
         entityManager.flush();
-        Event updatedEvent =
-                getEventFromUser(userImpl, eventToBeModified);
-        return updatedEvent;
+        return getEventFromUser(
+                userImpl,
+                eventToBeModified);
     }
 
     @Override

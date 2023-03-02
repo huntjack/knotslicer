@@ -27,14 +27,14 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
         memberImpl.addSchedule((ScheduleImpl) schedule);
         memberImpl = entityManager.merge(memberImpl);
         entityManager.flush();
-        schedule = getScheduleFromMember(memberImpl, schedule);
-        entityManager.refresh(schedule);
-        return schedule;
+        return getScheduleFromMember(
+                memberImpl,
+                schedule);
     }
     private MemberImpl getMemberWithSchedulesFromJpa(Long memberId) {
         TypedQuery<MemberImpl> query = entityManager.createQuery
                         ("SELECT m FROM Member m " +
-                                "INNER JOIN FETCH m.schedules " +
+                                "LEFT JOIN FETCH m.schedules " +
                                 "WHERE m.memberId = :memberId", MemberImpl.class)
                 .setParameter("memberId", memberId);
         return query.getSingleResult();
@@ -77,9 +77,9 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
         memberImpl = entityManager
                 .merge(memberImpl);
         entityManager.flush();
-        Schedule updatedSchedule =
-                getScheduleFromMember(memberImpl, scheduleToBeModified);
-        return updatedSchedule;
+        return getScheduleFromMember(
+                memberImpl,
+                scheduleToBeModified);
     }
     @Override
     public void delete(Long scheduleId, Long memberId) {

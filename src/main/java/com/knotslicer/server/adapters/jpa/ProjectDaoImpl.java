@@ -30,14 +30,14 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         userImpl.addProject((ProjectImpl) project);
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
-        project = getProjectFromUser(userImpl, project);
-        //entityManager.refresh(project);
-        return project;
+        return getProjectFromUser(
+                userImpl,
+                project);
     }
     private UserImpl getUserWithProjectsFromJpa(Long userId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
                         ("SELECT user FROM User user " +
-                                "INNER JOIN FETCH user.projects " +
+                                "LEFT JOIN FETCH user.projects " +
                                 "WHERE user.userId = :userId", UserImpl.class)
                 .setParameter("userId", userId);
         return query.getSingleResult();
@@ -80,9 +80,9 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         userImpl = entityManager
                 .merge(userImpl);
         entityManager.flush();
-        Project updatedProject =
-                getProjectFromUser(userImpl, projectToBeModified);
-        return updatedProject;
+        return getProjectFromUser(
+                userImpl,
+                projectToBeModified);
     }
     @Override
     public void delete(Long projectId, Long userId) {

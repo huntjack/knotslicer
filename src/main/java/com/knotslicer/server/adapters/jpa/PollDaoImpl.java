@@ -27,14 +27,14 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
         eventImpl.addPoll((PollImpl) poll);
         eventImpl = entityManager.merge(eventImpl);
         entityManager.flush();
-        poll = getPollFromEvent(eventImpl, poll);
-        entityManager.refresh(poll);
-        return poll;
+        return getPollFromEvent(
+                eventImpl,
+                poll);
     }
     private EventImpl getEventWithPollsFromJpa(Long eventId) {
         TypedQuery<EventImpl> query = entityManager.createQuery
                         ("SELECT event FROM Event event " +
-                                "INNER JOIN FETCH event.polls " +
+                                "LEFT JOIN FETCH event.polls " +
                                 "WHERE event.eventId = :eventId", EventImpl.class)
                 .setParameter("eventId", eventId);
         return query.getSingleResult();
@@ -76,8 +76,9 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
                 pollInput.getEndTimeUtc());
         eventImpl = entityManager.merge(eventImpl);
         entityManager.flush();
-        Poll updatedPoll = getPollFromEvent(eventImpl, pollToBeModified);
-        return updatedPoll;
+        return getPollFromEvent(
+                eventImpl,
+                pollToBeModified);
     }
 
     @Override
