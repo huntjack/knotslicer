@@ -33,7 +33,8 @@ public class EventServiceImpl implements ParentService<EventDto> {
     public EventDto get(Long eventId) {
         Optional<Event> optionalEvent = eventDao.get(eventId);
         Event event = unpackOptionalEvent(optionalEvent);
-        Long userId = eventDao.getPrimaryParentId(eventId);
+        User user = eventDao.getPrimaryParent(eventId);
+        Long userId = user.getUserId();
         return entityDtoMapper
                 .toDto(event, userId);
     }
@@ -45,8 +46,9 @@ public class EventServiceImpl implements ParentService<EventDto> {
         Optional<Event> optionalEvent =
                 pollDao.getPrimaryParentWithChildren(eventId);
         Event event = unpackOptionalEvent(optionalEvent);
-        Long userId = eventDao
-                .getPrimaryParentId(eventId);
+        User user = eventDao
+                .getPrimaryParent(eventId);
+        Long userId = user.getUserId();
         EventDto eventDto = entityDtoMapper
                 .toDto(event, userId);
         return entityDtoMapper
@@ -60,8 +62,9 @@ public class EventServiceImpl implements ParentService<EventDto> {
         Event eventToBeModified = unpackOptionalEvent(optionalEvent);
         eventToBeModified = entityDtoMapper
                 .toEntity(eventDto, eventToBeModified);
-        Long userId = eventDao
-                .getPrimaryParentId(eventId);
+        User user = eventDao
+                .getPrimaryParent(eventId);
+        Long userId = user.getUserId();
         Event updatedEvent = eventDao
                 .update(eventToBeModified,
                         userId);
@@ -70,8 +73,7 @@ public class EventServiceImpl implements ParentService<EventDto> {
     }
     @Override
     public void delete(Long eventId) {
-        Long userId = eventDao.getPrimaryParentId(eventId);
-        eventDao.delete(eventId, userId);
+        eventDao.delete(eventId);
     }
     @Inject
     public EventServiceImpl(EntityDtoMapper entityDtoMapper,

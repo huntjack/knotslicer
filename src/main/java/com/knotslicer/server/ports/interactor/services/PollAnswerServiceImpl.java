@@ -39,10 +39,12 @@ public class PollAnswerServiceImpl implements Service<PollAnswerDto> {
                 pollAnswerDao.get(pollAnswerId);
         PollAnswer pollAnswer =
                 unpackOptionalPollAnswer(optionalPollAnswer);
-        Long pollId = pollAnswerDao
-                .getPrimaryParentId(pollAnswerId);
-        Long memberId = pollAnswerDao
-                .getSecondaryParentId(pollAnswerId);
+        Poll poll = pollAnswerDao
+                .getPrimaryParent(pollAnswerId);
+        Long pollId = poll.getPollId();
+        Member member = pollAnswerDao
+                .getSecondaryParent(pollAnswerId);
+        Long memberId = member.getMemberId();
         return entityDtoMapper
                 .toDto(pollAnswer,
                         pollId,
@@ -63,8 +65,9 @@ public class PollAnswerServiceImpl implements Service<PollAnswerDto> {
         Long pollId = pollAnswerDto.getPollId();
         PollAnswer updatedPollAnswer = pollAnswerDao
                 .update(pollAnswerToBeModified, pollId);
-        Long memberId = pollAnswerDao
-                .getSecondaryParentId(pollAnswerId);
+        Member member = pollAnswerDao
+                .getSecondaryParent(pollAnswerId);
+        Long memberId = member.getMemberId();
         return entityDtoMapper.toDto(
                 updatedPollAnswer,
                 pollId,
@@ -73,11 +76,7 @@ public class PollAnswerServiceImpl implements Service<PollAnswerDto> {
 
     @Override
     public void delete(Long pollAnswerId) {
-        Long pollId = pollAnswerDao
-                .getPrimaryParentId(pollAnswerId);
-        pollAnswerDao.delete(
-                pollAnswerId,
-                pollId);
+        pollAnswerDao.delete(pollAnswerId);
     }
     @Inject
     public PollAnswerServiceImpl(EntityDtoMapper entityDtoMapper,

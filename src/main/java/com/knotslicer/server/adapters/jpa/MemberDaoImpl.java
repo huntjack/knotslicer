@@ -70,24 +70,22 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member,User,Project
         return Optional.ofNullable(project);
     }
     @Override
-    public Long getPrimaryParentId(Long memberId) {
-        TypedQuery<UserImpl> query = entityManager.createQuery
-                        ("SELECT user FROM User user " +
-                                "INNER JOIN user.members m " +
-                                "WHERE m.memberId = :memberId", UserImpl.class)
+    public User getPrimaryParent(Long memberId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery(
+                "SELECT user FROM User user " +
+                        "INNER JOIN user.members m " +
+                        "WHERE m.memberId = :memberId", UserImpl.class)
                 .setParameter("memberId", memberId);
-        User user = query.getSingleResult();
-        return user.getUserId();
+        return query.getSingleResult();
     }
     @Override
-    public Long getSecondaryParentId(Long memberId) {
-        TypedQuery<ProjectImpl> query = entityManager.createQuery
-                        ("SELECT project FROM Project project " +
-                                "INNER JOIN project.members m " +
-                                "WHERE m.memberId = :memberId", ProjectImpl.class)
+    public Project getSecondaryParent(Long memberId) {
+        TypedQuery<ProjectImpl> query = entityManager.createQuery(
+                "SELECT project FROM Project project " +
+                        "INNER JOIN project.members m " +
+                        "WHERE m.memberId = :memberId", ProjectImpl.class)
                 .setParameter("memberId", memberId);
-        Project project = query.getSingleResult();
-        return project.getProjectId();
+        return query.getSingleResult();
     }
     @Override
     public Member update(Member memberInput, Long userId) {
@@ -111,10 +109,14 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member,User,Project
     }
 
     @Override
-    public void delete(Long memberId, Long userId) {
-        UserImpl userImpl = getUserWithMembersFromJpa(userId);
-        MemberImpl memberImpl = entityManager.find(MemberImpl.class, memberId);
-        userImpl.removeMember(memberImpl);
+    public void delete(Long memberId) {
+        User user = getPrimaryParent(memberId);
+        UserImpl userWithMembers =
+                getUserWithMembersFromJpa(
+                        user.getUserId());
+        MemberImpl memberImpl = entityManager
+                .find(MemberImpl.class, memberId);
+        userWithMembers.removeMember(memberImpl);
         entityManager.flush();
     }
 }

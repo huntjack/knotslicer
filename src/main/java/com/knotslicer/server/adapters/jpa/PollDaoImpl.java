@@ -50,14 +50,13 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
         return Optional.ofNullable(poll);
     }
     @Override
-    public Long getPrimaryParentId(Long pollId) {
-        TypedQuery<EventImpl> query = entityManager.createQuery
-                        ("SELECT event FROM Event event " +
-                                "INNER JOIN event.polls poll " +
-                                "WHERE poll.pollId = :pollId", EventImpl.class)
+    public Event getPrimaryParent(Long pollId) {
+        TypedQuery<EventImpl> query = entityManager.createQuery(
+                "SELECT event FROM Event event " +
+                        "INNER JOIN event.polls poll " +
+                        "WHERE poll.pollId = :pollId", EventImpl.class)
                 .setParameter("pollId", pollId);
-        Event event = query.getSingleResult();
-        return event.getEventId();
+        return query.getSingleResult();
     }
     @Override
     public Optional<Event> getPrimaryParentWithChildren(Long eventId) {
@@ -82,9 +81,13 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
     }
 
     @Override
-    public void delete(Long pollId, Long eventId) {
-        EventImpl eventImpl = getEventWithPollsFromJpa(eventId);
-        PollImpl pollImpl = entityManager.find(PollImpl.class, pollId);
+    public void delete(Long pollId) {
+        Event event = getPrimaryParent(pollId);
+        EventImpl eventImpl =
+                getEventWithPollsFromJpa(
+                        event.getEventId());
+        PollImpl pollImpl = entityManager
+                .find(PollImpl.class, pollId);
         eventImpl.removePoll(pollImpl);
         entityManager.flush();
     }

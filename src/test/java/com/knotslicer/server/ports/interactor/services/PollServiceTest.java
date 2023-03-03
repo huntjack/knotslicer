@@ -44,6 +44,8 @@ public class PollServiceTest {
 
     @Test
     public void givenCorrectPollId_whenGetWithChildren_thenReturnPollDtoWithPollAnswerDtos(){
+        Event event = entityCreator.createEvent();
+        event.setEventId(1L);
         Poll poll = entityCreator.createPoll();
         poll.setPollId(1L);
         poll.setStartTimeUtc(
@@ -70,13 +72,15 @@ public class PollServiceTest {
                 pollAnswerDao.getPrimaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .of(poll));
-        Long eventId = 1L;
         Mockito.when(
-                pollDao.getPrimaryParentId(anyLong()))
-                .thenReturn(eventId);
+                pollDao.getPrimaryParent(anyLong()))
+                .thenReturn(event);
         PollDto pollDto = pollService.getWithChildren(5L);
 
-        checkPollDto(poll, pollDto, eventId);
+        checkPollDto(
+                poll,
+                pollDto,
+                event.getEventId());
         List<PollAnswerDto> pollAnswerDtos =
                 pollDto.getPollAnswers();
         PollAnswerDto pollAnswerDtoOne = pollAnswerDtos.get(0);

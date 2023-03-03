@@ -34,7 +34,8 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
     public ScheduleDto get(Long scheduleId) {
         Optional<Schedule> optionalSchedule = scheduleDao.get(scheduleId);
         Schedule schedule = unpackOptionalSchedule(optionalSchedule);
-        Long memberId = scheduleDao.getPrimaryParentId(scheduleId);
+        Member member = scheduleDao.getPrimaryParent(scheduleId);
+        Long memberId = member.getMemberId();
         return entityDtoMapper.toDto(
                 schedule,
                 memberId);
@@ -63,10 +64,7 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
     }
     @Override
     public void delete(Long scheduleId) {
-        Long memberId = scheduleDao.getPrimaryParentId(scheduleId);
-        scheduleDao.delete(
-                scheduleId,
-                memberId);
+        scheduleDao.delete(scheduleId);
     }
     @Inject
     public ScheduleServiceImpl(EntityDtoMapper entityDtoMapper,

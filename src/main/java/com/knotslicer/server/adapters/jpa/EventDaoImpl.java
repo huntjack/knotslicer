@@ -50,14 +50,13 @@ public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> 
         return Optional.ofNullable(event);
     }
     @Override
-    public Long getPrimaryParentId(Long eventId) {
-        TypedQuery<UserImpl> query = entityManager.createQuery
-                        ("SELECT user FROM User user " +
-                                "INNER JOIN user.events event " +
-                                "WHERE event.eventId = :eventId", UserImpl.class)
+    public User getPrimaryParent(Long eventId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery(
+                "SELECT user FROM User user " +
+                        "INNER JOIN user.events event " +
+                        "WHERE event.eventId = :eventId", UserImpl.class)
                 .setParameter("eventId", eventId);
-        User user = query.getSingleResult();
-        return user.getUserId();
+        return query.getSingleResult();
     }
     @Override
     public Optional<User> getPrimaryParentWithChildren(Long userId) {
@@ -84,10 +83,14 @@ public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> 
     }
 
     @Override
-    public void delete(Long eventId, Long userId) {
-        UserImpl userImpl = getUserWithEventsFromJpa(userId);
-        EventImpl eventImpl = entityManager.find(EventImpl.class, eventId);
-        userImpl.removeEvent(eventImpl);
+    public void delete(Long eventId) {
+        User user = getPrimaryParent(eventId);
+        UserImpl userWithEvents =
+                getUserWithEventsFromJpa(
+                        user.getUserId());
+        EventImpl eventImpl = entityManager
+                .find(EventImpl.class, eventId);
+        userWithEvents.removeEvent(eventImpl);
         entityManager.flush();
     }
 }

@@ -43,8 +43,10 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
         Optional<Member> optionalMember = memberDao
                 .get(memberId);
         Member member = unpackOptionalMember(optionalMember);
-        Long userId = memberDao.getPrimaryParentId(memberId);
-        Long projectId = memberDao.getSecondaryParentId(memberId);
+        User user = memberDao.getPrimaryParent(memberId);
+        Long userId = user.getUserId();
+        Project project = memberDao.getSecondaryParent(memberId);
+        Long projectId = project.getProjectId();;
         return entityDtoMapper.toDto(
                 member,
                 userId,
@@ -57,8 +59,10 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
     public MemberDto getWithChildren(Long memberId) {
         Optional<Member> optionalMember = scheduleDao.getPrimaryParentWithChildren(memberId);
         Member member = unpackOptionalMember(optionalMember);
-        Long userId = memberDao.getPrimaryParentId(memberId);
-        Long projectId = memberDao.getSecondaryParentId(memberId);
+        User user = memberDao.getPrimaryParent(memberId);
+        Long userId = user.getUserId();
+        Project project = memberDao.getSecondaryParent(memberId);
+        Long projectId = project.getProjectId();
         MemberDto memberDto =
                 entityDtoMapper.toDto(
                         member,
@@ -80,11 +84,15 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
                 .toEntity(memberDto,
                         memberToBeModified);
 
-        Long userId = memberDao.getPrimaryParentId(memberId);
+        User user = memberDao.getPrimaryParent(memberId);
+        Long userId = user.getUserId();
         Member updatedMember =
-                memberDao.update(memberToBeModified, userId);
+                memberDao.update(
+                        memberToBeModified,
+                        userId);
 
-        Long projectId = memberDao.getSecondaryParentId(memberId);
+        Project project = memberDao.getSecondaryParent(memberId);
+        Long projectId = project.getProjectId();
         return entityDtoMapper.toDto(
                 updatedMember,
                 userId,
@@ -92,10 +100,7 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
     }
     @Override
     public void delete(Long memberId) {
-        Long userId = memberDao.getPrimaryParentId(memberId);
-        memberDao.delete(
-                memberId,
-                userId);
+        memberDao.delete(memberId);
     }
     @Inject
     public MemberServiceImpl(EntityDtoMapper entityDtoMapper,

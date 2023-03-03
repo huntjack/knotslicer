@@ -42,6 +42,8 @@ public class EventServiceTest {
     }
     @Test
     public void givenCorrectEventId_whenGetWithChildren_thenReturnEventDtoWithPollDtos() {
+        User user = entityCreator.createUser();
+        user.setUserId(1L);
         Event event = entityCreator.createEvent();
         event.setEventId(1L);
         event.setEventName("Test Event");
@@ -69,13 +71,15 @@ public class EventServiceTest {
                 pollDao.getPrimaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .of(event));
-        Long userId = 1L;
         Mockito.when(
-                eventDao.getPrimaryParentId(anyLong()))
-                .thenReturn(userId);
+                eventDao.getPrimaryParent(anyLong()))
+                .thenReturn(user);
         EventDto eventDto = eventService.getWithChildren(5L);
 
-        checkEventDto(event, eventDto, userId);
+        checkEventDto(
+                event,
+                eventDto,
+                user.getUserId());
         List<PollDto> pollDtos =
                 eventDto.getPolls();
         PollDto pollDtoOne = pollDtos.get(0);

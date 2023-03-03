@@ -53,19 +53,18 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         return Optional.ofNullable(project);
     }
     @Override
+    public User getPrimaryParent(Long projectId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery(
+                "SELECT user FROM User user " +
+                        "INNER JOIN user.projects project " +
+                        "WHERE project.projectId = :projectId", UserImpl.class)
+                .setParameter("projectId", projectId);
+        return query.getSingleResult();
+    }
+    @Override
     public Optional<User> getPrimaryParentWithChildren(Long userId) {
         User user = getUserWithProjectsFromJpa(userId);
         return Optional.ofNullable(user);
-    }
-    @Override
-    public Long getPrimaryParentId(Long projectId) {
-        TypedQuery<UserImpl> query = entityManager.createQuery
-                        ("SELECT user FROM User user " +
-                                "INNER JOIN user.projects project " +
-                                "WHERE project.projectId = :projectId", UserImpl.class)
-                .setParameter("projectId", projectId);
-        User user = query.getSingleResult();
-        return user.getUserId();
     }
     @Override
     public Project update(Project projectInput, Long userId) {
@@ -85,10 +84,13 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
                 projectToBeModified);
     }
     @Override
-    public void delete(Long projectId, Long userId) {
-        UserImpl userImpl = getUserWithProjectsFromJpa(userId);
+    public void delete(Long projectId) {
+        User user = getPrimaryParent(projectId);
+        UserImpl userWithProjects =
+                getUserWithProjectsFromJpa(
+                        user.getUserId());
         ProjectImpl projectImpl = entityManager.find(ProjectImpl.class, projectId);
-        userImpl.removeProject(projectImpl);
+        userWithProjects.removeProject(projectImpl);
         entityManager.flush();
     }
 }

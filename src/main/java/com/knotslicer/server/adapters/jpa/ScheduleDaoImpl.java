@@ -50,19 +50,18 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
         return Optional.ofNullable(schedule);
     }
     @Override
+    public Member getPrimaryParent(Long scheduleId) {
+        TypedQuery<MemberImpl> query = entityManager.createQuery(
+                "SELECT m FROM Member m " +
+                        "INNER JOIN m.schedules schedule " +
+                        "WHERE schedule.scheduleId = :scheduleId", MemberImpl.class)
+                .setParameter("scheduleId", scheduleId);
+        return query.getSingleResult();
+    }
+    @Override
     public Optional<Member> getPrimaryParentWithChildren(Long memberId) {
         Member member = getMemberWithSchedulesFromJpa(memberId);
         return Optional.ofNullable(member);
-    }
-    @Override
-    public Long getPrimaryParentId(Long scheduleId) {
-        TypedQuery<MemberImpl> query = entityManager.createQuery
-                        ("SELECT m FROM Member m " +
-                                "INNER JOIN m.schedules schedule " +
-                                "WHERE schedule.scheduleId = :scheduleId", MemberImpl.class)
-                .setParameter("scheduleId", scheduleId);
-        Member member = query.getSingleResult();
-        return member.getMemberId();
     }
     @Override
     public Schedule update(Schedule scheduleInput, Long memberId) {
@@ -82,10 +81,13 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
                 scheduleToBeModified);
     }
     @Override
-    public void delete(Long scheduleId, Long memberId) {
-        MemberImpl memberImpl = getMemberWithSchedulesFromJpa(memberId);
+    public void delete(Long scheduleId) {
+        Member member = getPrimaryParent(scheduleId);
+        MemberImpl memberWithSchedules =
+                getMemberWithSchedulesFromJpa(
+                        member.getMemberId());
         ScheduleImpl scheduleImpl = entityManager.find(ScheduleImpl.class, scheduleId);
-        memberImpl.removeSchedule(scheduleImpl);
+        memberWithSchedules.removeSchedule(scheduleImpl);
         entityManager.flush();
     }
 }

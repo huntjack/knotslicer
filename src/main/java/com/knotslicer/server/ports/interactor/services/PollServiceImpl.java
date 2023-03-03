@@ -35,7 +35,8 @@ public class PollServiceImpl implements ParentService<PollDto> {
     public PollDto get(Long pollId) {
         Optional<Poll> optionalPoll = pollDao.get(pollId);
         Poll poll = unpackOptionalPoll(optionalPoll);
-        Long eventId = pollDao.getPrimaryParentId(pollId);
+        Event event = pollDao.getPrimaryParent(pollId);
+        Long eventId = event.getEventId();
         return entityDtoMapper
                 .toDto(poll, eventId);
     }
@@ -47,10 +48,12 @@ public class PollServiceImpl implements ParentService<PollDto> {
         Optional<Poll> optionalPoll =
                 pollAnswerDao.getPrimaryParentWithChildren(pollId);
         Poll poll = unpackOptionalPoll(optionalPoll);
-        Long eventId = pollDao
-                .getPrimaryParentId(pollId);
+        Event event = pollDao
+                .getPrimaryParent(pollId);
+        Long eventId = event.getEventId();
         PollDto pollDto = entityDtoMapper
-                .toDto(poll, eventId);
+                .toDto(poll,
+                        eventId);
         return entityDtoMapper
                 .addPollAnswerDtosToPollDto(pollDto, poll);
     }
@@ -61,8 +64,9 @@ public class PollServiceImpl implements ParentService<PollDto> {
         Poll pollLToBeModified = unpackOptionalPoll(optionalPoll);
         pollLToBeModified = entityDtoMapper
                 .toEntity(pollDto, pollLToBeModified);
-        Long eventId = pollDao
-                .getPrimaryParentId(pollId);
+        Event event = pollDao
+                .getPrimaryParent(pollId);
+        Long eventId = event.getEventId();
         Poll updatedPoll = pollDao
                 .update(pollLToBeModified, eventId);
         return entityDtoMapper
@@ -70,8 +74,7 @@ public class PollServiceImpl implements ParentService<PollDto> {
     }
     @Override
     public void delete(Long pollId) {
-        Long eventId = pollDao.getPrimaryParentId(pollId);
-        pollDao.delete(pollId, eventId);
+        pollDao.delete(pollId);
     }
     @Inject
     public PollServiceImpl(EntityDtoMapper entityDtoMapper,

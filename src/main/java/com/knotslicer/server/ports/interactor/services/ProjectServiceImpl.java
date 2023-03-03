@@ -34,16 +34,17 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
     public ProjectDto get(Long projectId) {
         Optional<Project> optionalProject = projectDao.get(projectId);
         Project project = unpackOptionalProject(optionalProject);
-        Long userId = projectDao.getPrimaryParentId(projectId);
+        User user = projectDao.getPrimaryParent(projectId);
+        Long userId = user.getUserId();
         return entityDtoMapper
-                .toDto(project,
-                        userId);
+                .toDto(project, userId);
     }
     @Override
     public ProjectDto getWithChildren(Long projectId) {
         Optional<Project> optionalProject = memberDao.getSecondaryParentWithChildren(projectId);
         Project project = unpackOptionalProject(optionalProject);
-        Long userId = projectDao.getPrimaryParentId(projectId);
+        User user = projectDao.getPrimaryParent(projectId);
+        Long userId = user.getUserId();
         ProjectDto projectDto =
                 entityDtoMapper.toDto(
                         project,
@@ -64,8 +65,9 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
         Project projectToBeModified = unpackOptionalProject(optionalProject);
         projectToBeModified = entityDtoMapper
                 .toEntity(projectDto, projectToBeModified);
-        Long userId = projectDao
-                .getPrimaryParentId(projectId);
+        User user = projectDao
+                .getPrimaryParent(projectId);
+        Long userId = user.getUserId();
         Project updatedProject = projectDao
                 .update(projectToBeModified, userId);
         return entityDtoMapper.toDto(
@@ -74,8 +76,7 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
     }
     @Override
     public void delete(Long projectId) {
-        Long userId = projectDao.getPrimaryParentId(projectId);
-        projectDao.delete(projectId, userId);
+        projectDao.delete(projectId);
     }
     @Inject
     public ProjectServiceImpl(EntityDtoMapper entityDtoMapper,

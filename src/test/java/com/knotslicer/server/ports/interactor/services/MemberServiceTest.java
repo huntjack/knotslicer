@@ -42,6 +42,10 @@ public class MemberServiceTest {
     }
     @Test
     public void givenCorrectMemberId_whenGetWithChildren_thenReturnMemberDtoWithScheduleDtos() {
+        User user = entityCreator.createUser();
+        user.setUserId(10L);
+        Project project = entityCreator.createProject();
+        project.setProjectId(20L);
         Member member = entityCreator.createMember();
         member.setMemberId(1L);
         member.setName("member1");
@@ -69,20 +73,18 @@ public class MemberServiceTest {
                 scheduleDao.getPrimaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .of(member));
-        Long userId = 10L;
         Mockito.when(
-                memberDao.getPrimaryParentId(anyLong()))
-                .thenReturn(userId);
-        Long projectId = 20L;
-        Mockito.when(memberDao.getSecondaryParentId(anyLong()))
-                .thenReturn(projectId);
+                memberDao.getPrimaryParent(anyLong()))
+                .thenReturn(user);
+        Mockito.when(memberDao.getSecondaryParent(anyLong()))
+                .thenReturn(project);
         MemberDto memberDto =
                 memberService.getWithChildren(5L);
 
         checkMemberDto(member,
                 memberDto,
-                userId,
-                projectId);
+                user.getUserId(),
+                project.getProjectId());
         List<ScheduleDto> scheduleDtos =
                 memberDto.getSchedules();
         ScheduleDto scheduleDtoOne = scheduleDtos.get(0);

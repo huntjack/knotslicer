@@ -60,6 +60,24 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
         return Optional.ofNullable(pollAnswer);
     }
     @Override
+    public Poll getPrimaryParent(Long pollAnswerId) {
+        TypedQuery<PollImpl> query = entityManager.createQuery(
+                "SELECT poll FROM Poll poll " +
+                        "INNER JOIN poll.pollAnswers pollAnswer " +
+                        "WHERE pollAnswer.pollAnswerId = :pollAnswerId", PollImpl.class)
+                .setParameter("pollAnswerId", pollAnswerId);
+        return query.getSingleResult();
+    }
+    @Override
+    public Member getSecondaryParent(Long pollAnswerId) {
+        TypedQuery<MemberImpl> query = entityManager.createQuery(
+                "SELECT m FROM Member m " +
+                        "INNER JOIN m.pollAnswers pollAnswer " +
+                        "WHERE pollAnswer.pollAnswerId = :pollAnswerId", MemberImpl.class)
+                .setParameter("pollAnswerId", pollAnswerId);
+        return query.getSingleResult();
+    }
+    @Override
     public Optional<Poll> getPrimaryParentWithChildren(Long pollId) {
         Poll poll = getPollWithPollAnswersFromJpa(pollId);
         return Optional.ofNullable(poll);
@@ -68,26 +86,6 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
     public Optional<Member> getSecondaryParentWithChildren(Long memberId) {
         Member member = getMemberWithPollAnswersFromJpa(memberId);
         return Optional.ofNullable(member);
-    }
-    @Override
-    public Long getPrimaryParentId(Long pollAnswerId) {
-        TypedQuery<PollImpl> query = entityManager.createQuery
-                        ("SELECT poll FROM Poll poll " +
-                                "INNER JOIN poll.pollAnswers pollAnswer " +
-                                "WHERE pollAnswer.pollAnswerId = :pollAnswerId", PollImpl.class)
-                .setParameter("pollAnswerId", pollAnswerId);
-        Poll poll = query.getSingleResult();
-        return poll.getPollId();
-    }
-    @Override
-    public Long getSecondaryParentId(Long pollAnswerId) {
-        TypedQuery<MemberImpl> query = entityManager.createQuery
-                        ("SELECT m FROM Member m " +
-                                "INNER JOIN m.pollAnswers pollAnswer " +
-                                "WHERE pollAnswer.pollAnswerId = :pollAnswerId", MemberImpl.class)
-                .setParameter("pollAnswerId", pollAnswerId);
-        Member member = query.getSingleResult();
-        return member.getMemberId();
     }
     @Override
     public PollAnswer update(PollAnswer pollAnswerInput, Long pollId) {
@@ -105,9 +103,13 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
                 pollAnswerToBeModified);
     }
     @Override
-    public void delete(Long pollAnswerId, Long pollId) {
-        PollImpl pollImpl = getPollWithPollAnswersFromJpa(pollId);
-        PollAnswerImpl pollAnswerImpl = entityManager.find(PollAnswerImpl.class, pollAnswerId);
+    public void delete(Long pollAnswerId) {
+        Poll poll = getPrimaryParent(pollAnswerId);
+        PollImpl pollImpl =
+                getPollWithPollAnswersFromJpa(
+                        poll.getPollId());
+        PollAnswerImpl pollAnswerImpl = entityManager
+                .find(PollAnswerImpl.class, pollAnswerId);
         pollImpl.removePollAnswer(pollAnswerImpl);
         entityManager.flush();
     }

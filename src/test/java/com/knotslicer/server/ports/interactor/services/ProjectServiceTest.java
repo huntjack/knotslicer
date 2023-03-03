@@ -41,6 +41,8 @@ public class ProjectServiceTest {
     }
     @Test
     public void givenCorrectProjectId_whenGetWithChildren_thenReturnProjectDtoWithMemberDtos() {
+        User user = entityCreator.createUser();
+        user.setUserId(25L);
         Project project = entityCreator.createProject();
         project.setProjectId(1L);
         project.setProjectName("project1");
@@ -69,14 +71,16 @@ public class ProjectServiceTest {
                 memberDao.getSecondaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .of(project));
-        Long userId = 25L;
         Mockito.when(
-                projectDao.getPrimaryParentId(anyLong()))
-                .thenReturn(userId);
+                projectDao.getPrimaryParent(anyLong()))
+                .thenReturn(user);
         ProjectDto projectDto =
                 projectService.getWithChildren(7L);
 
-        checkProjectDto(project, projectDto, userId);
+        checkProjectDto(
+                project,
+                projectDto,
+                user.getUserId());
         List<MemberDto> memberDtos =
                 projectDto.getMembers();
         MemberDto memberDtoOne = memberDtos.get(0);
