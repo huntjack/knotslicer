@@ -2,6 +2,7 @@ package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -29,16 +30,28 @@ public class EventServiceTest {
     private ParentService<EventDto> eventService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
-    private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
+    private EntityDtoMapper entityDtoMapper;
     @Mock
     private ChildWithOneRequiredParentDao<Event, User> eventDao;
     @Mock
     private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
+    @Mock
+    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    @Mock
+    private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
-        eventService = new EventServiceImpl(entityDtoMapper, eventDao, pollDao);
+        entityDtoMapper = new EntityDtoMapperImpl(
+                entityCreator,
+                dtoCreator,
+                memberDao,
+                pollAnswerDao);
+        eventService = new EventServiceImpl(
+                entityDtoMapper,
+                eventDao,
+                pollDao);
     }
     @Test
     public void givenCorrectEventId_whenGetWithChildren_thenReturnEventDtoWithPollDtos() {

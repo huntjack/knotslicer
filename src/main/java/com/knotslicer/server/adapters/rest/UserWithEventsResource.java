@@ -6,7 +6,6 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkComman
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
-import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.services.UserWithChildrenService;
 import jakarta.enterprise.context.RequestScoped;
@@ -22,10 +21,10 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-@Path("/users/{userId}/projects")
+@Path("/users/{userId}/events")
 @RequestScoped
-public class UserWithProjectsResource implements UserWithChildrenResource {
-    private UserWithChildrenService userWithProjectsService;
+public class UserWithEventsResource implements UserWithChildrenResource {
+    private UserWithChildrenService userWithEventsService;
     private LinkCreator<UserLightDto> linkCreator;
     private LinkReceiver linkReceiver;
     @GET
@@ -33,7 +32,7 @@ public class UserWithProjectsResource implements UserWithChildrenResource {
     @Override
     public Response getWithChildren(@PathParam("userId")Long userId, @Context UriInfo uriInfo) {
         UserLightDto userResponseDto =
-                userWithProjectsService
+                userWithEventsService
                         .getUserWithChildren(userId);
         LinkCommand<UserLightDto> linkCommand =
                 linkCreator.createLinkCommand(
@@ -52,14 +51,14 @@ public class UserWithProjectsResource implements UserWithChildrenResource {
         return invoker.executeCommand();
     }
     @Inject
-    public UserWithProjectsResource(@ProcessAs(ProcessType.PROJECT)
-                                    UserWithChildrenService userWithProjectsService,
-                                    @ProcessAs(ProcessType.PROJECT)
+    public UserWithEventsResource(@ProcessAs(ProcessType.EVENT)
+                                    UserWithChildrenService userWithEventsService,
+                                    @ProcessAs(ProcessType.EVENT)
                                     LinkCreator<UserLightDto> linkCreator,
                                     LinkReceiver linkReceiver){
-        this.userWithProjectsService = userWithProjectsService;
+        this.userWithEventsService = userWithEventsService;
         this.linkReceiver = linkReceiver;
         this.linkCreator = linkCreator;
     }
-    protected UserWithProjectsResource() {}
+    protected UserWithEventsResource() {}
 }

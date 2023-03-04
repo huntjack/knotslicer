@@ -55,6 +55,4 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     public void setSchedules(List<ScheduleDto> schedules) {this.schedules = schedules;}
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }

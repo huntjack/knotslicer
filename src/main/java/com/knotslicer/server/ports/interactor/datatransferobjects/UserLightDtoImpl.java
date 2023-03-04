@@ -57,6 +57,4 @@ public class UserLightDtoImpl implements UserLightDto, Serializable {
     public void setEvents(List<EventDto> events) {this.events = events;}
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }

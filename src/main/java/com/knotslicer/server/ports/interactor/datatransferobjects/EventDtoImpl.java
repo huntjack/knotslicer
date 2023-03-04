@@ -62,6 +62,4 @@ public class EventDtoImpl implements EventDto, Serializable {
     public void setPolls(List<PollDto> polls) {this.polls = polls;}
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }

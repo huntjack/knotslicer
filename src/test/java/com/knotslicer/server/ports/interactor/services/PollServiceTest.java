@@ -30,16 +30,26 @@ public class PollServiceTest {
     private ParentService<PollDto> pollService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
-    private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
+    private EntityDtoMapper entityDtoMapper;
     @Mock
     private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
+    @Mock
+    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
-        pollService = new PollServiceImpl(entityDtoMapper, pollDao, pollAnswerDao);
+        entityDtoMapper = new EntityDtoMapperImpl(
+                entityCreator,
+                dtoCreator,
+                memberDao,
+                pollAnswerDao);
+        pollService = new PollServiceImpl(
+                entityDtoMapper,
+                pollDao,
+                pollAnswerDao);
     }
 
     @Test
@@ -52,6 +62,8 @@ public class PollServiceTest {
                 LocalDateTime.of(2022, Month.DECEMBER, 27, 16, 0));
         poll.setEndTimeUtc(
                 LocalDateTime.of(2022, Month.DECEMBER, 27, 21, 0));
+        Member memberOne = entityCreator.createMember();
+        memberOne.setMemberId(1L);
         PollAnswer pollAnswerOne = entityCreator.createPollAnswer();
         pollAnswerOne.setPollAnswerId(1L);
         pollAnswerOne.setApproved(true);
@@ -60,6 +72,8 @@ public class PollServiceTest {
         pollImpl.addPollAnswer(pollAnswerOneImpl);
         MemberImpl memberImplOne = (MemberImpl) entityCreator.createMember();
         memberImplOne.addPollAnswer(pollAnswerOneImpl);
+        Member memberTwo = entityCreator.createMember();
+        memberTwo.setMemberId(2L);
         PollAnswer pollAnswerTwo = entityCreator.createPollAnswer();
         pollAnswerTwo.setPollAnswerId(2L);
         pollAnswerTwo.setApproved(false);
@@ -75,6 +89,14 @@ public class PollServiceTest {
         Mockito.when(
                 pollDao.getPrimaryParent(anyLong()))
                 .thenReturn(event);
+        Mockito.when(pollAnswerDao
+                .getSecondaryParent(
+                        pollAnswerOne.getPollAnswerId()))
+                .thenReturn(memberOne);
+        Mockito.when(pollAnswerDao
+                        .getSecondaryParent(
+                                pollAnswerTwo.getPollAnswerId()))
+                .thenReturn(memberTwo);
         PollDto pollDto = pollService.getWithChildren(5L);
 
         checkPollDto(
@@ -84,9 +106,17 @@ public class PollServiceTest {
         List<PollAnswerDto> pollAnswerDtos =
                 pollDto.getPollAnswers();
         PollAnswerDto pollAnswerDtoOne = pollAnswerDtos.get(0);
-        checkPollAnswerDto(pollAnswerOne, pollAnswerDtoOne);
+        Long memberOneId = memberOne.getMemberId();
+        checkPollAnswerDto(
+                pollAnswerOne,
+                pollAnswerDtoOne,
+                memberOneId);
         PollAnswerDto pollAnswerDtoTwo = pollAnswerDtos.get(1);
-        checkPollAnswerDto(pollAnswerTwo, pollAnswerDtoTwo);
+        Long memberTwoId = memberTwo.getMemberId();
+        checkPollAnswerDto(
+                pollAnswerTwo,
+                pollAnswerDtoTwo,
+                memberTwoId);
     }
     private void checkPollDto(Poll poll, PollDto pollDto, Long eventId) {
         assertEquals(poll.getPollId(),
@@ -98,9 +128,11 @@ public class PollServiceTest {
         assertEquals(eventId,
                 pollDto.getEventId());
     }
-    private void checkPollAnswerDto(PollAnswer pollAnswer, PollAnswerDto pollAnswerDto) {
+    private void checkPollAnswerDto(PollAnswer pollAnswer, PollAnswerDto pollAnswerDto, Long memberId) {
         assertEquals(pollAnswer.getPollAnswerId(),
                 pollAnswerDto.getPollAnswerId());
+        assertEquals(memberId,
+                pollAnswerDto.getMemberId());
         assertEquals(pollAnswer.isApproved(),
                 pollAnswerDto.isApproved());
     }

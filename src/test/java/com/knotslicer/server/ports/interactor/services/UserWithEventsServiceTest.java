@@ -5,7 +5,10 @@ import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
-import com.knotslicer.server.ports.interactor.datatransferobjects.*;
+import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
+import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreatorImpl;
+import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
+import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapperImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -19,64 +22,36 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-public class UserWithChildrenServiceTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyLong;
 
-    private UserWithChildrenService userWithChildrenService;
+public class UserWithEventsServiceTest {
+    private UserWithChildrenService userWithEventsService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
-    private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
+    private EntityDtoMapper entityDtoMapper;
     @Mock
-    private ChildWithOneRequiredParentDao<Project, User> projectDao;
+    private ChildWithOneRequiredParentDao<Event, User> eventDao;
     @Mock
     private ChildWithTwoParentsDao<Member,User,Project> memberDao;
     @Mock
-    private ChildWithOneRequiredParentDao<Event, User> eventDao;
+    private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
 
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
-        userWithChildrenService = new UserWithChildrenServiceImpl(
-                entityDtoMapper,
-                projectDao,
+        entityDtoMapper = new EntityDtoMapperImpl(
+                entityCreator,
+                dtoCreator,
                 memberDao,
+                pollAnswerDao);
+        userWithEventsService = new UserWithEventsServiceImpl(
+                entityDtoMapper,
                 eventDao);
     }
     @Test
-    public void givenCorrectUserId_whenGetWithProjects_thenReturnUserLightDtoWithProjectDtos() {
-        User user = createTestUser();
-        Project projectOne = entityCreator.createProject();
-        projectOne.setProjectId(1L);
-        projectOne.setProjectName("Project One Name");
-        projectOne.setProjectDescription("Project One Description");
-        UserImpl userImpl = (UserImpl) user;
-        ProjectImpl projectOneImpl = (ProjectImpl) projectOne;
-        userImpl.addProject(projectOneImpl);
-        Project projectTwo = entityCreator.createProject();
-        projectTwo.setProjectId(2L);
-        projectTwo.setProjectName("Project Two Name");
-        projectTwo.setProjectDescription("Project Two Description");
-        ProjectImpl projectTwoImpl = (ProjectImpl) projectTwo;
-        userImpl.addProject(projectTwoImpl);
-
-        Mockito.when(
-                projectDao.getPrimaryParentWithChildren(anyLong()))
-                .thenReturn(
-                        Optional.of(user));
-        Long userId = user.getUserId();
-        UserLightDto userLightDto =
-                userWithChildrenService.getWithProjects(userId);
-
-        checkUserLightDto(user, userLightDto);
-        List<ProjectDto> projectDtos = userLightDto.getProjects();
-        ProjectDto projectDtoOne = projectDtos.get(0);
-        checkProjectDto(projectOne, projectDtoOne);
-        ProjectDto projectDtoTwo = projectDtos.get(1);
-        checkProjectDto(projectTwo, projectDtoTwo);
-    }
-    private User createTestUser() {
+    public void givenCorrectUserId_whenGetUserWithChildren_thenReturnUserLightDtoWithEventDtos() {
         User user = entityCreator.createUser();
         user.setUserId(1L);
         user.setEmail("example@mail.com");
@@ -84,22 +59,6 @@ public class UserWithChildrenServiceTest {
         user.setUserDescription("Test User Description");
         user.setTimeZone(
                 ZoneId.of("America/Los_Angeles"));
-        return user;
-    }
-    private void checkUserLightDto(User user, UserLightDto userLightDto) {
-        assertEquals(user.getUserId(), userLightDto.getUserId());
-        assertEquals(user.getUserName(), userLightDto.getUserName());
-        assertEquals(user.getUserDescription(), userLightDto.getUserDescription());
-        assertEquals(user.getTimeZone(), userLightDto.getTimeZone());
-    }
-    private void checkProjectDto(Project project, ProjectDto projectDto) {
-        assertEquals(project.getProjectId(), projectDto.getProjectId());
-        assertEquals(project.getProjectName(), projectDto.getProjectName());
-        assertEquals(project.getProjectDescription(), projectDto.getProjectDescription());
-    }
-    @Test
-    public void givenCorrectUserId_whenGetWithEvents_thenReturnUserLightDtoWithEventDtos() {
-        User user = createTestUser();
         Event eventOne = entityCreator.createEvent();
         eventOne.setEventId(1L);
         eventOne.setEventName("EventOne Name");
@@ -121,7 +80,7 @@ public class UserWithChildrenServiceTest {
                         Optional.of(user));
         Long userId = user.getUserId();
         UserLightDto userLightDto =
-                userWithChildrenService.getWithEvents(userId);
+                userWithEventsService.getUserWithChildren(userId);
 
         checkUserLightDto(user, userLightDto);
         List<EventDto> eventDtos = userLightDto.getEvents();
@@ -129,6 +88,12 @@ public class UserWithChildrenServiceTest {
         checkEventDto(eventOne, eventDtoOne);
         EventDto eventDtoTwo = eventDtos.get(1);
         checkEventDto(eventTwo, eventDtoTwo);
+    }
+    private void checkUserLightDto(User user, UserLightDto userLightDto) {
+        assertEquals(user.getUserId(), userLightDto.getUserId());
+        assertEquals(user.getUserName(), userLightDto.getUserName());
+        assertEquals(user.getUserDescription(), userLightDto.getUserDescription());
+        assertEquals(user.getTimeZone(), userLightDto.getTimeZone());
     }
     private void checkEventDto(Event event, EventDto eventDto) {
         assertEquals(event.getEventId(),

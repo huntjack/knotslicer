@@ -3,7 +3,6 @@ package com.knotslicer.server.adapters.rest.linkgenerator.linkcommands;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.ports.interactor.datatransferobjects.PollDto;
 import jakarta.ws.rs.core.UriInfo;
-
 import java.net.URI;
 
 public class PollLinkCommand extends LinkCommand<PollDto> {

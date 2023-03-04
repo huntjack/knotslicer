@@ -29,16 +29,26 @@ public class MemberServiceTest {
     private ParentService<MemberDto> memberService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
-    private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
+    private EntityDtoMapper entityDtoMapper;
     @Mock
     private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
+    @Mock
+    private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
-        memberService = new MemberServiceImpl(entityDtoMapper, memberDao, scheduleDao);
+        entityDtoMapper = new EntityDtoMapperImpl(
+                entityCreator,
+                dtoCreator,
+                memberDao,
+                pollAnswerDao);
+        memberService = new MemberServiceImpl(
+                entityDtoMapper,
+                memberDao,
+                scheduleDao);
     }
     @Test
     public void givenCorrectMemberId_whenGetWithChildren_thenReturnMemberDtoWithScheduleDtos() {

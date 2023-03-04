@@ -74,6 +74,4 @@ public class UserDtoImpl implements UserDto, Serializable {
     public void setTimeZone(ZoneId timeZone) {this.timeZone = timeZone;}
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }

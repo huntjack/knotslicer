@@ -54,6 +54,4 @@ public class ProjectDtoImpl implements ProjectDto, Serializable {
     public void setMembers(List<MemberDto> members) {this.members = members;}
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }

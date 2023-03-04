@@ -44,6 +44,4 @@ public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
     }
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }

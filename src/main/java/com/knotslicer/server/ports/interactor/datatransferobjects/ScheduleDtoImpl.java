@@ -49,6 +49,4 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     }
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }
