@@ -83,7 +83,7 @@ public class ProjectResourceImpl implements ProjectResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

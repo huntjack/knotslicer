@@ -67,7 +67,7 @@ public class UserResourceImpl implements UserResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{userId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

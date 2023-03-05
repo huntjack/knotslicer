@@ -63,7 +63,7 @@ public class MemberResourceImpl implements MemberResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{memberId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

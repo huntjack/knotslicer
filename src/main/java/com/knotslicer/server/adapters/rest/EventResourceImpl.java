@@ -87,7 +87,7 @@ public class EventResourceImpl implements EventResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{eventId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

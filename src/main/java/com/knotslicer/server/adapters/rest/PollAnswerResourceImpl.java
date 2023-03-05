@@ -98,7 +98,7 @@ public class PollAnswerResourceImpl implements PollAnswerResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{pollAnswerId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
