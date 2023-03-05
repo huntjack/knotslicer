@@ -27,14 +27,14 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
         memberImpl.addSchedule((ScheduleImpl) schedule);
         memberImpl = entityManager.merge(memberImpl);
         entityManager.flush();
-        schedule = getScheduleFromMember(memberImpl, schedule);
-        entityManager.refresh(schedule);
-        return schedule;
+        return getScheduleFromMember(
+                memberImpl,
+                schedule);
     }
     private MemberImpl getMemberWithSchedulesFromJpa(Long memberId) {
         TypedQuery<MemberImpl> query = entityManager.createQuery
                         ("SELECT m FROM Member m " +
-                                "INNER JOIN FETCH m.schedules " +
+                                "LEFT JOIN FETCH m.schedules " +
                                 "WHERE m.memberId = :memberId", MemberImpl.class)
                 .setParameter("memberId", memberId);
         return query.getSingleResult();
@@ -50,19 +50,18 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
         return Optional.ofNullable(schedule);
     }
     @Override
+    public Member getPrimaryParent(Long scheduleId) {
+        TypedQuery<MemberImpl> query = entityManager.createQuery(
+                "SELECT m FROM Member m " +
+                        "INNER JOIN m.schedules schedule " +
+                        "WHERE schedule.scheduleId = :scheduleId", MemberImpl.class)
+                .setParameter("scheduleId", scheduleId);
+        return query.getSingleResult();
+    }
+    @Override
     public Optional<Member> getPrimaryParentWithChildren(Long memberId) {
         Member member = getMemberWithSchedulesFromJpa(memberId);
         return Optional.ofNullable(member);
-    }
-    @Override
-    public Long getPrimaryParentId(Long scheduleId) {
-        TypedQuery<MemberImpl> query = entityManager.createQuery
-                        ("SELECT m FROM Member m " +
-                                "INNER JOIN m.schedules schedule " +
-                                "WHERE schedule.scheduleId = :scheduleId", MemberImpl.class)
-                .setParameter("scheduleId", scheduleId);
-        Member member = query.getSingleResult();
-        return member.getMemberId();
     }
     @Override
     public Schedule update(Schedule scheduleInput, Long memberId) {
@@ -77,15 +76,18 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
         memberImpl = entityManager
                 .merge(memberImpl);
         entityManager.flush();
-        Schedule updatedSchedule =
-                getScheduleFromMember(memberImpl, scheduleToBeModified);
-        return updatedSchedule;
+        return getScheduleFromMember(
+                memberImpl,
+                scheduleToBeModified);
     }
     @Override
-    public void delete(Long scheduleId, Long memberId) {
-        MemberImpl memberImpl = getMemberWithSchedulesFromJpa(memberId);
+    public void delete(Long scheduleId) {
+        Member member = getPrimaryParent(scheduleId);
+        MemberImpl memberWithSchedules =
+                getMemberWithSchedulesFromJpa(
+                        member.getMemberId());
         ScheduleImpl scheduleImpl = entityManager.find(ScheduleImpl.class, scheduleId);
-        memberImpl.removeSchedule(scheduleImpl);
+        memberWithSchedules.removeSchedule(scheduleImpl);
         entityManager.flush();
     }
 }

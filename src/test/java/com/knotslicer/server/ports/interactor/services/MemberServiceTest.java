@@ -29,19 +29,33 @@ public class MemberServiceTest {
     private ParentService<MemberDto> memberService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
-    private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
+    private EntityDtoMapper entityDtoMapper;
     @Mock
     private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
+    @Mock
+    private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
-        memberService = new MemberServiceImpl(entityDtoMapper, memberDao, scheduleDao);
+        entityDtoMapper = new EntityDtoMapperImpl(
+                entityCreator,
+                dtoCreator,
+                memberDao,
+                pollAnswerDao);
+        memberService = new MemberServiceImpl(
+                entityDtoMapper,
+                memberDao,
+                scheduleDao);
     }
     @Test
     public void givenCorrectMemberId_whenGetWithChildren_thenReturnMemberDtoWithScheduleDtos() {
+        User user = entityCreator.createUser();
+        user.setUserId(10L);
+        Project project = entityCreator.createProject();
+        project.setProjectId(20L);
         Member member = entityCreator.createMember();
         member.setMemberId(1L);
         member.setName("member1");
@@ -69,30 +83,26 @@ public class MemberServiceTest {
                 scheduleDao.getPrimaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .of(member));
-        Long userId = 10L;
         Mockito.when(
-                memberDao.getPrimaryParentId(anyLong()))
-                .thenReturn(userId);
-        Long projectId = 20L;
-        Mockito.when(memberDao.getSecondaryParentId(anyLong()))
-                .thenReturn(projectId);
-
+                memberDao.getPrimaryParent(anyLong()))
+                .thenReturn(user);
+        Mockito.when(memberDao.getSecondaryParent(anyLong()))
+                .thenReturn(project);
         MemberDto memberDto =
                 memberService.getWithChildren(5L);
-        checkMember(member,
-                memberDto,
-                userId,
-                projectId);
 
+        checkMemberDto(member,
+                memberDto,
+                user.getUserId(),
+                project.getProjectId());
         List<ScheduleDto> scheduleDtos =
                 memberDto.getSchedules();
         ScheduleDto scheduleDtoOne = scheduleDtos.get(0);
-        checkSchedule(scheduleOne, scheduleDtoOne);
-
+        checkScheduleDto(scheduleOne, scheduleDtoOne);
         ScheduleDto scheduleDtoTwo = scheduleDtos.get(1);
-        checkSchedule(scheduleTwo, scheduleDtoTwo);
+        checkScheduleDto(scheduleTwo, scheduleDtoTwo);
     }
-    private void checkMember(Member member, MemberDto memberDto, Long userId, Long projectId) {
+    private void checkMemberDto(Member member, MemberDto memberDto, Long userId, Long projectId) {
         assertEquals(member.getMemberId(),
                 memberDto.getMemberId());
         assertEquals(member.getName(),
@@ -106,7 +116,7 @@ public class MemberServiceTest {
         assertEquals(projectId,
                 memberDto.getProjectId());
     }
-    private void checkSchedule(Schedule schedule, ScheduleDto scheduleDto) {
+    private void checkScheduleDto(Schedule schedule, ScheduleDto scheduleDto) {
         assertEquals(schedule.getScheduleId(),
                 scheduleDto.getScheduleId());
         assertEquals(schedule.getStartTimeUtc(),

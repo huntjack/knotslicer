@@ -3,8 +3,8 @@ package com.knotslicer.server.adapters.rest;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiverImpl;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.MemberWithSchedulesLinkCreatorImpl;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ScheduleLinkCreatorImpl;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.MemberWithSchedulesLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ScheduleLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.mappers.EntityNotFoundExceptionMapper;
 import com.knotslicer.server.ports.interactor.services.ParentService;
@@ -39,8 +39,8 @@ public class ScheduleResourceTest extends JerseyTest {
     @Override
     protected Application configure() {
         closeable = MockitoAnnotations.openMocks(this);
-        linkCreator = new ScheduleLinkCreatorImpl();
-        memberWithSchedulesLinkCreator = new MemberWithSchedulesLinkCreatorImpl();
+        linkCreator = new ScheduleLinkCreator();
+        memberWithSchedulesLinkCreator = new MemberWithSchedulesLinkCreator();
         linkReceiver = new LinkReceiverImpl();
         return new ResourceConfig()
                 .register(new ScheduleResourceImpl(
@@ -106,15 +106,13 @@ public class ScheduleResourceTest extends JerseyTest {
         MemberDto memberResponseDto = target("/members/1/schedules")
                 .request()
                 .get(MemberDto.class);
-        checkMember(memberResponseDto, memberDtoDummy);
 
+        checkMember(memberResponseDto, memberDtoDummy);
         List<ScheduleDto> scheduleResponseDtos =
                 memberResponseDto.getSchedules();
-
         ScheduleDto scheduleResponseDtoOne =
                 scheduleResponseDtos.get(0);
         checkSchedule(scheduleResponseDtoOne, scheduleDtoDummyOne);
-
         ScheduleDto scheduleResponseDtoTwo =
                 scheduleResponseDtos.get(1);
         checkSchedule(scheduleResponseDtoTwo, scheduleDtoDummyTwo);

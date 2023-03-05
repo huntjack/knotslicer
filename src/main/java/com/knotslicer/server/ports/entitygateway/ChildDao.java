@@ -5,7 +5,7 @@ import java.util.Optional;
 public interface ChildDao<T,P> {
     Optional<T> get(Long id);
     T update(T t, Long parentId);
-    void delete(Long id, Long parentId);
-    Long getPrimaryParentId(Long id);
+    void delete(Long id);
+    P getPrimaryParent(Long id);
     Optional<P> getPrimaryParentWithChildren(Long parentId);
 }

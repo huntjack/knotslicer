@@ -27,25 +27,39 @@ public class ProjectServiceTest {
     private ParentService<ProjectDto> projectService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
-    private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
+    private EntityDtoMapper entityDtoMapper;
     @Mock
     private ChildWithOneRequiredParentDao<Project, User> projectDao;
     @Mock
     private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    @Mock
+    private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
 
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
-        projectService = new ProjectServiceImpl(entityDtoMapper, projectDao, memberDao);
+        entityDtoMapper = new EntityDtoMapperImpl(
+                entityCreator,
+                dtoCreator,
+                memberDao,
+                pollAnswerDao);
+        projectService = new ProjectServiceImpl(
+                entityDtoMapper,
+                projectDao,
+                memberDao);
     }
     @Test
     public void givenCorrectProjectId_whenGetWithChildren_thenReturnProjectDtoWithMemberDtos() {
+        User parentUser = entityCreator.createUser();
+        parentUser.setUserId(25L);
         Project project = entityCreator.createProject();
         project.setProjectId(1L);
         project.setProjectName("project1");
         project.setProjectDescription("project1 description");
         ProjectImpl projectImpl = (ProjectImpl) project;
+        User userOne = entityCreator.createUser();
+        userOne.setUserId(1L);
         Member memberOne = entityCreator.createMember();
         memberOne.setMemberId(1L);
         memberOne.setName("member1");
@@ -55,6 +69,8 @@ public class ProjectServiceTest {
         UserImpl userImpl1 = (UserImpl) entityCreator.createUser();
         userImpl1.addMember(memberImpl1);
         projectImpl.addMember(memberImpl1);
+        User userTwo = entityCreator.createUser();
+        userTwo.setUserId(2L);
         Member memberTwo = entityCreator.createMember();
         memberTwo.setMemberId(2L);
         memberTwo.setName("member2");
@@ -69,24 +85,42 @@ public class ProjectServiceTest {
                 memberDao.getSecondaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .of(project));
-        Long userId = 25L;
         Mockito.when(
-                projectDao.getPrimaryParentId(anyLong()))
-                .thenReturn(userId);
-
+                projectDao.getPrimaryParent(anyLong()))
+                .thenReturn(parentUser);
+        Mockito.when(
+                memberDao.getPrimaryParent(
+                        memberOne.getMemberId()))
+                .thenReturn(userOne);
+        Mockito.when(
+                memberDao.getPrimaryParent(
+                        memberTwo.getMemberId()))
+                .thenReturn(userTwo);
         ProjectDto projectDto =
                 projectService.getWithChildren(7L);
-        checkProject(project, projectDto, userId);
 
+        Long parentUserId = parentUser.getUserId();
+        checkProjectDto(
+                project,
+                projectDto,
+                parentUserId);
         List<MemberDto> memberDtos =
                 projectDto.getMembers();
         MemberDto memberDtoOne = memberDtos.get(0);
-        checkMember(memberOne, memberDtoOne);
+        Long userOneId = userOne.getUserId();
+        checkMemberDto(
+                memberOne,
+                memberDtoOne,
+                userOneId);
 
         MemberDto memberDtoTwo = memberDtos.get(1);
-        checkMember(memberTwo, memberDtoTwo);
+        Long userTwoId = userTwo.getUserId();
+        checkMemberDto(
+                memberTwo,
+                memberDtoTwo,
+                userTwoId);
     }
-    private void checkProject(Project project, ProjectDto projectDto, Long userId) {
+    private void checkProjectDto(Project project, ProjectDto projectDto, Long userId) {
         assertEquals(project.getProjectId(),
                 projectDto.getProjectId());
         assertEquals(project.getProjectName(),
@@ -96,9 +130,11 @@ public class ProjectServiceTest {
         assertEquals(userId,
                 projectDto.getUserId());
     }
-    private void checkMember(Member member, MemberDto memberDto) {
+    private void checkMemberDto(Member member, MemberDto memberDto, Long userId) {
         assertEquals(member.getMemberId(),
                 memberDto.getMemberId());
+        assertEquals(userId,
+                memberDto.getUserId());
         assertEquals(member.getName(),
                 memberDto.getName());
         assertEquals(member.getRole(),

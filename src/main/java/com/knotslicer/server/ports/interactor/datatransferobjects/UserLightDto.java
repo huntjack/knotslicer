@@ -2,6 +2,7 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.ZoneId;
+import java.util.List;
 
 @JsonDeserialize(as = UserLightDtoImpl.class)
 public interface UserLightDto extends Linkable {
@@ -13,4 +14,10 @@ public interface UserLightDto extends Linkable {
     void setUserDescription(String userDescription);
     ZoneId getTimeZone();
     void setTimeZone(ZoneId timeZone);
+    List<ProjectDto> getProjects();
+    public void setProjects(List<ProjectDto> projects);
+    public List<MemberDto> getMembers();
+    public void setMembers(List<MemberDto> members);
+    public List<EventDto> getEvents();
+    public void setEvents(List<EventDto> events);
 }

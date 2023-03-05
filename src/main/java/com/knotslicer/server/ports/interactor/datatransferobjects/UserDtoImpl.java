@@ -12,6 +12,9 @@ public class UserDtoImpl implements UserDto, Serializable {
     private String userName;
     private String userDescription;
     private ZoneId timeZone;
+    private List<ProjectDto> projects = new LinkedList<>();
+    private List<MemberDto> members = new LinkedList<>();
+    private List<EventDto> events = new LinkedList<>();
     private List<Link> links = new LinkedList<>();
 
     @Override
@@ -56,7 +59,19 @@ public class UserDtoImpl implements UserDto, Serializable {
     @Override
     public ZoneId getTimeZone() {return timeZone;}
     @Override
+    public List<ProjectDto> getProjects() {return projects;}
+    @Override
+    public void setProjects(List<ProjectDto> projects) {this.projects = projects;}
+    @Override
+    public List<MemberDto> getMembers() {return members;}
+    @Override
+    public void setMembers(List<MemberDto> members) {this.members = members;}
+    @Override
+    public List<EventDto> getEvents() {return events;}
+    @Override
+    public void setEvents(List<EventDto> events) {this.events = events;}
+    @Override
     public void setTimeZone(ZoneId timeZone) {this.timeZone = timeZone;}
+    @Override
     public List<Link> getLinks() {return links;}
-    public void setLinks(List<Link> links) {this.links = links;}
 }

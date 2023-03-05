@@ -3,8 +3,8 @@ package com.knotslicer.server.adapters.rest;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiverImpl;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectLinkCreatorImpl;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectWithMembersLinkCreatorImpl;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ProjectWithMembersLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.services.ParentService;
 import jakarta.ws.rs.core.Application;
@@ -21,7 +21,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
-
 public class ProjectResourceTest extends JerseyTest {
     @Mock
     private ParentService<ProjectDto> projectService;
@@ -33,8 +32,8 @@ public class ProjectResourceTest extends JerseyTest {
     @Override
     protected Application configure() {
         closeable = MockitoAnnotations.openMocks(this);
-        linkCreator = new ProjectLinkCreatorImpl();
-        projectWithMembersLinkCreator = new ProjectWithMembersLinkCreatorImpl();
+        linkCreator = new ProjectLinkCreator();
+        projectWithMembersLinkCreator = new ProjectWithMembersLinkCreator();
         linkReceiver = new LinkReceiverImpl();
         return new ResourceConfig()
                 .register(new ProjectResourceImpl(
@@ -66,15 +65,13 @@ public class ProjectResourceTest extends JerseyTest {
         ProjectDto projectResponseDto = target("/projects/1/members")
                 .request()
                 .get(ProjectDto.class);
-        checkProject(projectResponseDto, projectDtoDummy);
 
+        checkProject(projectResponseDto, projectDtoDummy);
         List<MemberDto> memberResponseDtos =
                 projectResponseDto.getMembers();
-
         MemberDto memberResponseDtoOne =
                 memberResponseDtos.get(0);
         checkMember(memberResponseDtoOne, memberDtoDummyOne);
-
         MemberDto memberResponseDtoTwo =
                 memberResponseDtos.get(1);
         checkMember(memberResponseDtoTwo, memberDtoDummyTwo);

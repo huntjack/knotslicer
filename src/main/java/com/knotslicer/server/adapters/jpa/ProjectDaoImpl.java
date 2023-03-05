@@ -30,14 +30,14 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         userImpl.addProject((ProjectImpl) project);
         userImpl = entityManager.merge(userImpl);
         entityManager.flush();
-        project = getProjectFromUser(userImpl, project);
-        entityManager.refresh(project);
-        return project;
+        return getProjectFromUser(
+                userImpl,
+                project);
     }
     private UserImpl getUserWithProjectsFromJpa(Long userId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
                         ("SELECT user FROM User user " +
-                                "INNER JOIN FETCH user.projects " +
+                                "LEFT JOIN FETCH user.projects " +
                                 "WHERE user.userId = :userId", UserImpl.class)
                 .setParameter("userId", userId);
         return query.getSingleResult();
@@ -53,19 +53,18 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         return Optional.ofNullable(project);
     }
     @Override
+    public User getPrimaryParent(Long projectId) {
+        TypedQuery<UserImpl> query = entityManager.createQuery(
+                "SELECT user FROM User user " +
+                        "INNER JOIN user.projects project " +
+                        "WHERE project.projectId = :projectId", UserImpl.class)
+                .setParameter("projectId", projectId);
+        return query.getSingleResult();
+    }
+    @Override
     public Optional<User> getPrimaryParentWithChildren(Long userId) {
         User user = getUserWithProjectsFromJpa(userId);
         return Optional.ofNullable(user);
-    }
-    @Override
-    public Long getPrimaryParentId(Long projectId) {
-        TypedQuery<UserImpl> query = entityManager.createQuery
-                        ("SELECT user FROM User user " +
-                                "INNER JOIN user.projects project " +
-                                "WHERE project.projectId = :projectId", UserImpl.class)
-                .setParameter("projectId", projectId);
-        User user = query.getSingleResult();
-        return user.getUserId();
     }
     @Override
     public Project update(Project projectInput, Long userId) {
@@ -80,15 +79,18 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         userImpl = entityManager
                 .merge(userImpl);
         entityManager.flush();
-        Project updatedProject =
-                getProjectFromUser(userImpl, projectToBeModified);
-        return updatedProject;
+        return getProjectFromUser(
+                userImpl,
+                projectToBeModified);
     }
     @Override
-    public void delete(Long projectId, Long userId) {
-        UserImpl userImpl = getUserWithProjectsFromJpa(userId);
+    public void delete(Long projectId) {
+        User user = getPrimaryParent(projectId);
+        UserImpl userWithProjects =
+                getUserWithProjectsFromJpa(
+                        user.getUserId());
         ProjectImpl projectImpl = entityManager.find(ProjectImpl.class, projectId);
-        userImpl.removeProject(projectImpl);
+        userWithProjects.removeProject(projectImpl);
         entityManager.flush();
     }
 }

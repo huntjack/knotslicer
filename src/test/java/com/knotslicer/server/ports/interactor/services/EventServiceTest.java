@@ -2,6 +2,7 @@ package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -29,19 +30,33 @@ public class EventServiceTest {
     private ParentService<EventDto> eventService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
-    private EntityDtoMapper entityDtoMapper = new EntityDtoMapperImpl(entityCreator, dtoCreator);
+    private EntityDtoMapper entityDtoMapper;
     @Mock
     private ChildWithOneRequiredParentDao<Event, User> eventDao;
     @Mock
     private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
+    @Mock
+    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    @Mock
+    private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
-        eventService = new EventServiceImpl(entityDtoMapper, eventDao, pollDao);
+        entityDtoMapper = new EntityDtoMapperImpl(
+                entityCreator,
+                dtoCreator,
+                memberDao,
+                pollAnswerDao);
+        eventService = new EventServiceImpl(
+                entityDtoMapper,
+                eventDao,
+                pollDao);
     }
     @Test
     public void givenCorrectEventId_whenGetWithChildren_thenReturnEventDtoWithPollDtos() {
+        User user = entityCreator.createUser();
+        user.setUserId(1L);
         Event event = entityCreator.createEvent();
         event.setEventId(1L);
         event.setEventName("Test Event");
@@ -69,21 +84,23 @@ public class EventServiceTest {
                 pollDao.getPrimaryParentWithChildren(anyLong()))
                 .thenReturn(Optional
                         .of(event));
-        Long userId = 1L;
         Mockito.when(
-                eventDao.getPrimaryParentId(anyLong()))
-                .thenReturn(userId);
+                eventDao.getPrimaryParent(anyLong()))
+                .thenReturn(user);
         EventDto eventDto = eventService.getWithChildren(5L);
 
-        checkEvent(event, eventDto, userId);
+        checkEventDto(
+                event,
+                eventDto,
+                user.getUserId());
         List<PollDto> pollDtos =
                 eventDto.getPolls();
         PollDto pollDtoOne = pollDtos.get(0);
-        checkPoll(pollOne, pollDtoOne);
+        checkPollDto(pollOne, pollDtoOne);
         PollDto pollDtoTwo = pollDtos.get(1);
-        checkPoll(pollTwo, pollDtoTwo);
+        checkPollDto(pollTwo, pollDtoTwo);
     }
-    private void checkEvent(Event event, EventDto eventDto, Long userId) {
+    private void checkEventDto(Event event, EventDto eventDto, Long userId) {
         assertEquals(event.getEventId(),
                 eventDto.getEventId());
         assertEquals(event.getEventName(),
@@ -95,7 +112,7 @@ public class EventServiceTest {
         assertEquals(userId,
                 eventDto.getUserId());
     }
-    private void checkPoll(Poll poll, PollDto pollDto) {
+    private void checkPollDto(Poll poll, PollDto pollDto) {
         assertEquals(poll.getPollId(),
                 pollDto.getPollId());
         assertEquals(poll.getStartTimeUtc(),

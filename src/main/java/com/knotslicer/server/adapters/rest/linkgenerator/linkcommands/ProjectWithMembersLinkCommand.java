@@ -4,11 +4,8 @@ import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import jakarta.ws.rs.core.UriInfo;
-
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProjectWithMembersLinkCommand extends ProjectLinkCommand {
     public ProjectWithMembersLinkCommand(LinkReceiver linkReceiver, ProjectDto projectDto, UriInfo uriInfo) {

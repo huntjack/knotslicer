@@ -1,7 +1,10 @@
 package com.knotslicer.server.ports.interactor.mappers;
 
+import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.domain.*;
+import com.knotslicer.server.ports.interactor.ProcessAs;
+import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,6 +16,8 @@ import java.util.List;
 public class EntityDtoMapperImpl implements EntityDtoMapper {
     private EntityCreator entityCreator;
     private DtoCreator dtoCreator;
+    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     @Override
     public UserDto toDto(User userInput) {
         UserDto userDto = dtoCreator.createUserDto();
@@ -39,6 +44,55 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 userInput.getUserDescription());
         userLightDto.setTimeZone(
                 userInput.getTimeZone());
+        return userLightDto;
+    }
+    @Override
+    public UserLightDto addProjectDtosToUserLightDto(UserLightDto userLightDto, User userInput) {
+        UserImpl userImpl = (UserImpl) userInput;
+        List<ProjectImpl> projectImpls = userImpl.getProjects();
+        List<ProjectDto> projectDtos = new LinkedList<>();
+        Long userId = userInput.getUserId();
+        for(ProjectImpl projectImpl: projectImpls) {
+            ProjectDto projectDto = toDto(
+                    projectImpl,
+                    userId);
+            projectDtos.add(projectDto);
+        }
+        userLightDto.setProjects(projectDtos);
+        return userLightDto;
+    }
+    @Override
+    public UserLightDto addMemberDtosToUserLightDto(UserLightDto userLightDto, User userInput) {
+        UserImpl userImpl = (UserImpl) userInput;
+        List<MemberImpl> memberImpls = userImpl.getMembers();
+        List<MemberDto> memberDtos = new LinkedList<>();
+        Long userId = userInput.getUserId();
+        for(MemberImpl memberImpl: memberImpls) {
+            Long memberId = memberImpl.getMemberId();
+            Project project = memberDao.getSecondaryParent(memberId);
+            Long projectId = project.getProjectId();
+            MemberDto memberDto = toDto(
+                    memberImpl,
+                    userId,
+                    projectId);
+            memberDtos.add(memberDto);
+        }
+        userLightDto.setMembers(memberDtos);
+        return userLightDto;
+    }
+    @Override
+    public UserLightDto addEventDtosToUserLightDto(UserLightDto userLightDto, User userInput) {
+        UserImpl userImpl = (UserImpl) userInput;
+        List<EventImpl> eventImpls = userImpl.getEvents();
+        List<EventDto> eventDtos = new LinkedList<>();
+        Long userId = userInput.getUserId();
+        for(EventImpl eventImpl: eventImpls) {
+            EventDto eventDto = toDto(
+                    eventImpl,
+                    userId);
+            eventDtos.add(eventDto);
+        }
+        userLightDto.setEvents(eventDtos);
         return userLightDto;
     }
     @Override
@@ -83,9 +137,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         List<MemberDto> memberDtos = new LinkedList<>();
         Long projectId = projectImpl.getProjectId();
         for(MemberImpl memberImpl: membersImpls) {
-            Long userId = memberImpl
-                    .getUser()
-                    .getUserId();
+            Long memberId = memberImpl.getMemberId();
+            User user = memberDao
+                    .getPrimaryParent(memberId);
+            Long userId = user.getUserId();
             MemberDto memberDto = toDto(
                     memberImpl,
                     userId,
@@ -98,10 +153,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     @Override
     public Project toEntity(ProjectDto projectDtoInput) {
         Project project = entityCreator.createProject();
-        setEntityVariables(project, projectDtoInput);
+        setEntityFields(project, projectDtoInput);
         return project;
     }
-    private void setEntityVariables(Project projectToBeModified, ProjectDto projectDtoInput) {
+    private void setEntityFields(Project projectToBeModified, ProjectDto projectDtoInput) {
         projectToBeModified.setProjectName(
                 projectDtoInput.getProjectName());
         projectToBeModified.setProjectDescription(
@@ -109,7 +164,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     }
     @Override
     public Project toEntity(ProjectDto projectDtoInput, Project projectToBeModified) {
-        setEntityVariables(projectToBeModified, projectDtoInput);
+        setEntityFields(projectToBeModified, projectDtoInput);
         return projectToBeModified;
     }
     @Override
@@ -127,6 +182,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 memberInput.getRoleDescription());
         return memberDto;
     }
+    @Override
     public MemberDto addScheduleDtosToMemberDto(MemberDto memberDto, Member memberInput) {
         MemberImpl memberImpl = (MemberImpl) memberInput;
         List<ScheduleImpl> scheduleImpls = memberImpl.getSchedules();
@@ -143,10 +199,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     @Override
     public Member toEntity(MemberDto memberDtoInput) {
         Member member = entityCreator.createMember();
-        setEntityVariables(member, memberDtoInput);
+        setEntityFields(member, memberDtoInput);
         return member;
     }
-    private void setEntityVariables(Member memberToBeModified, MemberDto memberDtoInput) {
+    private void setEntityFields(Member memberToBeModified, MemberDto memberDtoInput) {
         memberToBeModified.setName(
                 memberDtoInput.getName());
         memberToBeModified.setRole(
@@ -156,7 +212,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     }
     @Override
     public Member toEntity(MemberDto memberDtoInput, Member memberToBeModified) {
-        setEntityVariables(memberToBeModified, memberDtoInput);
+        setEntityFields(memberToBeModified, memberDtoInput);
         return memberToBeModified;
     }
     @Override
@@ -174,25 +230,6 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return eventDto;
     }
     @Override
-    public Event toEntity(EventDto eventDtoInput) {
-        Event event = entityCreator.createEvent();
-        setEntityVariables(event, eventDtoInput);
-        return event;
-    }
-    private void setEntityVariables(Event eventToBeModified, EventDto eventDtoInput) {
-        eventToBeModified.setEventName(
-                eventDtoInput.getEventName());
-        eventToBeModified.setSubject(
-                eventDtoInput.getSubject());
-        eventToBeModified.setEventDescription(
-                eventDtoInput.getEventDescription());
-    }
-    @Override
-    public Event toEntity(EventDto eventDtoInput, Event eventToBeModified) {
-        setEntityVariables(eventToBeModified, eventDtoInput);
-        return eventToBeModified;
-    }
-    @Override
     public EventDto addPollDtosToEventDto(EventDto eventDto, Event eventInput) {
         EventImpl eventImpl = (EventImpl) eventInput;
         List<PollImpl> pollImpls = eventImpl.getPolls();
@@ -205,6 +242,25 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         }
         eventDto.setPolls(pollDtos);
         return eventDto;
+    }
+    @Override
+    public Event toEntity(EventDto eventDtoInput) {
+        Event event = entityCreator.createEvent();
+        setEntityFields(event, eventDtoInput);
+        return event;
+    }
+    private void setEntityFields(Event eventToBeModified, EventDto eventDtoInput) {
+        eventToBeModified.setEventName(
+                eventDtoInput.getEventName());
+        eventToBeModified.setSubject(
+                eventDtoInput.getSubject());
+        eventToBeModified.setEventDescription(
+                eventDtoInput.getEventDescription());
+    }
+    @Override
+    public Event toEntity(EventDto eventDtoInput, Event eventToBeModified) {
+        setEntityFields(eventToBeModified, eventDtoInput);
+        return eventToBeModified;
     }
     @Override
     public ScheduleDto toDto(Schedule scheduleInput, Long memberId) {
@@ -221,10 +277,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     @Override
     public Schedule toEntity(ScheduleDto scheduleDtoInput) {
         Schedule schedule = entityCreator.createSchedule();
-        setEntityVariables(schedule, scheduleDtoInput);
+        setEntityFields(schedule, scheduleDtoInput);
         return schedule;
     }
-    private void setEntityVariables(Schedule scheduleToBeModified, ScheduleDto scheduleDtoInput) {
+    private void setEntityFields(Schedule scheduleToBeModified, ScheduleDto scheduleDtoInput) {
         scheduleToBeModified.setStartTimeUtc(
                 scheduleDtoInput.getStartTimeUtc());
         scheduleToBeModified.setEndTimeUtc(
@@ -232,7 +288,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     }
     @Override
     public Schedule toEntity(ScheduleDto scheduleDtoInput, Schedule scheduleToBeModified) {
-        setEntityVariables(scheduleToBeModified, scheduleDtoInput);
+        setEntityFields(scheduleToBeModified, scheduleDtoInput);
         return scheduleToBeModified;
     }
     @Override
@@ -248,22 +304,6 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return pollDto;
     }
     @Override
-    public Poll toEntity(PollDto pollDtoInput) {
-        Poll poll = entityCreator.createPoll();
-        setEntityVariables(poll, pollDtoInput);
-        return poll;
-    }
-    private void setEntityVariables(Poll pollToBeModified, PollDto pollDtoInput) {
-        pollToBeModified.setStartTimeUtc(
-                pollDtoInput.getStartTimeUtc());
-        pollToBeModified.setEndTimeUtc(
-                pollDtoInput.getEndTimeUtc());
-    }
-    @Override
-    public Poll toEntity(PollDto pollDtoInput, Poll pollToBeModified) {
-        setEntityVariables(pollToBeModified, pollDtoInput);
-        return pollToBeModified;
-    }
     public PollDto addPollAnswerDtosToPollDto(PollDto pollDto, Poll pollInput) {
         PollImpl pollImpl = (PollImpl) pollInput;
         List<PollAnswerImpl> pollAnswerImpls =
@@ -271,9 +311,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         List<PollAnswerDto> pollAnswerDtos = new LinkedList<>();
         Long pollId = pollInput.getPollId();
         for(PollAnswerImpl pollAnswerImpl : pollAnswerImpls) {
-            Long memberId = pollAnswerImpl
-                    .getMember()
-                    .getMemberId();
+            Long pollAnswerId = pollAnswerImpl.getPollAnswerId();
+            Member member = pollAnswerDao
+                    .getSecondaryParent(pollAnswerId);
+            Long memberId = member.getMemberId();
             PollAnswerDto pollAnswerDto =
                     toDto(pollAnswerImpl,
                             pollId,
@@ -282,6 +323,23 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         }
         pollDto.setPollAnswers(pollAnswerDtos);
         return pollDto;
+    }
+    @Override
+    public Poll toEntity(PollDto pollDtoInput) {
+        Poll poll = entityCreator.createPoll();
+        setEntityFields(poll, pollDtoInput);
+        return poll;
+    }
+    private void setEntityFields(Poll pollToBeModified, PollDto pollDtoInput) {
+        pollToBeModified.setStartTimeUtc(
+                pollDtoInput.getStartTimeUtc());
+        pollToBeModified.setEndTimeUtc(
+                pollDtoInput.getEndTimeUtc());
+    }
+    @Override
+    public Poll toEntity(PollDto pollDtoInput, Poll pollToBeModified) {
+        setEntityFields(pollToBeModified, pollDtoInput);
+        return pollToBeModified;
     }
     @Override
     public PollAnswerDto toDto(PollAnswer pollAnswerInput, Long pollId, Long memberId) {
@@ -297,22 +355,29 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     @Override
     public PollAnswer toEntity(PollAnswerDto pollAnswerDtoInput) {
         PollAnswer pollAnswer = entityCreator.createPollAnswer();
-        setEntityVariables(pollAnswer, pollAnswerDtoInput);
+        setEntityFields(pollAnswer, pollAnswerDtoInput);
         return pollAnswer;
     }
-    private void setEntityVariables(PollAnswer pollAnswerToBeModified, PollAnswerDto pollAnswerDtoInput) {
+    private void setEntityFields(PollAnswer pollAnswerToBeModified, PollAnswerDto pollAnswerDtoInput) {
         pollAnswerToBeModified.setApproved(
                 pollAnswerDtoInput.isApproved());
     }
     @Override
     public PollAnswer toEntity(PollAnswerDto pollAnswerDtoInput, PollAnswer pollAnswerToBeModified) {
-        setEntityVariables(pollAnswerToBeModified, pollAnswerDtoInput);
+        setEntityFields(pollAnswerToBeModified, pollAnswerDtoInput);
         return pollAnswerToBeModified;
     }
     @Inject
-    public EntityDtoMapperImpl(EntityCreator entityCreator, DtoCreator dtoCreator) {
+    public EntityDtoMapperImpl(EntityCreator entityCreator,
+                               DtoCreator dtoCreator,
+                               @ProcessAs(ProcessType.MEMBER)
+                               ChildWithTwoParentsDao<Member,User,Project> memberDao,
+                               @ProcessAs(ProcessType.POLLANSWER)
+                               ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao) {
         this.entityCreator = entityCreator;
         this.dtoCreator = dtoCreator;
+        this.memberDao = memberDao;
+        this.pollAnswerDao = pollAnswerDao;
     }
     protected EntityDtoMapperImpl() {}
 }

@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 @ProcessAs(ProcessType.SCHEDULE)
 @ApplicationScoped
-public class ScheduleLinkCreatorImpl implements LinkCreator<ScheduleDto> {
+public class ScheduleLinkCreator implements LinkCreator<ScheduleDto> {
     @Override
     public LinkCommand<ScheduleDto> createLinkCommand(LinkReceiver linkReceiver, ScheduleDto scheduleDto, UriInfo uriInfo) {
         return new ScheduleLinkCommand(linkReceiver, scheduleDto, uriInfo);

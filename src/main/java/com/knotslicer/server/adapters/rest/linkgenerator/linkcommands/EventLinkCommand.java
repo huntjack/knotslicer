@@ -2,9 +2,7 @@ package com.knotslicer.server.adapters.rest.linkgenerator.linkcommands;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
-import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
-
 import java.net.URI;
 
 public class EventLinkCommand extends LinkCommand<EventDto> {

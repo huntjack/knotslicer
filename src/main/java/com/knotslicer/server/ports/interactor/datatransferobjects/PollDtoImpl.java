@@ -53,6 +53,4 @@ public class PollDtoImpl implements PollDto, Serializable {
     public void setPollAnswers(List<PollAnswerDto> pollAnswers) {this.pollAnswers = pollAnswers;}
     @Override
     public List<Link> getLinks() {return links;}
-    @Override
-    public void setLinks(List<Link> links) {this.links = links;}
 }

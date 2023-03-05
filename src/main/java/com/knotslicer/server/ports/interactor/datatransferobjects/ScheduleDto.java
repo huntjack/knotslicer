@@ -15,6 +15,4 @@ public interface ScheduleDto extends Linkable {
     void setStartTimeUtc(LocalDateTime startTimeUtc);
     LocalDateTime getEndTimeUtc();
     void setEndTimeUtc(LocalDateTime endTimeUtc);
-    List<Link> getLinks();
-    public void setLinks(List<Link> links);
 }

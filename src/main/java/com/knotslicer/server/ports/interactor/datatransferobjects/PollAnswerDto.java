@@ -14,6 +14,4 @@ public interface PollAnswerDto extends Linkable {
     void setPollAnswerId(Long pollAnswerId);
     Boolean isApproved();
     void setApproved(Boolean approved);
-    List<Link> getLinks();
-    void setLinks(List<Link> links);
 }

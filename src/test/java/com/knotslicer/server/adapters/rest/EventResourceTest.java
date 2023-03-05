@@ -2,8 +2,8 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiverImpl;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkCreatorImpl;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithPollsLinkCreatorImpl;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithPollsLinkCreator;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.services.ParentService;
@@ -33,8 +33,8 @@ public class EventResourceTest extends JerseyTest {
     @Override
     protected Application configure() {
         closeable = MockitoAnnotations.openMocks(this);
-        linkCreator = new EventLinkCreatorImpl();
-        eventWithPollsLinkCreator = new EventWithPollsLinkCreatorImpl();
+        linkCreator = new EventLinkCreator();
+        eventWithPollsLinkCreator = new EventWithPollsLinkCreator();
         linkReceiver = new LinkReceiverImpl();
         return new ResourceConfig()
                 .register(new EventResourceImpl(
@@ -62,20 +62,17 @@ public class EventResourceTest extends JerseyTest {
         Mockito.when(
                 eventService.getWithChildren(anyLong()))
                 .thenReturn(eventDtoDummy);
-
         EventDto eventResponseDto = target("/events/1/polls")
                 .request()
                 .get(EventDto.class);
-        checkEvent(eventResponseDto, eventDtoDummy);
 
+        checkEvent(eventResponseDto, eventDtoDummy);
         List<PollDto> pollResponseDtos =
                 eventResponseDto.getPolls();
-
         PollDto pollResponseDtoOne =
                 pollResponseDtos.get(0);
         checkPolls(pollResponseDtoOne,
                 pollDtoDummyOne.getPollId());
-
         PollDto pollResponseDtoTwo =
                 pollResponseDtos.get(1);
         checkPolls(pollResponseDtoTwo,
