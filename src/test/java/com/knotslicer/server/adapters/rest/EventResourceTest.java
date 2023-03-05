@@ -2,8 +2,8 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiverImpl;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkCreatorImpl;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithPollsLinkCreatorImpl;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithPollsLinkCreator;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.services.ParentService;
@@ -33,8 +33,8 @@ public class EventResourceTest extends JerseyTest {
     @Override
     protected Application configure() {
         closeable = MockitoAnnotations.openMocks(this);
-        linkCreator = new EventLinkCreatorImpl();
-        eventWithPollsLinkCreator = new EventWithPollsLinkCreatorImpl();
+        linkCreator = new EventLinkCreator();
+        eventWithPollsLinkCreator = new EventWithPollsLinkCreator();
         linkReceiver = new LinkReceiverImpl();
         return new ResourceConfig()
                 .register(new EventResourceImpl(

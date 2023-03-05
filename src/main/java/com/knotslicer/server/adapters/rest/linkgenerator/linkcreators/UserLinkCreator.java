@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 @ProcessAs(ProcessType.USER)
 @ApplicationScoped
-public class UserLinkCreatorImpl implements LinkCreator<UserLightDto> {
+public class UserLinkCreator implements LinkCreator<UserLightDto> {
     @Override
     public LinkCommand<UserLightDto> createLinkCommand(LinkReceiver linkReceiver, UserLightDto userLightDto, UriInfo uriInfo) {
         return new UserLinkCommand(linkReceiver, userLightDto, uriInfo);

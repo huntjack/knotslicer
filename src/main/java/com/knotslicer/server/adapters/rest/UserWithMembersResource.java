@@ -21,18 +21,19 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-@Path("/users/{userId}/projects")
+@Path("/users/{userId}/members")
 @RequestScoped
-public class UserWithProjectsResource implements UserWithChildrenResource {
-    private UserWithChildrenService userWithProjectsService;
+public class UserWithMembersResource implements UserWithChildrenResource {
+    private UserWithChildrenService userWithMembersService;
     private LinkCreator<UserLightDto> linkCreator;
     private LinkReceiver linkReceiver;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response getWithChildren(@PathParam("userId")Long userId, @Context UriInfo uriInfo) {
         UserLightDto userResponseDto =
-                userWithProjectsService
+                userWithMembersService
                         .getUserWithChildren(userId);
         LinkCommand<UserLightDto> linkCommand =
                 linkCreator.createLinkCommand(
@@ -51,14 +52,14 @@ public class UserWithProjectsResource implements UserWithChildrenResource {
         return invoker.executeCommand();
     }
     @Inject
-    public UserWithProjectsResource(@ProcessAs(ProcessType.PROJECT)
-                                    UserWithChildrenService userWithProjectsService,
-                                    @ProcessAs(ProcessType.PROJECT)
+    public UserWithMembersResource (@ProcessAs(ProcessType.MEMBER)
+                                        UserWithChildrenService userWithMembersService,
+                                    @ProcessAs(ProcessType.MEMBER)
                                     LinkCreator<UserLightDto> linkCreator,
-                                    LinkReceiver linkReceiver){
-        this.userWithProjectsService = userWithProjectsService;
-        this.linkReceiver = linkReceiver;
+                                    LinkReceiver linkReceiver) {
+        this.userWithMembersService = userWithMembersService;
         this.linkCreator = linkCreator;
+        this.linkReceiver = linkReceiver;
     }
-    protected UserWithProjectsResource() {}
+    protected UserWithMembersResource() {}
 }

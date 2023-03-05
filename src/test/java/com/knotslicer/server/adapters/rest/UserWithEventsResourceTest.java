@@ -3,7 +3,7 @@ package com.knotslicer.server.adapters.rest;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiverImpl;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.UserWithProjectsLinkCreator;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.UserWithEventsLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.services.UserWithChildrenService;
 import jakarta.ws.rs.core.Application;
@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
-public class UserWithProjectsResourceTest extends JerseyTest {
+public class UserWithEventsResourceTest extends JerseyTest {
     @Mock
     UserWithChildrenService userWithProjectsService;
     private LinkCreator<UserLightDto> linkCreator;
@@ -31,10 +31,10 @@ public class UserWithProjectsResourceTest extends JerseyTest {
     @Override
     protected Application configure() {
         closeable = MockitoAnnotations.openMocks(this);
-        linkCreator = new UserWithProjectsLinkCreator();
+        linkCreator = new UserWithEventsLinkCreator();
         linkReceiver = new LinkReceiverImpl();
         return new ResourceConfig()
-                .register(new UserWithProjectsResource(
+                .register(new UserWithEventsResource(
                         userWithProjectsService,
                         linkCreator,
                         linkReceiver));
@@ -43,33 +43,33 @@ public class UserWithProjectsResourceTest extends JerseyTest {
     public void givenCorrectUserId_whenGetUserWithChildren_thenLinksAreCorrect() {
         UserLightDto userLightDtoDummy = dtoCreator.createUserLightDto();
         userLightDtoDummy.setUserId(1L);
-        ProjectDto projectDtoDummyOne = dtoCreator.createProjectDto();
-        projectDtoDummyOne.setProjectId(1L);
-        ProjectDto projectDtoDummyTwo = dtoCreator.createProjectDto();
-        projectDtoDummyTwo.setProjectId(2L);
-        List<ProjectDto> projectDtos = new LinkedList<>();
-        projectDtos.add(projectDtoDummyOne);
-        projectDtos.add(projectDtoDummyTwo);
-        userLightDtoDummy.setProjects(projectDtos);
+        EventDto eventDtoDummyOne = dtoCreator.createEventDto();
+        eventDtoDummyOne.setEventId(1L);
+        EventDto eventDtoDummyTwo = dtoCreator.createEventDto();
+        eventDtoDummyTwo.setEventId(2L);
+        List<EventDto> eventDtos = new LinkedList<>();
+        eventDtos.add(eventDtoDummyOne);
+        eventDtos.add(eventDtoDummyTwo);
+        userLightDtoDummy.setEvents(eventDtos);
 
         Mockito.when(
-                userWithProjectsService.getUserWithChildren(anyLong()))
+                        userWithProjectsService.getUserWithChildren(anyLong()))
                 .thenReturn(userLightDtoDummy);
-        UserLightDto userResponseDto = target("/users/1/projects")
+        UserLightDto userResponseDto = target("/users/1/events")
                 .request()
                 .get(UserLightDto.class);
 
         checkUser(userResponseDto, userLightDtoDummy);
-        List<ProjectDto> projectResponseDtos =
-                userResponseDto.getProjects();
-        ProjectDto projectResponseDtoOne = projectResponseDtos.get(0);
-        checkProject(projectResponseDtoOne, projectDtoDummyOne);
-        ProjectDto projectResponseDtoTwo = projectResponseDtos.get(1);
-        checkProject(projectResponseDtoTwo, projectDtoDummyTwo);
+        List<EventDto> eventResponseDtos =
+                userResponseDto.getEvents();
+        EventDto eventResponseDtoOne = eventResponseDtos.get(0);
+        checkEvent(eventResponseDtoOne, eventDtoDummyOne);
+        EventDto eventResponseDtoTwo = eventResponseDtos.get(1);
+        checkEvent(eventResponseDtoTwo, eventDtoDummyTwo);
     }
     private void checkUser(UserLightDto userResponseDto, UserLightDto userDtoDummy) {
-        List<Link> userDtoLinks = userResponseDto.getLinks();
-        Link selfLink = userDtoLinks.get(0);
+        List<Link> userResponseDtoLinks = userResponseDto.getLinks();
+        Link selfLink = userResponseDtoLinks.get(0);
         assertEquals("self",
                 selfLink.getRel());
         String userId = userDtoDummy
@@ -81,19 +81,19 @@ public class UserWithProjectsResourceTest extends JerseyTest {
                                 userId),
                 "UserDto's self link is incorrect.");
     }
-    private void checkProject(ProjectDto projectResponseDto, ProjectDto projectDtoDummy) {
-        List<Link> projectDtoLinks = projectResponseDto.getLinks();
-        Link projectLink = projectDtoLinks.get(0);
-        assertEquals("project",
-                projectLink.getRel());
-        String projectId = projectDtoDummy
-                .getProjectId()
+    private void checkEvent(EventDto eventResponseDto, EventDto eventDtoDummy) {
+        List<Link> eventResponseDtoLinks = eventResponseDto.getLinks();
+        Link eventLink = eventResponseDtoLinks.get(0);
+        assertEquals("event",
+                eventLink.getRel());
+        String eventId = eventDtoDummy
+                .getEventId()
                 .toString();
-        assertTrue(projectLink
+        assertTrue(eventLink
                         .getLink()
-                        .contains("/projects/" +
-                                projectId),
-                "ProjectDto's project link is incorrect.");
+                        .contains("/events/" +
+                                eventId),
+                "EventDto's event link is incorrect.");
     }
     @AfterEach
     public void shutdown() throws Exception {

@@ -4,7 +4,7 @@ package com.knotslicer.server.adapters.rest;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiverImpl;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.PollAnswerLinkCreatorImpl;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.PollAnswerLinkCreator;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.PollWithPollAnswersLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.mappers.EntityNotFoundExceptionMapper;
@@ -40,7 +40,7 @@ public class PollAnswerResourceTest extends JerseyTest {
     @Override
     protected Application configure() {
         closeable = MockitoAnnotations.openMocks(this);
-        linkCreator = new PollAnswerLinkCreatorImpl();
+        linkCreator = new PollAnswerLinkCreator();
         pollWithPollAnswersLinkCreator = new PollWithPollAnswersLinkCreator();
         linkReceiver = new LinkReceiverImpl();
         return new ResourceConfig()

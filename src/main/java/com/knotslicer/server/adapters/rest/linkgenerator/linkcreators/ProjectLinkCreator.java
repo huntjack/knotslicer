@@ -2,20 +2,20 @@ package com.knotslicer.server.adapters.rest.linkgenerator.linkcreators;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
-import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.MemberLinkCommand;
-import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
+import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.ProjectLinkCommand;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.ws.rs.core.UriInfo;
 
-@ProcessAs(ProcessType.MEMBER)
+@ProcessAs(ProcessType.PROJECT)
 @Default
 @ApplicationScoped
-public class MemberLinkCreatorImpl implements LinkCreator<MemberDto> {
+public class ProjectLinkCreator implements LinkCreator<ProjectDto> {
     @Override
-    public LinkCommand<MemberDto> createLinkCommand(LinkReceiver linkReceiver, MemberDto memberDto, UriInfo uriInfo) {
-        return new MemberLinkCommand(linkReceiver, memberDto, uriInfo);
+    public LinkCommand<ProjectDto> createLinkCommand(LinkReceiver linkReceiver, ProjectDto projectDto, UriInfo uriInfo) {
+        return new ProjectLinkCommand(linkReceiver, projectDto, uriInfo);
     }
 }
