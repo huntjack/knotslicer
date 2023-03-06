@@ -24,7 +24,7 @@ public class UserWithMembersServiceImpl implements UserWithChildrenService {
     public UserLightDto getUserWithChildren(Long userId) {
         Optional<User> optionalUser = memberDao.getPrimaryParentWithChildren(userId);
         User user = unpackOptionalUser(optionalUser);
-        UserLightDto userLightDto = entityDtoMapper.toLightDto(user);
+        UserLightDto userLightDto = entityDtoMapper.toDto(user);
         return entityDtoMapper
                 .addMemberDtosToUserLightDto(
                         userLightDto,

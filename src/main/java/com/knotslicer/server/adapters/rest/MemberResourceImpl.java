@@ -67,7 +67,7 @@ public class MemberResourceImpl implements MemberResource {
     @Path("/{memberId}/events")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getWithEvents(Long memberId, UriInfo uriInfo) {
+    public Response getWithEvents(@PathParam("memberId")Long memberId, UriInfo uriInfo) {
         return null;
     }
 
@@ -96,7 +96,7 @@ public class MemberResourceImpl implements MemberResource {
     @DELETE
     @Path("/{memberId}")
     @Override
-    public Response delete(@PathParam("memberId") Long memberId) {
+    public Response delete(@PathParam("memberId")Long memberId) {
         memberService.delete(memberId);
         return Response
                 .noContent()

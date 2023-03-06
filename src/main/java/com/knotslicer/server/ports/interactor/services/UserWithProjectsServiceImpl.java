@@ -26,8 +26,7 @@ public class UserWithProjectsServiceImpl implements UserWithChildrenService {
         Optional<User> optionalUser =
                 projectDao.getPrimaryParentWithChildren(userId);
         User user = unpackOptionalUser(optionalUser);
-        UserLightDto userLightDto =
-                entityDtoMapper.toLightDto(user);
+        UserLightDto userLightDto = entityDtoMapper.toDto(user);
         return entityDtoMapper
                 .addProjectDtosToUserLightDto(
                         userLightDto,

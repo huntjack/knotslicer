@@ -4,8 +4,7 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.domain.*;
 
 public interface EntityDtoMapper {
-    UserDto toDto(User userInput);
-    UserLightDto toLightDto(User userInput);
+    UserLightDto toDto(User userInput);
     UserLightDto addProjectDtosToUserLightDto(UserLightDto userLightDto, User userInput);
     UserLightDto addMemberDtosToUserLightDto(UserLightDto userLightDto, User userInput);
     UserLightDto addEventDtosToUserLightDto(UserLightDto userLightDto, User userInput);

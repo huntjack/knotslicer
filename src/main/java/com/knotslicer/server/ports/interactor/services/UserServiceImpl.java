@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserLightDto createUser(UserDto userDto) {
         User user = entityDtoMapper.toEntity(userDto);
         user = userDao.create(user);
         return entityDtoMapper.toDto(user);
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     public UserLightDto getUser(Long userId) {
         Optional<User> optionalUser = userDao.get(userId);
         User user = unpackOptionalUser(optionalUser);
-        return entityDtoMapper.toLightDto(user);
+        return entityDtoMapper.toDto(user);
     }
     private User unpackOptionalUser(Optional<User> optionalUser) {
         return optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found."));
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
         User userToBeModified = unpackOptionalUser(optionalUser);
         User modifiedUser = entityDtoMapper.toEntity(userLightDto, userToBeModified);
         modifiedUser = userDao.update(modifiedUser);
-        return entityDtoMapper.toLightDto(modifiedUser);
+        return entityDtoMapper.toDto(modifiedUser);
     }
     @Override
     public void deleteUser(Long userId) {

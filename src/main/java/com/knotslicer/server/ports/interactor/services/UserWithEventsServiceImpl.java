@@ -24,8 +24,7 @@ public class UserWithEventsServiceImpl implements UserWithChildrenService {
         Optional<User> optionalUser =
                 eventDao.getPrimaryParentWithChildren(userId);
         User user = unpackOptionalUser(optionalUser);
-        UserLightDto userLightDto =
-                entityDtoMapper.toLightDto(user);
+        UserLightDto userLightDto = entityDtoMapper.toDto(user);
         return entityDtoMapper
                 .addEventDtosToUserLightDto(
                         userLightDto,

@@ -24,7 +24,7 @@ import java.net.URI;
 @RequestScoped
 public class ScheduleResourceImpl implements ScheduleResource {
     private Service<ScheduleDto> scheduleService;
-    private ParentService<MemberDto> memberService;
+    private MemberService memberService;
     private LinkCreator<ScheduleDto> linkCreator;
     private LinkCreator<MemberDto> memberWithSchedulesLinkCreator;
     private LinkReceiver linkReceiver;
@@ -130,7 +130,7 @@ public class ScheduleResourceImpl implements ScheduleResource {
     }
     @Inject
     public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE) Service<ScheduleDto> scheduleService,
-                                @ProcessAs(ProcessType.MEMBER) ParentService<MemberDto> memberService,
+                                MemberService memberService,
                                 @ProcessAs(ProcessType.SCHEDULE) LinkCreator<ScheduleDto> linkCreator,
                                 @ProcessAs(ProcessType.MEMBER) @WithChildren
                                     LinkCreator<MemberDto> memberWithSchedulesLinkCreator,

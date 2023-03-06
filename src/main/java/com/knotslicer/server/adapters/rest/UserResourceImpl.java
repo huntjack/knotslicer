@@ -32,7 +32,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public Response createUser(UserDto userRequestDto,
                                @Context UriInfo uriInfo) {
-        UserDto userResponseDto = userService.createUser(userRequestDto);
+        UserLightDto userResponseDto = userService.createUser(userRequestDto);
         LinkCommand<UserLightDto> linkCommand =
                 linkCreator.createLinkCommand(
                         linkReceiver,

@@ -20,22 +20,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     private MemberDao memberDao;
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     @Override
-    public UserDto toDto(User userInput) {
-        UserDto userDto = dtoCreator.createUserDto();
-        userDto.setUserId(
-                userInput.getUserId());
-        userDto.setEmail(
-                userInput.getEmail());
-        userDto.setUserName(
-                userInput.getUserName());
-        userDto.setUserDescription(
-                userInput.getUserDescription());
-        userDto.setTimeZone(
-                userInput.getTimeZone());
-        return userDto;
-    }
-    @Override
-    public UserLightDto toLightDto(User userInput) {
+    public UserLightDto toDto(User userInput) {
         UserLightDto userLightDto = dtoCreator.createUserLightDto();
         userLightDto.setUserId(
                 userInput.getUserId());
