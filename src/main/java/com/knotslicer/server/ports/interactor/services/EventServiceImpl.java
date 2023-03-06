@@ -4,9 +4,11 @@ import com.knotslicer.server.domain.Event;
 import com.knotslicer.server.domain.Poll;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
+import com.knotslicer.server.ports.interactor.datatransferobjects.EventMemberDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,11 +16,10 @@ import jakarta.inject.Inject;
 
 import java.util.Optional;
 
-@ProcessAs(ProcessType.EVENT)
 @ApplicationScoped
-public class EventServiceImpl implements ParentService<EventDto> {
+public class EventServiceImpl implements EventService {
     private EntityDtoMapper entityDtoMapper;
-    private ChildWithOneRequiredParentDao<Event, User> eventDao;
+    private EventDao eventDao;
     private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
 
     @Override
@@ -55,6 +56,11 @@ public class EventServiceImpl implements ParentService<EventDto> {
                 .addPollDtosToEventDto(eventDto, event);
     }
     @Override
+    public EventDto getWithMembers(Long eventId) {
+        return null;
+    }
+
+    @Override
     public EventDto update(EventDto eventDto) {
         Long eventId = eventDto.getEventId();
         Optional<Event> optionalEvent =
@@ -72,13 +78,20 @@ public class EventServiceImpl implements ParentService<EventDto> {
                 .toDto(updatedEvent, userId);
     }
     @Override
+    public EventDto addMember(EventMemberDto eventMemberDto) {
+        return null;
+    }
+    @Override
+    public void removeMember(Long eventId, Long memberId) {
+
+    }
+    @Override
     public void delete(Long eventId) {
         eventDao.delete(eventId);
     }
     @Inject
     public EventServiceImpl(EntityDtoMapper entityDtoMapper,
-                            @ProcessAs(ProcessType.EVENT)
-                            ChildWithOneRequiredParentDao<Event, User> eventDao,
+                            EventDao eventDao,
                             @ProcessAs(ProcessType.POLL)
                             ChildWithOneRequiredParentDao<Poll, Event> pollDao) {
         this.entityDtoMapper = entityDtoMapper;

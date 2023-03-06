@@ -3,6 +3,7 @@ package com.knotslicer.server.ports.interactor.services;
 import com.knotslicer.server.domain.Event;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
@@ -17,7 +18,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class UserWithEventsServiceImpl implements UserWithChildrenService {
     private EntityDtoMapper entityDtoMapper;
-    private ChildWithOneRequiredParentDao<Event, User> eventDao;
+    private EventDao eventDao;
     @Override
     public UserLightDto getUserWithChildren(Long userId) {
         Optional<User> optionalUser =
@@ -35,8 +36,7 @@ public class UserWithEventsServiceImpl implements UserWithChildrenService {
     }
     @Inject
     public UserWithEventsServiceImpl(EntityDtoMapper entityDtoMapper,
-                                     @ProcessAs(ProcessType.EVENT)
-                                     ChildWithOneRequiredParentDao<Event, User> eventDao) {
+                                     EventDao eventDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.eventDao = eventDao;
     }

@@ -3,6 +3,7 @@ package com.knotslicer.server.ports.interactor.services;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -26,12 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
 public class MemberServiceTest {
-    private ParentService<MemberDto> memberService;
+    private MemberService memberService;
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper;
     @Mock
-    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
+    private MemberDao memberDao;
     @Mock
     private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
     @Mock

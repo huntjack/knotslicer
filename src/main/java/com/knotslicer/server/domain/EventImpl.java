@@ -19,10 +19,10 @@ public class EventImpl implements Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")
     private UserImpl user;
-    @ManyToMany
+    @ManyToMany /*
     @JoinTable(name = "event_member",
                 joinColumns = {@JoinColumn(name = "eventId")},
-                inverseJoinColumns = {@JoinColumn(name = "memberId")})
+                inverseJoinColumns = {@JoinColumn(name = "memberId")})*/
     private Set<MemberImpl> members = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
     private List<PollImpl> polls = new ArrayList<>();

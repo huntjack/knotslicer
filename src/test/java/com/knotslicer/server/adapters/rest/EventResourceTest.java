@@ -6,6 +6,7 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventLinkC
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithPollsLinkCreator;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
+import com.knotslicer.server.ports.interactor.services.EventService;
 import com.knotslicer.server.ports.interactor.services.ParentService;
 import jakarta.ws.rs.core.Application;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -24,7 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 
 public class EventResourceTest extends JerseyTest {
     @Mock
-    private ParentService<EventDto> eventService;
+    private EventService eventService;
     private LinkCreator<EventDto> linkCreator;
     private LinkCreator<EventDto> eventWithPollsLinkCreator;
     private LinkReceiver linkReceiver;

@@ -1,9 +1,7 @@
 package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
-import com.knotslicer.server.ports.interactor.ProcessAs;
-import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.entitygateway.EventDao;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,10 +11,9 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@ProcessAs(ProcessType.EVENT)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> {
+public class EventDaoImpl implements EventDao {
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
 
@@ -64,6 +61,10 @@ public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> 
         return Optional.ofNullable(user);
     }
     @Override
+    public Event getWithMembers(Long eventId) {
+        return null;
+    }
+    @Override
     public Event update(Event eventInput, Long userId) {
         UserImpl userImpl = getUserWithEventsFromJpa(userId);
         entityManager.detach(userImpl);
@@ -81,7 +82,14 @@ public class EventDaoImpl implements ChildWithOneRequiredParentDao<Event, User> 
                 userImpl,
                 eventToBeModified);
     }
+    @Override
+    public Event addMember(Long eventId, Long memberId) {
+        return null;
+    }
+    @Override
+    public void removeMember(Long eventId, Long memberId) {
 
+    }
     @Override
     public void delete(Long eventId) {
         User user = getPrimaryParent(eventId);

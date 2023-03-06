@@ -6,7 +6,7 @@ import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
-import com.knotslicer.server.ports.interactor.services.ParentService;
+import com.knotslicer.server.ports.interactor.services.EventService;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.RequestScoped;
@@ -23,7 +23,7 @@ import java.net.URI;
 @Path("/events")
 @RequestScoped
 public class EventResourceImpl implements EventResource {
-    private ParentService<EventDto> eventService;
+    private EventService eventService;
     private LinkCreator<EventDto> linkCreator;
     private LinkCreator<EventDto> eventWithPollsLinkCreator;
     private LinkReceiver linkReceiver;
@@ -87,6 +87,7 @@ public class EventResourceImpl implements EventResource {
                 .type("application/json")
                 .build();
     }
+
     @PATCH
     @Path("/{eventId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -108,17 +109,18 @@ public class EventResourceImpl implements EventResource {
                 .type("application/json")
                 .build();
     }
+
     @DELETE
     @Path("/{eventId}")
     @Override
-    public Response delete(@PathParam("eventId") Long eventId) {
+    public Response delete(@PathParam("eventId")Long eventId) {
         eventService.delete(eventId);
         return Response
                 .noContent()
                 .build();
     }
     @Inject
-    public EventResourceImpl(@ProcessAs(ProcessType.EVENT) ParentService<EventDto> eventService,
+    public EventResourceImpl(EventService eventService,
                              @ProcessAs(ProcessType.EVENT) @Default
                              LinkCreator<EventDto> linkCreator,
                              @ProcessAs(ProcessType.EVENT) @WithChildren

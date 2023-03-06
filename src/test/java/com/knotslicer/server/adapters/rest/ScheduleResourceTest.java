@@ -7,7 +7,7 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.MemberWith
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.ScheduleLinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.mappers.EntityNotFoundExceptionMapper;
-import com.knotslicer.server.ports.interactor.services.ParentService;
+import com.knotslicer.server.ports.interactor.services.MemberService;
 import com.knotslicer.server.ports.interactor.services.Service;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
@@ -29,7 +29,7 @@ public class ScheduleResourceTest extends JerseyTest {
     @Mock
     private Service<ScheduleDto> scheduleService;
     @Mock
-    private ParentService<MemberDto> memberService;
+    private MemberService memberService;
     private LinkCreator<ScheduleDto> linkCreator;
     private LinkCreator<MemberDto> memberWithSchedulesLinkCreator;
     private LinkReceiver linkReceiver;

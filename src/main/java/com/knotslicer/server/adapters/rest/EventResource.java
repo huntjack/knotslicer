@@ -1,6 +1,7 @@
 package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
+import com.knotslicer.server.ports.interactor.datatransferobjects.EventMemberDto;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 

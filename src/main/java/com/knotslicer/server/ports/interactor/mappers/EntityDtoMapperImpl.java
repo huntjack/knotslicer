@@ -1,6 +1,7 @@
 package com.knotslicer.server.ports.interactor.mappers;
 
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -16,7 +17,7 @@ import java.util.List;
 public class EntityDtoMapperImpl implements EntityDtoMapper {
     private EntityCreator entityCreator;
     private DtoCreator dtoCreator;
-    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private MemberDao memberDao;
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     @Override
     public UserDto toDto(User userInput) {
@@ -370,8 +371,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     @Inject
     public EntityDtoMapperImpl(EntityCreator entityCreator,
                                DtoCreator dtoCreator,
-                               @ProcessAs(ProcessType.MEMBER)
-                               ChildWithTwoParentsDao<Member,User,Project> memberDao,
+                               MemberDao memberDao,
                                @ProcessAs(ProcessType.POLLANSWER)
                                ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao) {
         this.entityCreator = entityCreator;

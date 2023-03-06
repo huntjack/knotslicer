@@ -5,6 +5,7 @@ import com.knotslicer.server.domain.Project;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
@@ -19,7 +20,7 @@ import java.util.Optional;
 public class ProjectServiceImpl implements ParentService<ProjectDto> {
     private EntityDtoMapper entityDtoMapper;
     private ChildWithOneRequiredParentDao<Project, User> projectDao;
-    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private MemberDao memberDao;
 
     @Override
     public ProjectDto create(ProjectDto projectDto) {
@@ -82,8 +83,7 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
     public ProjectServiceImpl(EntityDtoMapper entityDtoMapper,
                               @ProcessAs(ProcessType.PROJECT)
                               ChildWithOneRequiredParentDao<Project, User> projectDao,
-                              @ProcessAs(ProcessType.MEMBER)
-                                  ChildWithTwoParentsDao<Member, User, Project> memberDao) {
+                              MemberDao memberDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.projectDao = projectDao;
         this.memberDao = memberDao;

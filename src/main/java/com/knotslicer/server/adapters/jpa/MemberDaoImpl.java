@@ -2,6 +2,7 @@ package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,10 +14,9 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@ProcessAs(ProcessType.MEMBER)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class MemberDaoImpl implements ChildWithTwoParentsDao<Member,User,Project> {
+public class MemberDaoImpl implements MemberDao {
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
 
@@ -86,6 +86,10 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member,User,Project
                         "WHERE m.memberId = :memberId", ProjectImpl.class)
                 .setParameter("memberId", memberId);
         return query.getSingleResult();
+    }
+    @Override
+    public Member getWithEvents(Long memberId) {
+        return null;
     }
     @Override
     public Member update(Member memberInput, Long userId) {
