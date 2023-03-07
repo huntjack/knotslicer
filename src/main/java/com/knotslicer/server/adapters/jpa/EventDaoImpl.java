@@ -2,6 +2,7 @@ package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.EventDao;
+import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -68,7 +69,9 @@ public class EventDaoImpl implements EventDao {
     public Event update(Event eventInput, Long userId) {
         UserImpl userImpl = getUserWithEventsFromJpa(userId);
         entityManager.detach(userImpl);
-        Event eventToBeModified = getEventFromUser(userImpl, eventInput);
+        Event eventToBeModified = getEventFromUser(
+                userImpl,
+                eventInput);
         eventToBeModified.setEventName(
                 eventInput.getEventName());
         eventToBeModified.setSubject(
@@ -84,11 +87,43 @@ public class EventDaoImpl implements EventDao {
     }
     @Override
     public Event addMember(Long eventId, Long memberId) {
-        return null;
+        Optional<MemberImpl> optionalMemberImpl = getMemberWithEvents(memberId);
+        MemberImpl memberImpl = unpackOptional(optionalMemberImpl);
+        Optional<EventImpl> optionalEventImpl = getEventWithMembers(eventId);
+        EventImpl eventImpl = unpackOptional(optionalEventImpl);
+        memberImpl.addEvent(eventImpl);
+        entityManager.flush();
+        return eventImpl;
+    }
+    private Optional<MemberImpl> getMemberWithEvents(Long memberId) {
+        TypedQuery<MemberImpl> query = entityManager.createQuery
+                        ("SELECT m FROM Member m " +
+                                "LEFT JOIN FETCH m.events " +
+                                "WHERE m.memberId = :memberId", MemberImpl.class)
+                .setParameter("memberId", memberId);
+        return Optional.ofNullable(
+                query.getSingleResult());
+    }
+    private <T> T unpackOptional(Optional<T> optional) {
+        return optional.orElseThrow(() -> new EntityNotFoundException("Entity not found."));
+    }
+    private Optional<EventImpl> getEventWithMembers(Long eventId) {
+        TypedQuery<EventImpl> query = entityManager.createQuery
+                        ("SELECT event FROM Event event " +
+                                "LEFT JOIN FETCH event.members " +
+                                "WHERE event.eventId = :eventId", EventImpl.class)
+                .setParameter("eventId", eventId);
+        return Optional.ofNullable(
+                query.getSingleResult());
     }
     @Override
     public void removeMember(Long eventId, Long memberId) {
-
+        Optional<MemberImpl> optionalMemberImpl = getMemberWithEvents(memberId);
+        MemberImpl memberImpl = unpackOptional(optionalMemberImpl);
+        Optional<EventImpl> optionalEventImpl = getEventWithMembers(eventId);
+        EventImpl eventImpl = unpackOptional(optionalEventImpl);
+        memberImpl.removeEvent(eventImpl);
+        entityManager.flush();
     }
     @Override
     public void delete(Long eventId) {
