@@ -25,17 +25,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLightDto getUser(Long userId) {
         Optional<User> optionalUser = userDao.get(userId);
-        User user = unpackOptionalUser(optionalUser);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
         return entityDtoMapper.toDto(user);
-    }
-    private User unpackOptionalUser(Optional<User> optionalUser) {
-        return optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found."));
     }
     @Override
     public UserLightDto updateUser(UserLightDto userLightDto) {
-        Optional<User> optionalUser = userDao.get(userLightDto.getUserId());
-        User userToBeModified = unpackOptionalUser(optionalUser);
-        User modifiedUser = entityDtoMapper.toEntity(userLightDto, userToBeModified);
+        Long userId = userLightDto.getUserId();
+        Optional<User> optionalUser = userDao.get(userId);
+        User userToBeModified = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        User modifiedUser = entityDtoMapper
+                .toEntity(userLightDto, userToBeModified);
         modifiedUser = userDao.update(modifiedUser);
         return entityDtoMapper.toDto(modifiedUser);
     }

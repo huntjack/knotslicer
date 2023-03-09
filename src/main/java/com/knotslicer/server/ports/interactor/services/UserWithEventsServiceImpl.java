@@ -23,15 +23,13 @@ public class UserWithEventsServiceImpl implements UserWithChildrenService {
     public UserLightDto getUserWithChildren(Long userId) {
         Optional<User> optionalUser =
                 eventDao.getPrimaryParentWithChildren(userId);
-        User user = unpackOptionalUser(optionalUser);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
         UserLightDto userLightDto = entityDtoMapper.toDto(user);
         return entityDtoMapper
                 .addEventDtosToUserLightDto(
                         userLightDto,
                         user);
-    }
-    private User unpackOptionalUser(Optional<User> optionalUser) {
-        return optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found."));
     }
     @Inject
     public UserWithEventsServiceImpl(EntityDtoMapper entityDtoMapper,

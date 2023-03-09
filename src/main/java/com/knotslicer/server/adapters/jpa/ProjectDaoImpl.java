@@ -7,6 +7,7 @@ import com.knotslicer.server.domain.UserImpl;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -25,27 +26,34 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
 
     @Override
     public Project create(Project project, Long userId) {
-        UserImpl userImpl = getUserWithProjectsFromJpa(userId);
-        entityManager.detach(userImpl);
-        userImpl.addProject((ProjectImpl) project);
-        userImpl = entityManager.merge(userImpl);
+        Optional<User> optionalUserWithProjects = getPrimaryParentWithChildren(userId);
+        UserImpl userWithProjects = (UserImpl) optionalUserWithProjects
+                .orElseThrow(() -> new EntityNotFoundException());
+        entityManager.detach(userWithProjects);
+        userWithProjects.addProject((ProjectImpl) project);
+        userWithProjects = entityManager.merge(userWithProjects);
         entityManager.flush();
-        return getProjectFromUser(
-                userImpl,
+        Optional<Project> optionalProjectResponse = getProjectFromUser(
+                userWithProjects,
                 project);
+        return optionalProjectResponse
+                .orElseThrow(() -> new EntityNotFoundException());
     }
-    private UserImpl getUserWithProjectsFromJpa(Long userId) {
+    @Override
+    public Optional<User> getPrimaryParentWithChildren(Long userId) {
         TypedQuery<UserImpl> query = entityManager.createQuery
                         ("SELECT user FROM User user " +
                                 "LEFT JOIN FETCH user.projects " +
                                 "WHERE user.userId = :userId", UserImpl.class)
                 .setParameter("userId", userId);
-        return query.getSingleResult();
+        User user = query.getSingleResult();
+        return Optional.ofNullable(user);
     }
-    private Project getProjectFromUser(UserImpl userImpl, Project project) {
+    private Optional<Project> getProjectFromUser(UserImpl userImpl, Project project) {
         List<ProjectImpl> projectImpls = userImpl.getProjects();
         int projectIndex = projectImpls.indexOf(project);
-        return projectImpls.get(projectIndex);
+        project = projectImpls.get(projectIndex);
+        return Optional.ofNullable(project);
     }
     @Override
     public Optional<Project> get(Long projectId) {
@@ -53,43 +61,51 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         return Optional.ofNullable(project);
     }
     @Override
-    public User getPrimaryParent(Long projectId) {
+    public Optional<User> getPrimaryParent(Long projectId) {
         TypedQuery<UserImpl> query = entityManager.createQuery(
                 "SELECT user FROM User user " +
                         "INNER JOIN user.projects project " +
                         "WHERE project.projectId = :projectId", UserImpl.class)
                 .setParameter("projectId", projectId);
-        return query.getSingleResult();
-    }
-    @Override
-    public Optional<User> getPrimaryParentWithChildren(Long userId) {
-        User user = getUserWithProjectsFromJpa(userId);
+        User user = query.getSingleResult();
         return Optional.ofNullable(user);
     }
     @Override
     public Project update(Project projectInput, Long userId) {
-        UserImpl userImpl = getUserWithProjectsFromJpa(userId);
-        entityManager.detach(userImpl);
-        Project projectToBeModified =
-                getProjectFromUser(userImpl, projectInput);
+        Optional<User> optionalUserWithProjects = getPrimaryParentWithChildren(userId);
+        UserImpl userWithProjects = (UserImpl) optionalUserWithProjects
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<Project> optionalProjectToBeModified =
+                getProjectFromUser(userWithProjects, projectInput);
+        Project projectToBeModified = optionalProjectToBeModified
+                .orElseThrow(() -> new EntityNotFoundException());
+        entityManager.detach(userWithProjects);
         projectToBeModified.setProjectName(
                 projectInput.getProjectName());
         projectToBeModified.setProjectDescription(
                 projectInput.getProjectDescription());
-        userImpl = entityManager
-                .merge(userImpl);
+        userWithProjects = entityManager
+                .merge(userWithProjects);
         entityManager.flush();
-        return getProjectFromUser(
-                userImpl,
+        Optional<Project> optionalProjectResponse = getProjectFromUser(
+                userWithProjects,
                 projectToBeModified);
+        return optionalProjectResponse
+                .orElseThrow(() -> new EntityNotFoundException());
     }
     @Override
     public void delete(Long projectId) {
-        User user = getPrimaryParent(projectId);
-        UserImpl userWithProjects =
-                getUserWithProjectsFromJpa(
+        Optional<User> optionalUser = getPrimaryParent(projectId);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<User> optionalUserWithProjects =
+                getPrimaryParentWithChildren(
                         user.getUserId());
-        ProjectImpl projectImpl = entityManager.find(ProjectImpl.class, projectId);
+        UserImpl userWithProjects = (UserImpl) optionalUserWithProjects
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<Project> optionalProject = get(projectId);
+        ProjectImpl projectImpl = (ProjectImpl) optionalProject
+                .orElseThrow(() -> new EntityNotFoundException());
         userWithProjects.removeProject(projectImpl);
         entityManager.flush();
     }

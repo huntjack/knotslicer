@@ -3,7 +3,6 @@ package com.knotslicer.server.ports.interactor.services;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -37,7 +36,7 @@ public class PollServiceTest {
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     @Mock
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
@@ -89,15 +88,18 @@ public class PollServiceTest {
                         .of(poll));
         Mockito.when(
                 pollDao.getPrimaryParent(anyLong()))
-                .thenReturn(event);
+                .thenReturn(
+                        Optional.of(event));
         Mockito.when(pollAnswerDao
                 .getSecondaryParent(
                         pollAnswerOne.getPollAnswerId()))
-                .thenReturn(memberOne);
+                .thenReturn(
+                        Optional.of(memberOne));
         Mockito.when(pollAnswerDao
                         .getSecondaryParent(
                                 pollAnswerTwo.getPollAnswerId()))
-                .thenReturn(memberTwo);
+                .thenReturn(
+                        Optional.of(memberTwo));
         PollDto pollDto = pollService.getWithChildren(5L);
 
         checkPollDto(

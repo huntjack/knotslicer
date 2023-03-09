@@ -37,36 +37,39 @@ public class PollAnswerServiceImpl implements Service<PollAnswerDto> {
     public PollAnswerDto get(Long pollAnswerId) {
         Optional<PollAnswer> optionalPollAnswer =
                 pollAnswerDao.get(pollAnswerId);
-        PollAnswer pollAnswer =
-                unpackOptionalPollAnswer(optionalPollAnswer);
-        Poll poll = pollAnswerDao
+        PollAnswer pollAnswer = optionalPollAnswer
+                        .orElseThrow(() -> new EntityNotFoundException());
+        Optional<Poll> optionalPoll = pollAnswerDao
                 .getPrimaryParent(pollAnswerId);
+        Poll poll = optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
         Long pollId = poll.getPollId();
-        Member member = pollAnswerDao
+        Optional<Member> optionalMember = pollAnswerDao
                 .getSecondaryParent(pollAnswerId);
+        Member member = optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
         Long memberId = member.getMemberId();
         return entityDtoMapper
                 .toDto(pollAnswer,
                         pollId,
                         memberId);
     }
-    private PollAnswer unpackOptionalPollAnswer(Optional<PollAnswer> optionalPollAnswer) {
-        return optionalPollAnswer.orElseThrow(() -> new EntityNotFoundException("Poll answer not found."));
-    }
-
     @Override
     public PollAnswerDto update(PollAnswerDto pollAnswerDto) {
         Long pollAnswerId = pollAnswerDto.getPollAnswerId();
         Optional<PollAnswer> optionalPollAnswer =
                 pollAnswerDao.get(pollAnswerId);
-        PollAnswer pollAnswerToBeModified =  unpackOptionalPollAnswer(optionalPollAnswer);
+        PollAnswer pollAnswerToBeModified =  optionalPollAnswer
+                .orElseThrow(() -> new EntityNotFoundException());
         pollAnswerToBeModified = entityDtoMapper
                 .toEntity(pollAnswerDto, pollAnswerToBeModified);
         Long pollId = pollAnswerDto.getPollId();
         PollAnswer updatedPollAnswer = pollAnswerDao
                 .update(pollAnswerToBeModified, pollId);
-        Member member = pollAnswerDao
+        Optional<Member> optionalMember = pollAnswerDao
                 .getSecondaryParent(pollAnswerId);
+        Member member = optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
         Long memberId = member.getMemberId();
         return entityDtoMapper.toDto(
                 updatedPollAnswer,

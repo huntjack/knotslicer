@@ -3,7 +3,7 @@ package com.knotslicer.server.ports.interactor.services;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
+import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -32,11 +32,13 @@ public class MemberServiceTest {
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper;
     @Mock
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
+    @Mock
+    private EventDao eventDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
@@ -49,7 +51,8 @@ public class MemberServiceTest {
         memberService = new MemberServiceImpl(
                 entityDtoMapper,
                 memberDao,
-                scheduleDao);
+                scheduleDao,
+                eventDao);
     }
     @Test
     public void givenCorrectMemberId_whenGetWithChildren_thenReturnMemberDtoWithScheduleDtos() {
@@ -86,9 +89,11 @@ public class MemberServiceTest {
                         .of(member));
         Mockito.when(
                 memberDao.getPrimaryParent(anyLong()))
-                .thenReturn(user);
+                .thenReturn(
+                        Optional.of(user));
         Mockito.when(memberDao.getSecondaryParent(anyLong()))
-                .thenReturn(project);
+                .thenReturn(
+                        Optional.of(project));
         MemberDto memberDto =
                 memberService.getWithChildren(5L);
 

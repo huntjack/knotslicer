@@ -3,7 +3,6 @@ package com.knotslicer.server.ports.interactor.services;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -32,7 +31,7 @@ public class ProjectServiceTest {
     @Mock
     private ChildWithOneRequiredParentDao<Project, User> projectDao;
     @Mock
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
@@ -88,15 +87,18 @@ public class ProjectServiceTest {
                         .of(project));
         Mockito.when(
                 projectDao.getPrimaryParent(anyLong()))
-                .thenReturn(parentUser);
+                .thenReturn(
+                        Optional.of(parentUser));
         Mockito.when(
                 memberDao.getPrimaryParent(
                         memberOne.getMemberId()))
-                .thenReturn(userOne);
+                .thenReturn(
+                        Optional.of(userOne));
         Mockito.when(
                 memberDao.getPrimaryParent(
                         memberTwo.getMemberId()))
-                .thenReturn(userTwo);
+                .thenReturn(
+                        Optional.of(userTwo));
         ProjectDto projectDto =
                 projectService.getWithChildren(7L);
 

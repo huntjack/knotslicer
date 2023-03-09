@@ -34,22 +34,25 @@ public class PollServiceImpl implements ParentService<PollDto> {
     @Override
     public PollDto get(Long pollId) {
         Optional<Poll> optionalPoll = pollDao.get(pollId);
-        Poll poll = unpackOptionalPoll(optionalPoll);
-        Event event = pollDao.getPrimaryParent(pollId);
+        Poll poll = optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<Event> optionalEvent = pollDao.getPrimaryParent(pollId);
+        Event event = optionalEvent
+                .orElseThrow(() -> new EntityNotFoundException());
         Long eventId = event.getEventId();
         return entityDtoMapper
                 .toDto(poll, eventId);
-    }
-    private Poll unpackOptionalPoll(Optional<Poll> optionalPoll) {
-        return optionalPoll.orElseThrow(() -> new EntityNotFoundException("Poll not found."));
     }
     @Override
     public PollDto getWithChildren(Long pollId) {
         Optional<Poll> optionalPoll =
                 pollAnswerDao.getPrimaryParentWithChildren(pollId);
-        Poll poll = unpackOptionalPoll(optionalPoll);
-        Event event = pollDao
+        Poll poll = optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<Event> optionalEvent = pollDao
                 .getPrimaryParent(pollId);
+        Event event = optionalEvent
+                .orElseThrow(() -> new EntityNotFoundException());
         Long eventId = event.getEventId();
         PollDto pollDto = entityDtoMapper
                 .toDto(poll,
@@ -61,11 +64,14 @@ public class PollServiceImpl implements ParentService<PollDto> {
     public PollDto update(PollDto pollDto) {
         Long pollId = pollDto.getPollId();
         Optional<Poll> optionalPoll = pollDao.get(pollId);
-        Poll pollLToBeModified = unpackOptionalPoll(optionalPoll);
+        Poll pollLToBeModified = optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
         pollLToBeModified = entityDtoMapper
                 .toEntity(pollDto, pollLToBeModified);
-        Event event = pollDao
+        Optional<Event> optionalEvent = pollDao
                 .getPrimaryParent(pollId);
+        Event event = optionalEvent
+                .orElseThrow(() -> new EntityNotFoundException());
         Long eventId = event.getEventId();
         Poll updatedPoll = pollDao
                 .update(pollLToBeModified, eventId);

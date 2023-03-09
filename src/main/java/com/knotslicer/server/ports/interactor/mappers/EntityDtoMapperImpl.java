@@ -1,23 +1,24 @@
 package com.knotslicer.server.ports.interactor.mappers;
 
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
+import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class EntityDtoMapperImpl implements EntityDtoMapper {
     private EntityCreator entityCreator;
     private DtoCreator dtoCreator;
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     @Override
     public UserLightDto toDto(User userInput) {
@@ -55,7 +56,9 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         Long userId = userInput.getUserId();
         for(MemberImpl memberImpl: memberImpls) {
             Long memberId = memberImpl.getMemberId();
-            Project project = memberDao.getSecondaryParent(memberId);
+            Optional<Project> optionalProject = memberDao.getSecondaryParent(memberId);
+            Project project = optionalProject
+                    .orElseThrow(() -> new EntityNotFoundException());
             Long projectId = project.getProjectId();
             MemberDto memberDto = toDto(
                     memberImpl,
@@ -124,8 +127,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         Long projectId = projectImpl.getProjectId();
         for(MemberImpl memberImpl: membersImpls) {
             Long memberId = memberImpl.getMemberId();
-            User user = memberDao
+            Optional<User> optionalUser = memberDao
                     .getPrimaryParent(memberId);
+            User user = optionalUser
+                    .orElseThrow(() -> new EntityNotFoundException());
             Long userId = user.getUserId();
             MemberDto memberDto = toDto(
                     memberImpl,
@@ -298,8 +303,10 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         Long pollId = pollInput.getPollId();
         for(PollAnswerImpl pollAnswerImpl : pollAnswerImpls) {
             Long pollAnswerId = pollAnswerImpl.getPollAnswerId();
-            Member member = pollAnswerDao
+            Optional<Member> optionalMember = pollAnswerDao
                     .getSecondaryParent(pollAnswerId);
+            Member member = optionalMember
+                    .orElseThrow(() -> new EntityNotFoundException());
             Long memberId = member.getMemberId();
             PollAnswerDto pollAnswerDto =
                     toDto(pollAnswerImpl,
@@ -356,7 +363,8 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     @Inject
     public EntityDtoMapperImpl(EntityCreator entityCreator,
                                DtoCreator dtoCreator,
-                               MemberDao memberDao,
+                               @ProcessAs(ProcessType.MEMBER)
+                               ChildWithTwoParentsDao<Member, User, Project> memberDao,
                                @ProcessAs(ProcessType.POLLANSWER)
                                ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao) {
         this.entityCreator = entityCreator;

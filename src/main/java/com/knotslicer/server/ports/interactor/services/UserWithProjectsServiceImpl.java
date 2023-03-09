@@ -25,15 +25,13 @@ public class UserWithProjectsServiceImpl implements UserWithChildrenService {
     public UserLightDto getUserWithChildren(Long userId) {
         Optional<User> optionalUser =
                 projectDao.getPrimaryParentWithChildren(userId);
-        User user = unpackOptionalUser(optionalUser);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
         UserLightDto userLightDto = entityDtoMapper.toDto(user);
         return entityDtoMapper
                 .addProjectDtosToUserLightDto(
                         userLightDto,
                         user);
-    }
-    private User unpackOptionalUser(Optional<User> optionalUser) {
-        return optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found."));
     }
     @Inject
     public UserWithProjectsServiceImpl(EntityDtoMapper entityDtoMapper,

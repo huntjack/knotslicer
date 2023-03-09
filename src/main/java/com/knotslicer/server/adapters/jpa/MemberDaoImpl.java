@@ -2,9 +2,9 @@ package com.knotslicer.server.adapters.jpa;
 
 import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -14,45 +14,38 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@ProcessAs(ProcessType.MEMBER)
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
-public class MemberDaoImpl implements MemberDao {
+public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Project> {
     @PersistenceContext(unitName = "knotslicer_database")
     private EntityManager entityManager;
 
     @Override
     public Member create(Member member, Long userId, Long projectId) {
         MemberImpl memberImpl = (MemberImpl) member;
-        UserImpl userImpl = getUserWithMembersFromJpa(userId);
-        entityManager.detach(userImpl);
-        userImpl.addMember(memberImpl);
-        userImpl = entityManager.merge(userImpl);
-        ProjectImpl projectImpl = getProjectWithMembersFromJpa(projectId);
-        memberImpl = getMemberFromUser(userImpl, memberImpl);
-        projectImpl.addMember(memberImpl);
+        Optional<User> optionalUserWithMembers = getPrimaryParentWithChildren(userId);
+        UserImpl userWithMembers = (UserImpl) optionalUserWithMembers
+                .orElseThrow(() -> new EntityNotFoundException());
+        entityManager.detach(userWithMembers);
+        userWithMembers.addMember(memberImpl);
+        userWithMembers = entityManager.merge(userWithMembers);
+        Optional<Project> optionalProjectWithMembers = getSecondaryParentWithChildren(projectId);
+        ProjectImpl projectWithMembers = (ProjectImpl) optionalProjectWithMembers
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<MemberImpl> optionalMemberImpl =
+                getMemberFromUser(userWithMembers, memberImpl);
+        memberImpl = optionalMemberImpl
+                .orElseThrow(() -> new EntityNotFoundException());
+        projectWithMembers.addMember(memberImpl);
         entityManager.flush();
         return memberImpl;
     }
-    private UserImpl getUserWithMembersFromJpa(Long userId) {
-        TypedQuery<UserImpl> query = entityManager.createQuery
-                        ("SELECT user FROM User user " +
-                                "LEFT JOIN FETCH user.members " +
-                                "WHERE user.userId = :userId", UserImpl.class)
-                .setParameter("userId", userId);
-        return query.getSingleResult();
-    }
-    private ProjectImpl getProjectWithMembersFromJpa(Long projectId) {
-        TypedQuery<ProjectImpl> query = entityManager.createQuery
-                        ("SELECT project FROM Project project " +
-                                "LEFT JOIN FETCH project.members " +
-                                "WHERE project.projectId = :projectId", ProjectImpl.class)
-                .setParameter("projectId", projectId);
-        return query.getSingleResult();
-    }
-    private MemberImpl getMemberFromUser(UserImpl userImpl, Member member) {
+    private Optional<MemberImpl> getMemberFromUser(UserImpl userImpl, Member member) {
         List<MemberImpl> memberImpls = userImpl.getMembers();
         int memberIndex = memberImpls.indexOf(member);
-        return memberImpls.get(memberIndex);
+        MemberImpl memberImpl = memberImpls.get(memberIndex);
+        return Optional.ofNullable(memberImpl);
     }
     @Override
     public Optional<Member> get(Long memberId) {
@@ -61,65 +54,84 @@ public class MemberDaoImpl implements MemberDao {
     }
     @Override
     public Optional<User> getPrimaryParentWithChildren(Long userId) {
-        User user = getUserWithMembersFromJpa(userId);
+        TypedQuery<UserImpl> query = entityManager.createQuery
+                        ("SELECT user FROM User user " +
+                                "LEFT JOIN FETCH user.members " +
+                                "WHERE user.userId = :userId", UserImpl.class)
+                .setParameter("userId", userId);
+        User user = query.getSingleResult();
         return Optional.ofNullable(user);
     }
     @Override
     public Optional<Project> getSecondaryParentWithChildren(Long projectId) {
-        Project project = getProjectWithMembersFromJpa(projectId);
+        TypedQuery<ProjectImpl> query = entityManager.createQuery
+                        ("SELECT project FROM Project project " +
+                                "LEFT JOIN FETCH project.members " +
+                                "WHERE project.projectId = :projectId", ProjectImpl.class)
+                .setParameter("projectId", projectId);
+        Project project = query.getSingleResult();
         return Optional.ofNullable(project);
     }
     @Override
-    public User getPrimaryParent(Long memberId) {
+    public Optional<User> getPrimaryParent(Long memberId) {
         TypedQuery<UserImpl> query = entityManager.createQuery(
                 "SELECT user FROM User user " +
                         "INNER JOIN user.members m " +
                         "WHERE m.memberId = :memberId", UserImpl.class)
                 .setParameter("memberId", memberId);
-        return query.getSingleResult();
+        User user = query.getSingleResult();
+        return Optional.ofNullable(user);
     }
     @Override
-    public Project getSecondaryParent(Long memberId) {
+    public Optional<Project> getSecondaryParent(Long memberId) {
         TypedQuery<ProjectImpl> query = entityManager.createQuery(
                 "SELECT project FROM Project project " +
                         "INNER JOIN project.members m " +
                         "WHERE m.memberId = :memberId", ProjectImpl.class)
                 .setParameter("memberId", memberId);
-        return query.getSingleResult();
-    }
-    @Override
-    public Member getWithEvents(Long memberId) {
-        return null;
+        Project project = query.getSingleResult();
+        return Optional.ofNullable(project);
     }
     @Override
     public Member update(Member memberInput, Long userId) {
-        UserImpl userImpl = getUserWithMembersFromJpa(userId);
-        entityManager.detach(userImpl);
-        Member memberToBeModified =
+        Optional<User> optionalUserWithMembers = getPrimaryParentWithChildren(userId);
+        UserImpl userWithMembers = (UserImpl) optionalUserWithMembers
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<MemberImpl> optionalMemberToBeModified =
                 getMemberFromUser(
-                        userImpl,
+                        userWithMembers,
                         memberInput);
+        Member memberToBeModified = optionalMemberToBeModified
+                .orElseThrow(() -> new EntityNotFoundException());
+        entityManager.detach(userWithMembers);
         memberToBeModified.setName(
                 memberInput.getName());
         memberToBeModified.setRole(
                 memberInput.getRole());
         memberToBeModified.setRoleDescription(
                 memberInput.getRoleDescription());
-        userImpl = entityManager.merge(userImpl);
+        userWithMembers = entityManager.merge(userWithMembers);
         entityManager.flush();
-        return getMemberFromUser(
-                userImpl,
+        Optional<MemberImpl> optionalMemberResponse = getMemberFromUser(
+                userWithMembers,
                 memberToBeModified);
+        return optionalMemberResponse
+                .orElseThrow(() -> new EntityNotFoundException());
     }
 
     @Override
     public void delete(Long memberId) {
-        User user = getPrimaryParent(memberId);
-        UserImpl userWithMembers =
-                getUserWithMembersFromJpa(
+        Optional<User> optionalUser = getPrimaryParent(memberId);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<User> optionalUserWithMembers =
+                getPrimaryParentWithChildren(
                         user.getUserId());
-        MemberImpl memberImpl = entityManager
-                .find(MemberImpl.class, memberId);
+        UserImpl userWithMembers = (UserImpl) optionalUserWithMembers
+                .orElseThrow(() -> new EntityNotFoundException());
+        Optional<Member> optionalMember = get(memberId);
+        MemberImpl memberImpl = (MemberImpl) optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
         userWithMembers.removeMember(memberImpl);
         entityManager.flush();
     }

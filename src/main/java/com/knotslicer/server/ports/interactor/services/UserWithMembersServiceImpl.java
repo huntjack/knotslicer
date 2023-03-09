@@ -4,7 +4,6 @@ import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Project;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
@@ -19,23 +18,22 @@ import java.util.Optional;
 @ApplicationScoped
 public class UserWithMembersServiceImpl implements UserWithChildrenService {
     private EntityDtoMapper entityDtoMapper;
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Override
     public UserLightDto getUserWithChildren(Long userId) {
         Optional<User> optionalUser = memberDao.getPrimaryParentWithChildren(userId);
-        User user = unpackOptionalUser(optionalUser);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
         UserLightDto userLightDto = entityDtoMapper.toDto(user);
         return entityDtoMapper
                 .addMemberDtosToUserLightDto(
                         userLightDto,
                         user);
     }
-    private User unpackOptionalUser(Optional<User> optionalUser) {
-        return optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found."));
-    }
     @Inject
     public UserWithMembersServiceImpl(EntityDtoMapper entityDtoMapper,
-                                      MemberDao memberDao) {
+                                      @ProcessAs(ProcessType.MEMBER)
+                                      ChildWithTwoParentsDao<Member, User, Project> memberDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.memberDao = memberDao;
     }

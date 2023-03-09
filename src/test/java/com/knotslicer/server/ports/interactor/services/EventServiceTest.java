@@ -4,7 +4,6 @@ import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.entitygateway.EventDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -38,7 +37,7 @@ public class EventServiceTest {
     @Mock
     private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
     @Mock
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
@@ -84,11 +83,12 @@ public class EventServiceTest {
 
         Mockito.when(
                 pollDao.getPrimaryParentWithChildren(anyLong()))
-                .thenReturn(Optional
-                        .of(event));
+                .thenReturn(
+                        Optional.of(event));
         Mockito.when(
                 eventDao.getPrimaryParent(anyLong()))
-                .thenReturn(user);
+                .thenReturn(
+                        Optional.of(user));
         EventDto eventDto = eventService.getWithChildren(5L);
 
         checkEventDto(

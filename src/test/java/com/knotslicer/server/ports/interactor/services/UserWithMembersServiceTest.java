@@ -1,9 +1,7 @@
 package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
-import com.knotslicer.server.ports.entitygateway.MemberDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -32,7 +30,7 @@ public class UserWithMembersServiceTest {
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper;
     @Mock
-    private MemberDao memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
@@ -84,11 +82,13 @@ public class UserWithMembersServiceTest {
         Mockito.when(
                 memberDao.getSecondaryParent(
                         memberOne.getMemberId()))
-                .thenReturn(projectOne);
+                .thenReturn(
+                        Optional.of(projectOne));
         Mockito.when(
                 memberDao.getSecondaryParent(
                         memberTwo.getMemberId()))
-                .thenReturn(projectTwo);
+                .thenReturn(
+                        Optional.of(projectTwo));
         Long userId = user.getUserId();
         UserLightDto userLightDto = userWithMembersService.getUserWithChildren(userId);
 

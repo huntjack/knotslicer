@@ -5,5 +5,7 @@ public class EntityNotFoundException extends BusinessException {
     public EntityNotFoundException(String message) {
         super(message);
     }
-    public EntityNotFoundException() {}
+    public EntityNotFoundException() {
+        super("Entity not found.");
+    }
 }
