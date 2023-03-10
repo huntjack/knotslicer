@@ -35,22 +35,22 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
         Optional<Project> optionalProject = projectDao.get(projectId);
         Project project = optionalProject
                 .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(projectId);
+        return entityDtoMapper
+                .toDto(project, userId);
+    }
+    private Long getUserId(Long projectId) {
         Optional<User> optionalUser = projectDao.getPrimaryParent(projectId);
         User user = optionalUser
                 .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
-        return entityDtoMapper
-                .toDto(project, userId);
+        return user.getUserId();
     }
     @Override
     public ProjectDto getWithChildren(Long projectId) {
         Optional<Project> optionalProject = memberDao.getSecondaryParentWithChildren(projectId);
         Project project = optionalProject
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<User> optionalUser = projectDao.getPrimaryParent(projectId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
+        Long userId = getUserId(projectId);
         ProjectDto projectDto =
                 entityDtoMapper.toDto(
                         project,
@@ -69,11 +69,7 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
                 .orElseThrow(() -> new EntityNotFoundException());
         projectToBeModified = entityDtoMapper
                 .toEntity(projectDto, projectToBeModified);
-        Optional<User> optionalUser = projectDao
-                .getPrimaryParent(projectId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
+        Long userId = getUserId(projectId);
         Project updatedProject = projectDao
                 .update(projectToBeModified, userId);
         return entityDtoMapper.toDto(

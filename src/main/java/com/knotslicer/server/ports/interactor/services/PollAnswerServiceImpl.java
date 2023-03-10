@@ -39,20 +39,26 @@ public class PollAnswerServiceImpl implements Service<PollAnswerDto> {
                 pollAnswerDao.get(pollAnswerId);
         PollAnswer pollAnswer = optionalPollAnswer
                         .orElseThrow(() -> new EntityNotFoundException());
-        Optional<Poll> optionalPoll = pollAnswerDao
-                .getPrimaryParent(pollAnswerId);
-        Poll poll = optionalPoll
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long pollId = poll.getPollId();
-        Optional<Member> optionalMember = pollAnswerDao
-                .getSecondaryParent(pollAnswerId);
-        Member member = optionalMember
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long memberId = member.getMemberId();
+        Long pollId = getPollId(pollAnswerId);
+        Long memberId = getMemberId(pollAnswerId);
         return entityDtoMapper
                 .toDto(pollAnswer,
                         pollId,
                         memberId);
+    }
+    private Long getPollId(Long pollAnswerId) {
+        Optional<Poll> optionalPoll = pollAnswerDao
+                .getPrimaryParent(pollAnswerId);
+        Poll poll = optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
+        return poll.getPollId();
+    }
+    private Long getMemberId(Long pollAnswerId) {
+        Optional<Member> optionalMember = pollAnswerDao
+                .getSecondaryParent(pollAnswerId);
+        Member member = optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
+        return member.getMemberId();
     }
     @Override
     public PollAnswerDto update(PollAnswerDto pollAnswerDto) {
@@ -66,11 +72,7 @@ public class PollAnswerServiceImpl implements Service<PollAnswerDto> {
         Long pollId = pollAnswerDto.getPollId();
         PollAnswer updatedPollAnswer = pollAnswerDao
                 .update(pollAnswerToBeModified, pollId);
-        Optional<Member> optionalMember = pollAnswerDao
-                .getSecondaryParent(pollAnswerId);
-        Member member = optionalMember
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long memberId = member.getMemberId();
+        Long memberId = getMemberId(pollAnswerId);
         return entityDtoMapper.toDto(
                 updatedPollAnswer,
                 pollId,

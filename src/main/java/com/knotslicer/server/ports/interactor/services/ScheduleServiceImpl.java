@@ -35,13 +35,16 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
         Optional<Schedule> optionalSchedule = scheduleDao.get(scheduleId);
         Schedule schedule = optionalSchedule
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<Member> optionalMember = scheduleDao.getPrimaryParent(scheduleId);
-        Member member = optionalMember
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long memberId = member.getMemberId();
+        Long memberId = getMemberId(scheduleId);
         return entityDtoMapper.toDto(
                 schedule,
                 memberId);
+    }
+    private Long getMemberId(Long scheduleId) {
+        Optional<Member> optionalMember = scheduleDao.getPrimaryParent(scheduleId);
+        Member member = optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
+        return member.getMemberId();
     }
     @Override
     public ScheduleDto update(ScheduleDto scheduleDto) {

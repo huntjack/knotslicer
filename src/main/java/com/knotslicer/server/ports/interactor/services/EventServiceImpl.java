@@ -35,12 +35,15 @@ public class EventServiceImpl implements EventService {
         Optional<Event> optionalEvent = eventDao.get(eventId);
         Event event = optionalEvent
                 .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(eventId);
+        return entityDtoMapper
+                .toDto(event, userId);
+    }
+    private Long getUserId(Long eventId) {
         Optional<User> optionalUser = eventDao.getPrimaryParent(eventId);
         User user = optionalUser
                 .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
-        return entityDtoMapper
-                .toDto(event, userId);
+        return user.getUserId();
     }
     @Override
     public EventDto getWithChildren(Long eventId) {
@@ -48,11 +51,7 @@ public class EventServiceImpl implements EventService {
                 pollDao.getPrimaryParentWithChildren(eventId);
         Event event = optionalEvent
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<User> optionalUser = eventDao
-                .getPrimaryParent(eventId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
+        Long userId = getUserId(eventId);
         EventDto eventDto = entityDtoMapper
                 .toDto(event, userId);
         return entityDtoMapper
@@ -60,6 +59,13 @@ public class EventServiceImpl implements EventService {
     }
     @Override
     public EventDto getWithMembers(Long eventId) {
+        Optional<Event> optionalEventWithMembers =
+                eventDao.getEventWithMembers(eventId);
+        Event eventWithMembers = optionalEventWithMembers
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(eventId);
+        EventDto eventDto = entityDtoMapper
+                .toDto(eventWithMembers, userId);
         return null;
     }
 
@@ -72,11 +78,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException());
         eventToBeModified = entityDtoMapper
                 .toEntity(eventDto, eventToBeModified);
-        Optional<User> optionalUser = eventDao
-                .getPrimaryParent(eventId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
+        Long userId = getUserId(eventId);
         Event updatedEvent = eventDao
                 .update(eventToBeModified,
                         userId);
@@ -88,10 +90,7 @@ public class EventServiceImpl implements EventService {
         Long eventId = eventMemberDto.getEventId();
         Long memberId = eventMemberDto.getMemberId();
         Event event = eventDao.addMember(eventId, memberId);
-        Optional<User> optionalUser = eventDao.getPrimaryParent(eventId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
+        Long userId = getUserId(eventId);
         return entityDtoMapper.toDto(
                 event,
                 userId);

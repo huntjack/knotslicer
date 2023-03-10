@@ -11,8 +11,10 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProcessAs(ProcessType.MEMBER)
 @ApplicationScoped
@@ -132,6 +134,11 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Proje
         Optional<Member> optionalMember = get(memberId);
         MemberImpl memberImpl = (MemberImpl) optionalMember
                 .orElseThrow(() -> new EntityNotFoundException());
+        Set<EventImpl> events =
+                new HashSet<>(memberImpl.getEvents());
+        for(EventImpl event: events) {
+            memberImpl.removeEvent(event);
+        }
         userWithMembers.removeMember(memberImpl);
         entityManager.flush();
     }

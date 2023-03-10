@@ -36,12 +36,15 @@ public class PollServiceImpl implements ParentService<PollDto> {
         Optional<Poll> optionalPoll = pollDao.get(pollId);
         Poll poll = optionalPoll
                 .orElseThrow(() -> new EntityNotFoundException());
+        Long eventId = getEventId(pollId);
+        return entityDtoMapper
+                .toDto(poll, eventId);
+    }
+    private Long getEventId(Long pollId) {
         Optional<Event> optionalEvent = pollDao.getPrimaryParent(pollId);
         Event event = optionalEvent
                 .orElseThrow(() -> new EntityNotFoundException());
-        Long eventId = event.getEventId();
-        return entityDtoMapper
-                .toDto(poll, eventId);
+        return event.getEventId();
     }
     @Override
     public PollDto getWithChildren(Long pollId) {
@@ -49,11 +52,7 @@ public class PollServiceImpl implements ParentService<PollDto> {
                 pollAnswerDao.getPrimaryParentWithChildren(pollId);
         Poll poll = optionalPoll
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<Event> optionalEvent = pollDao
-                .getPrimaryParent(pollId);
-        Event event = optionalEvent
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long eventId = event.getEventId();
+        Long eventId = getEventId(pollId);
         PollDto pollDto = entityDtoMapper
                 .toDto(poll,
                         eventId);
@@ -68,11 +67,7 @@ public class PollServiceImpl implements ParentService<PollDto> {
                 .orElseThrow(() -> new EntityNotFoundException());
         pollLToBeModified = entityDtoMapper
                 .toEntity(pollDto, pollLToBeModified);
-        Optional<Event> optionalEvent = pollDao
-                .getPrimaryParent(pollId);
-        Event event = optionalEvent
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long eventId = event.getEventId();
+        Long eventId = getEventId(pollId);
         Poll updatedPoll = pollDao
                 .update(pollLToBeModified, eventId);
         return entityDtoMapper

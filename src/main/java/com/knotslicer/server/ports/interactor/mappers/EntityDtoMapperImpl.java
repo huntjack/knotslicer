@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -232,6 +233,16 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
             pollDtos.add(pollDto);
         }
         eventDto.setPolls(pollDtos);
+        return eventDto;
+    }
+    @Override
+    public EventDto addMemberDtosToEventDto(EventDto eventDto, Event eventInput) {
+        EventImpl eventImpl = (EventImpl) eventInput;
+        Set<MemberImpl> memberImpls = eventImpl.getMembers();
+        List<MemberDto> memberDtos = new LinkedList<>();
+        for(MemberImpl memberImpl: memberImpls) {
+            //MemberDto memberDto = toDto()
+        }
         return eventDto;
     }
     @Override

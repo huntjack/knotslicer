@@ -6,10 +6,7 @@ import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
-import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
-import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreatorImpl;
-import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
-import com.knotslicer.server.ports.interactor.datatransferobjects.PollDto;
+import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapperImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -59,10 +56,7 @@ public class EventServiceTest {
         User user = entityCreator.createUser();
         user.setUserId(1L);
         Event event = entityCreator.createEvent();
-        event.setEventId(1L);
-        event.setEventName("Test Event");
-        event.setSubject("Test Subject");
-        event.setEventDescription("Test Event Description");
+        initializeEventFields(event);
         Poll pollOne = entityCreator.createPoll();
         pollOne.setPollId(1L);
         pollOne.setStartTimeUtc(
@@ -89,7 +83,7 @@ public class EventServiceTest {
                 eventDao.getPrimaryParent(anyLong()))
                 .thenReturn(
                         Optional.of(user));
-        EventDto eventDto = eventService.getWithChildren(5L);
+        EventDto eventDto = eventService.getWithChildren(1L);
 
         checkEventDto(
                 event,
@@ -101,6 +95,12 @@ public class EventServiceTest {
         checkPollDto(pollOne, pollDtoOne);
         PollDto pollDtoTwo = pollDtos.get(1);
         checkPollDto(pollTwo, pollDtoTwo);
+    }
+    private void initializeEventFields(Event event) {
+        event.setEventId(1L);
+        event.setEventName("Test Event");
+        event.setSubject("Test Subject");
+        event.setEventDescription("Test Event Description");
     }
     private void checkEventDto(Event event, EventDto eventDto, Long userId) {
         assertEquals(event.getEventId(),
@@ -121,6 +121,58 @@ public class EventServiceTest {
                 pollDto.getStartTimeUtc());
         assertEquals(poll.getEndTimeUtc(),
                 pollDto.getEndTimeUtc());
+    }
+    @Test
+    public void givenCorrectEventId_whenGetWithMembers_thenReturnEventDtoWithMemberDtos() {
+        User user = entityCreator.createUser();
+        user.setUserId(1L);
+        Event event = entityCreator.createEvent();
+        initializeEventFields(event);
+        Member memberOne = entityCreator.createMember();
+        memberOne.setMemberId(1L);
+        memberOne.setName("memberOne Name");
+        memberOne.setRole("memberOne Role");
+        memberOne.setRoleDescription("memberOne Role Description");
+        UserImpl userImpl = (UserImpl) user;
+        MemberImpl memberOneImpl = (MemberImpl) memberOne;
+        userImpl.addMember(memberOneImpl);
+        Member memberTwo = entityCreator.createMember();
+        memberTwo.setMemberId(2L);
+        memberTwo.setName("memberTwo Name");
+        memberTwo.setRole("memberTwo Role");
+        memberTwo.setRoleDescription("memberTwo Role Description");
+        MemberImpl memberTwoImpl = (MemberImpl) memberTwo;
+        userImpl.addMember(memberTwoImpl);
+
+        Mockito.when(eventDao
+                .getEventWithMembers(anyLong()))
+                .thenReturn(
+                        Optional.of(event));
+        Mockito.when(eventDao
+                        .getPrimaryParent(anyLong()))
+                .thenReturn(
+                        Optional.of(user));
+        EventDto eventDto = eventService.getWithMembers(1L);
+
+        checkEventDto(
+                event,
+                eventDto,
+                user.getUserId());
+        List<MemberDto> memberDtos = eventDto.getMembers();
+        MemberDto memberDtoOne = memberDtos.get(0);
+        checkMemberDto(memberOne, memberDtoOne);
+        MemberDto memberDtoTwo = memberDtos.get(1);
+        checkMemberDto(memberTwo, memberDtoTwo);
+    }
+    private void checkMemberDto(Member member, MemberDto memberDto) {
+        assertEquals(member.getMemberId(),
+                memberDto.getMemberId());
+        assertEquals(member.getName(),
+                memberDto.getName());
+        assertEquals(member.getRole(),
+                memberDto.getRole());
+        assertEquals(member.getRoleDescription(),
+                memberDto.getRoleDescription());
     }
     @AfterEach
     public void shutdown() throws Exception {

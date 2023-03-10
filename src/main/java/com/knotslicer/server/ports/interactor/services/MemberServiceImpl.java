@@ -45,32 +45,33 @@ public class MemberServiceImpl implements MemberService {
                 .get(memberId);
         Member member = optionalMember
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<User> optionalUser = memberDao.getPrimaryParent(memberId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
-        Optional<Project> optionalProject = memberDao.getSecondaryParent(memberId);
-        Project project = optionalProject
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long projectId = project.getProjectId();;
+        Long userId = getUserId(memberId);
+        Long projectId = getProjectId(memberId);
         return entityDtoMapper.toDto(
                 member,
                 userId,
                 projectId);
+    }
+    private Long getUserId(Long memberId) {
+        Optional<User> optionalUser =
+                memberDao.getPrimaryParent(memberId);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        return user.getUserId();
+    }
+    private Long getProjectId(Long memberId) {
+        Optional<Project> optionalProject = memberDao.getSecondaryParent(memberId);
+        Project project = optionalProject
+                .orElseThrow(() -> new EntityNotFoundException());
+        return project.getProjectId();
     }
     @Override
     public MemberDto getWithChildren(Long memberId) {
         Optional<Member> optionalMember = scheduleDao.getPrimaryParentWithChildren(memberId);
         Member member = optionalMember
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<User> optionalUser = memberDao.getPrimaryParent(memberId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
-        Optional<Project> optionalProject = memberDao.getSecondaryParent(memberId);
-        Project project = optionalProject
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long projectId = project.getProjectId();
+        Long userId = getUserId(memberId);
+        Long projectId = getProjectId(memberId);
         MemberDto memberDto =
                 entityDtoMapper.toDto(
                         member,
@@ -97,19 +98,13 @@ public class MemberServiceImpl implements MemberService {
                 .toEntity(memberDto,
                         memberToBeModified);
 
-        Optional<User> optionalUser = memberDao.getPrimaryParent(memberId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long userId = user.getUserId();
+        Long userId = getUserId(memberId);
         Member updatedMember =
                 memberDao.update(
                         memberToBeModified,
                         userId);
 
-        Optional<Project> optionalProject = memberDao.getSecondaryParent(memberId);
-        Project project = optionalProject
-                .orElseThrow(() -> new EntityNotFoundException());
-        Long projectId = project.getProjectId();
+        Long projectId = getProjectId(memberId);
         return entityDtoMapper.toDto(
                 updatedMember,
                 userId,
