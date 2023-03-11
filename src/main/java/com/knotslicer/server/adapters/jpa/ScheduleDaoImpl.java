@@ -23,9 +23,7 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
 
     @Override
     public Schedule create(Schedule schedule, Long memberId) {
-        Optional<Member> optionalMemberWithSchedules = getPrimaryParentWithChildren(memberId);
-        MemberImpl memberWithSchedules = (MemberImpl) optionalMemberWithSchedules
-                .orElseThrow(() -> new EntityNotFoundException());
+        MemberImpl memberWithSchedules = getMemberImplWithSchedules(memberId);
         entityManager.detach(memberWithSchedules);
         memberWithSchedules.addSchedule((ScheduleImpl) schedule);
         memberWithSchedules = entityManager.merge(memberWithSchedules);
@@ -35,6 +33,11 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
                         memberWithSchedules,
                         schedule);
         return optionalSchedule
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    private MemberImpl getMemberImplWithSchedules(Long memberId) {
+        Optional<Member> optionalMemberWithSchedules = getPrimaryParentWithChildren(memberId);
+        return (MemberImpl) optionalMemberWithSchedules
                 .orElseThrow(() -> new EntityNotFoundException());
     }
     @Override
@@ -70,9 +73,7 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
     }
     @Override
     public Schedule update(Schedule scheduleInput, Long memberId) {
-        Optional<Member> optionalMemberWithSchedules = getPrimaryParentWithChildren(memberId);
-        MemberImpl memberWithSchedules = (MemberImpl) optionalMemberWithSchedules
-                .orElseThrow(() -> new EntityNotFoundException());
+        MemberImpl memberWithSchedules = getMemberImplWithSchedules(memberId);
         Optional<Schedule> optionalScheduleToBeModified =
                 getScheduleFromMember(memberWithSchedules, scheduleInput);
         Schedule scheduleToBeModified = optionalScheduleToBeModified
@@ -97,11 +98,8 @@ public class ScheduleDaoImpl implements ChildWithOneRequiredParentDao<Schedule, 
         Optional<Member> optionalMember = getPrimaryParent(scheduleId);
         Member member = optionalMember
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<Member> optionalMemberWithSchedules =
-                getPrimaryParentWithChildren(
-                        member.getMemberId());
-        MemberImpl memberWithSchedules = (MemberImpl) optionalMemberWithSchedules
-                .orElseThrow(() -> new EntityNotFoundException());
+        Long memberId = member.getMemberId();
+        MemberImpl memberWithSchedules = getMemberImplWithSchedules(memberId);
         Optional<Schedule> optionalSchedule = get(scheduleId);
         ScheduleImpl scheduleImpl = (ScheduleImpl) optionalSchedule
                 .orElseThrow(() -> new EntityNotFoundException());

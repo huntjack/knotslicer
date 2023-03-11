@@ -122,22 +122,28 @@ public class PollServiceTest {
                 memberTwoId);
     }
     private void checkPollDto(Poll poll, PollDto pollDto, Long eventId) {
-        assertEquals(poll.getPollId(),
-                pollDto.getPollId());
-        assertEquals(poll.getStartTimeUtc(),
-                pollDto.getStartTimeUtc());
-        assertEquals(poll.getEndTimeUtc(),
-                pollDto.getEndTimeUtc());
-        assertEquals(eventId,
-                pollDto.getEventId());
+        assertAll(
+                "PollDto should have the correct field values.",
+                () -> assertEquals(poll.getPollId(),
+                        pollDto.getPollId()),
+                () -> assertEquals(poll.getStartTimeUtc(),
+                        pollDto.getStartTimeUtc()),
+                () -> assertEquals(poll.getEndTimeUtc(),
+                        pollDto.getEndTimeUtc()),
+                () -> assertEquals(eventId,
+                        pollDto.getEventId())
+        );
     }
     private void checkPollAnswerDto(PollAnswer pollAnswer, PollAnswerDto pollAnswerDto, Long memberId) {
-        assertEquals(pollAnswer.getPollAnswerId(),
-                pollAnswerDto.getPollAnswerId());
-        assertEquals(memberId,
-                pollAnswerDto.getMemberId());
-        assertEquals(pollAnswer.isApproved(),
-                pollAnswerDto.isApproved());
+        assertAll(
+                "PollAnswerDto should have the correct field values.",
+                () -> assertEquals(pollAnswer.getPollAnswerId(),
+                        pollAnswerDto.getPollAnswerId()),
+                () -> assertEquals(memberId,
+                        pollAnswerDto.getMemberId()),
+                () -> assertEquals(pollAnswer.isApproved(),
+                        pollAnswerDto.isApproved())
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

@@ -103,29 +103,37 @@ public class EventServiceTest {
         event.setEventDescription("Test Event Description");
     }
     private void checkEventDto(Event event, EventDto eventDto, Long userId) {
-        assertEquals(event.getEventId(),
-                eventDto.getEventId());
-        assertEquals(event.getEventName(),
-                eventDto.getEventName());
-        assertEquals(event.getSubject(),
-                eventDto.getSubject());
-        assertEquals(event.getEventDescription(),
-                eventDto.getEventDescription());
-        assertEquals(userId,
-                eventDto.getUserId());
+        assertAll(
+                "EventDto should have the correct field values.",
+                () -> assertEquals(event.getEventId(),
+                        eventDto.getEventId()),
+                () -> assertEquals(event.getEventName(),
+                        eventDto.getEventName()),
+                () -> assertEquals(event.getSubject(),
+                        eventDto.getSubject()),
+                () -> assertEquals(event.getEventDescription(),
+                        eventDto.getEventDescription()),
+                () -> assertEquals(userId,
+                        eventDto.getUserId())
+        );
     }
     private void checkPollDto(Poll poll, PollDto pollDto) {
-        assertEquals(poll.getPollId(),
-                pollDto.getPollId());
-        assertEquals(poll.getStartTimeUtc(),
-                pollDto.getStartTimeUtc());
-        assertEquals(poll.getEndTimeUtc(),
-                pollDto.getEndTimeUtc());
+        assertAll(
+                "PollDto should have the correct field values.",
+                () -> assertEquals(poll.getPollId(),
+                        pollDto.getPollId()),
+                () -> assertEquals(poll.getStartTimeUtc(),
+                        pollDto.getStartTimeUtc()),
+                () -> assertEquals(poll.getEndTimeUtc(),
+                        pollDto.getEndTimeUtc())
+        );
     }
     @Test
     public void givenCorrectEventId_whenGetWithMembers_thenReturnEventDtoWithMemberDtos() {
-        User user = entityCreator.createUser();
-        user.setUserId(1L);
+        User userOne = entityCreator.createUser();
+        userOne.setUserId(1L);
+        Project project = entityCreator.createProject();
+        project.setProjectId(1L);
         Event event = entityCreator.createEvent();
         initializeEventFields(event);
         Member memberOne = entityCreator.createMember();
@@ -133,46 +141,78 @@ public class EventServiceTest {
         memberOne.setName("memberOne Name");
         memberOne.setRole("memberOne Role");
         memberOne.setRoleDescription("memberOne Role Description");
-        UserImpl userImpl = (UserImpl) user;
+        EventImpl eventImpl = (EventImpl) event;
         MemberImpl memberOneImpl = (MemberImpl) memberOne;
-        userImpl.addMember(memberOneImpl);
+        memberOneImpl.addEvent(eventImpl);
+        User userTwo = entityCreator.createUser();
+        userTwo.setUserId(2L);
         Member memberTwo = entityCreator.createMember();
         memberTwo.setMemberId(2L);
         memberTwo.setName("memberTwo Name");
         memberTwo.setRole("memberTwo Role");
         memberTwo.setRoleDescription("memberTwo Role Description");
         MemberImpl memberTwoImpl = (MemberImpl) memberTwo;
-        userImpl.addMember(memberTwoImpl);
+        memberTwoImpl.addEvent(eventImpl);
 
-        Mockito.when(eventDao
-                .getEventWithMembers(anyLong()))
+        Mockito.when(
+                eventDao.getPrimaryParent(anyLong()))
+                .thenReturn(
+                        Optional.of(userOne));
+        Mockito.when(
+                eventDao.getEventWithMembers(anyLong()))
                 .thenReturn(
                         Optional.of(event));
-        Mockito.when(eventDao
-                        .getPrimaryParent(anyLong()))
+        Long memberOneId = memberOne.getMemberId();
+        Mockito.when(
+                memberDao.getPrimaryParent(memberOneId))
                 .thenReturn(
-                        Optional.of(user));
-        EventDto eventDto = eventService.getWithMembers(1L);
+                        Optional.of(userOne));
+        Long memberTwoId = memberTwo.getMemberId();
+        Mockito.when(
+                memberDao.getPrimaryParent(
+                        memberTwoId))
+                .thenReturn(
+                        Optional.of(userTwo));
+        Mockito.when(
+                memberDao.getSecondaryParent(anyLong()))
+                .thenReturn(Optional.of(project));
+        EventDto eventDto = eventService.getWithMembers(
+                event.getEventId());
 
         checkEventDto(
                 event,
                 eventDto,
-                user.getUserId());
+                userOne.getUserId());
         List<MemberDto> memberDtos = eventDto.getMembers();
-        MemberDto memberDtoOne = memberDtos.get(0);
-        checkMemberDto(memberOne, memberDtoOne);
-        MemberDto memberDtoTwo = memberDtos.get(1);
-        checkMemberDto(memberTwo, memberDtoTwo);
+        Long userOneId = userOne.getUserId();
+        Long projectId = project.getProjectId();
+        Long userTwoId = userTwo.getUserId();
+        assertEquals(memberDtos.size(), 2);
+        for(MemberDto memberDto: memberDtos) {
+            Long memberDtoId = memberDto.getMemberId();
+            if(memberDtoId.equals(memberOneId)) {
+                checkMemberDto(memberOne, memberDto, userOneId, projectId);
+            } else  {
+                checkMemberDto(memberTwo, memberDto, userTwoId, projectId);
+            }
+        }
     }
-    private void checkMemberDto(Member member, MemberDto memberDto) {
-        assertEquals(member.getMemberId(),
-                memberDto.getMemberId());
-        assertEquals(member.getName(),
-                memberDto.getName());
-        assertEquals(member.getRole(),
-                memberDto.getRole());
-        assertEquals(member.getRoleDescription(),
-                memberDto.getRoleDescription());
+    private void checkMemberDto(Member member, MemberDto memberDto, Long userId, Long projectId) {
+        assertAll(
+                "MemberDto should have the correct field values.",
+                () -> assertEquals(member.getMemberId(),
+                        memberDto.getMemberId()),
+                () -> assertEquals(userId,
+                        memberDto.getUserId()),
+                () -> assertEquals(projectId,
+                        memberDto.getProjectId()),
+                () -> assertEquals(member.getName(),
+                        memberDto.getName()),
+                () -> assertEquals(member.getRole(),
+                        memberDto.getRole()),
+                () -> assertEquals(member.getRoleDescription(),
+                        memberDto.getRoleDescription())
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

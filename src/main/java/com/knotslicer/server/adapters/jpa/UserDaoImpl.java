@@ -31,9 +31,8 @@ public class UserDaoImpl implements UserDao {
     }
     @Override
     public User update(User userInput) {
-        Optional<User> optionalUserToBeModified = get(userInput.getUserId());
-        User userToBeModified = optionalUserToBeModified
-                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = userInput.getUserId();
+        User userToBeModified = getUser(userId);
         userToBeModified.setUserName(
                 userInput.getUserName());
         userToBeModified.setUserDescription(
@@ -43,11 +42,14 @@ public class UserDaoImpl implements UserDao {
         entityManager.flush();
         return userToBeModified;
     }
+    private User getUser(Long userId) {
+        Optional<User> optionalUserToBeModified = get(userId);
+        return optionalUserToBeModified
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
     @Override
     public void delete(Long userId) {
-        Optional<User> optionalUser = get(userId);
-        User user = optionalUser
-                .orElseThrow(() -> new EntityNotFoundException());
+        User user = getUser(userId);
         entityManager.remove(user);
         entityManager.flush();
     }

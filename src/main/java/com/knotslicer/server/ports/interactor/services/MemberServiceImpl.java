@@ -41,16 +41,19 @@ public class MemberServiceImpl implements MemberService {
     }
     @Override
     public MemberDto get(Long memberId) {
-        Optional<Member> optionalMember = memberDao
-                .get(memberId);
-        Member member = optionalMember
-                .orElseThrow(() -> new EntityNotFoundException());
+        Member member = getMember(memberId);
         Long userId = getUserId(memberId);
         Long projectId = getProjectId(memberId);
         return entityDtoMapper.toDto(
                 member,
                 userId,
                 projectId);
+    }
+    private Member getMember(Long memberId) {
+        Optional<Member> optionalMember = memberDao
+                .get(memberId);
+        return optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
     }
     private Long getUserId(Long memberId) {
         Optional<User> optionalUser =
@@ -67,32 +70,42 @@ public class MemberServiceImpl implements MemberService {
     }
     @Override
     public MemberDto getWithChildren(Long memberId) {
-        Optional<Member> optionalMember = scheduleDao.getPrimaryParentWithChildren(memberId);
-        Member member = optionalMember
+        Optional<Member> optionalMemberWithSchedules = scheduleDao.getPrimaryParentWithChildren(memberId);
+        Member memberWithSchedules =  optionalMemberWithSchedules
                 .orElseThrow(() -> new EntityNotFoundException());
         Long userId = getUserId(memberId);
         Long projectId = getProjectId(memberId);
         MemberDto memberDto =
                 entityDtoMapper.toDto(
-                        member,
+                        memberWithSchedules,
                         userId,
                         projectId);
         return entityDtoMapper
                 .addScheduleDtosToMemberDto(
                         memberDto,
-                        member);
+                        memberWithSchedules);
     }
     @Override
     public MemberDto getWithEvents(Long memberId) {
-        return null;
+        Optional<Member> optionalMemberWithEvents =
+                eventDao.getMemberWithEvents(memberId);
+        Member memberWithEvents =  optionalMemberWithEvents
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(memberId);
+        Long projectId = getProjectId(memberId);
+        MemberDto memberDto = entityDtoMapper
+                .toDto(memberWithEvents,
+                        userId,
+                        projectId);
+        return entityDtoMapper
+                .addEventDtosToMemberDto(
+                        memberDto,
+                        memberWithEvents);
     }
     @Override
     public MemberDto update(MemberDto memberDto) {
         Long memberId = memberDto.getMemberId();
-        Optional<Member> optionalMember =
-                memberDao.get(memberId);
-        Member memberToBeModified = optionalMember
-                .orElseThrow(() -> new EntityNotFoundException());
+        Member memberToBeModified = getMember(memberId);
 
         memberToBeModified = entityDtoMapper
                 .toEntity(memberDto,

@@ -32,12 +32,15 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
     }
     @Override
     public ProjectDto get(Long projectId) {
-        Optional<Project> optionalProject = projectDao.get(projectId);
-        Project project = optionalProject
-                .orElseThrow(() -> new EntityNotFoundException());
+        Project project = getProject(projectId);
         Long userId = getUserId(projectId);
         return entityDtoMapper
                 .toDto(project, userId);
+    }
+    private Project getProject(Long projectId) {
+        Optional<Project> optionalProject = projectDao.get(projectId);
+        return optionalProject
+                .orElseThrow(() -> new EntityNotFoundException());
     }
     private Long getUserId(Long projectId) {
         Optional<User> optionalUser = projectDao.getPrimaryParent(projectId);
@@ -63,10 +66,7 @@ public class ProjectServiceImpl implements ParentService<ProjectDto> {
     @Override
     public ProjectDto update(ProjectDto projectDto) {
         Long projectId = projectDto.getProjectId();
-        Optional<Project> optionalProject =
-                projectDao.get(projectId);
-        Project projectToBeModified = optionalProject
-                .orElseThrow(() -> new EntityNotFoundException());
+        Project projectToBeModified = getProject(projectId);
         projectToBeModified = entityDtoMapper
                 .toEntity(projectDto, projectToBeModified);
         Long userId = getUserId(projectId);

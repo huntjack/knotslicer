@@ -33,12 +33,15 @@ public class PollServiceImpl implements ParentService<PollDto> {
     }
     @Override
     public PollDto get(Long pollId) {
-        Optional<Poll> optionalPoll = pollDao.get(pollId);
-        Poll poll = optionalPoll
-                .orElseThrow(() -> new EntityNotFoundException());
+        Poll poll = getPoll(pollId);
         Long eventId = getEventId(pollId);
         return entityDtoMapper
                 .toDto(poll, eventId);
+    }
+    private Poll getPoll(Long pollId) {
+        Optional<Poll> optionalPoll = pollDao.get(pollId);
+        return optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
     }
     private Long getEventId(Long pollId) {
         Optional<Event> optionalEvent = pollDao.getPrimaryParent(pollId);
@@ -62,9 +65,7 @@ public class PollServiceImpl implements ParentService<PollDto> {
     @Override
     public PollDto update(PollDto pollDto) {
         Long pollId = pollDto.getPollId();
-        Optional<Poll> optionalPoll = pollDao.get(pollId);
-        Poll pollLToBeModified = optionalPoll
-                .orElseThrow(() -> new EntityNotFoundException());
+        Poll pollLToBeModified = getPoll(pollId);
         pollLToBeModified = entityDtoMapper
                 .toEntity(pollDto, pollLToBeModified);
         Long eventId = getEventId(pollId);

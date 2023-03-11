@@ -24,9 +24,7 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
     @Override
     public PollAnswer create(PollAnswer pollAnswer, Long pollId, Long memberId) {
         PollAnswerImpl pollAnswerImpl = (PollAnswerImpl) pollAnswer;
-        Optional<Poll> optionalPollWithPollAnswers = getPrimaryParentWithChildren(pollId);
-        PollImpl pollWithPollAnswers = (PollImpl) optionalPollWithPollAnswers
-                .orElseThrow(() -> new EntityNotFoundException());
+        PollImpl pollWithPollAnswers = getPollImplWithPollAnswers(pollId);
         entityManager.detach(pollWithPollAnswers);
         pollWithPollAnswers.addPollAnswer(pollAnswerImpl);
         pollWithPollAnswers = entityManager.merge(pollWithPollAnswers);
@@ -42,6 +40,11 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
         memberWithPollAnswers.addPollAnswer(pollAnswerImpl);
         entityManager.flush();
         return pollAnswerImpl;
+    }
+    private PollImpl getPollImplWithPollAnswers(Long pollId) {
+        Optional<Poll> optionalPollWithPollAnswers = getPrimaryParentWithChildren(pollId);
+        return (PollImpl) optionalPollWithPollAnswers
+                .orElseThrow(() -> new EntityNotFoundException());
     }
     @Override
     public Optional<Poll> getPrimaryParentWithChildren(Long pollId) {
@@ -97,9 +100,7 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
     }
     @Override
     public PollAnswer update(PollAnswer pollAnswerInput, Long pollId) {
-        Optional<Poll> optionalPollWithPollAnswers = getPrimaryParentWithChildren(pollId);
-        PollImpl pollWithPollAnswers = (PollImpl) optionalPollWithPollAnswers
-                .orElseThrow(() -> new EntityNotFoundException());
+        PollImpl pollWithPollAnswers = getPollImplWithPollAnswers(pollId);
         Optional<PollAnswerImpl> optionalPollAnswerToBeModified =
                 getPollAnswerFromPoll(
                         pollWithPollAnswers,
@@ -122,11 +123,8 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
         Optional<Poll> optionalPoll = getPrimaryParent(pollAnswerId);
         Poll poll = optionalPoll
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<Poll> optionalPollWithPollAnswers =
-                getPrimaryParentWithChildren(
-                        poll.getPollId());
-        PollImpl pollWithPollAnswers = (PollImpl) optionalPollWithPollAnswers
-                .orElseThrow(() -> new EntityNotFoundException());
+        Long pollId = poll.getPollId();
+        PollImpl pollWithPollAnswers = getPollImplWithPollAnswers(pollId);
         Optional<PollAnswer> optionalPollAnswer = get(pollAnswerId);
         PollAnswerImpl pollAnswerImpl = (PollAnswerImpl) optionalPollAnswer
                 .orElseThrow(() -> new EntityNotFoundException());

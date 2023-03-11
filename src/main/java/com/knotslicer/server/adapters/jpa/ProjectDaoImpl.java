@@ -26,9 +26,7 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
 
     @Override
     public Project create(Project project, Long userId) {
-        Optional<User> optionalUserWithProjects = getPrimaryParentWithChildren(userId);
-        UserImpl userWithProjects = (UserImpl) optionalUserWithProjects
-                .orElseThrow(() -> new EntityNotFoundException());
+        UserImpl userWithProjects = getUserImplWithProjects(userId);
         entityManager.detach(userWithProjects);
         userWithProjects.addProject((ProjectImpl) project);
         userWithProjects = entityManager.merge(userWithProjects);
@@ -37,6 +35,11 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
                 userWithProjects,
                 project);
         return optionalProjectResponse
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    private UserImpl getUserImplWithProjects(Long userId) {
+        Optional<User> optionalUserWithProjects = getPrimaryParentWithChildren(userId);
+        return (UserImpl) optionalUserWithProjects
                 .orElseThrow(() -> new EntityNotFoundException());
     }
     @Override
@@ -72,9 +75,7 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
     }
     @Override
     public Project update(Project projectInput, Long userId) {
-        Optional<User> optionalUserWithProjects = getPrimaryParentWithChildren(userId);
-        UserImpl userWithProjects = (UserImpl) optionalUserWithProjects
-                .orElseThrow(() -> new EntityNotFoundException());
+        UserImpl userWithProjects = getUserImplWithProjects(userId);
         Optional<Project> optionalProjectToBeModified =
                 getProjectFromUser(userWithProjects, projectInput);
         Project projectToBeModified = optionalProjectToBeModified
@@ -98,11 +99,8 @@ public class ProjectDaoImpl implements ChildWithOneRequiredParentDao<Project, Us
         Optional<User> optionalUser = getPrimaryParent(projectId);
         User user = optionalUser
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<User> optionalUserWithProjects =
-                getPrimaryParentWithChildren(
-                        user.getUserId());
-        UserImpl userWithProjects = (UserImpl) optionalUserWithProjects
-                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = user.getUserId();
+        UserImpl userWithProjects = getUserImplWithProjects(userId);
         Optional<Project> optionalProject = get(projectId);
         ProjectImpl projectImpl = (ProjectImpl) optionalProject
                 .orElseThrow(() -> new EntityNotFoundException());

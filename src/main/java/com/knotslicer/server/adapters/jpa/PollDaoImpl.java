@@ -23,9 +23,7 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
 
     @Override
     public Poll create(Poll poll, Long eventId) {
-        Optional<Event> optionalEventWithPolls = getPrimaryParentWithChildren(eventId);
-        EventImpl eventWithPolls = (EventImpl) optionalEventWithPolls
-                .orElseThrow(() -> new EntityNotFoundException());
+        EventImpl eventWithPolls = getEventImplWithPolls(eventId);
         entityManager.detach(eventWithPolls);
         eventWithPolls.addPoll((PollImpl) poll);
         eventWithPolls = entityManager.merge(eventWithPolls);
@@ -36,6 +34,21 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
                         poll);
         return optionalPollResponse
                 .orElseThrow(() -> new EntityNotFoundException());
+    }
+    private EventImpl getEventImplWithPolls(Long eventId) {
+        Optional<Event> optionalEventWithPolls = getPrimaryParentWithChildren(eventId);
+        return (EventImpl) optionalEventWithPolls
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    @Override
+    public Optional<Event> getPrimaryParentWithChildren(Long eventId) {
+        TypedQuery<EventImpl> query = entityManager.createQuery
+                        ("SELECT event FROM Event event " +
+                                "LEFT JOIN FETCH event.polls " +
+                                "WHERE event.eventId = :eventId", EventImpl.class)
+                .setParameter("eventId", eventId);
+        Event event = query.getSingleResult();
+        return Optional.ofNullable(event);
     }
     private Optional<Poll> getPollFromEvent(EventImpl eventImpl, Poll poll) {
         List<PollImpl> pollImpls = eventImpl.getPolls();
@@ -59,20 +72,8 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
         return Optional.ofNullable(event);
     }
     @Override
-    public Optional<Event> getPrimaryParentWithChildren(Long eventId) {
-        TypedQuery<EventImpl> query = entityManager.createQuery
-                        ("SELECT event FROM Event event " +
-                                "LEFT JOIN FETCH event.polls " +
-                                "WHERE event.eventId = :eventId", EventImpl.class)
-                .setParameter("eventId", eventId);
-        Event event = query.getSingleResult();
-        return Optional.ofNullable(event);
-    }
-    @Override
     public Poll update(Poll pollInput, Long eventId) {
-        Optional<Event> optionalEventWithPolls = getPrimaryParentWithChildren(eventId);
-        EventImpl eventWithPolls = (EventImpl) optionalEventWithPolls
-                .orElseThrow(() -> new EntityNotFoundException());
+        EventImpl eventWithPolls = getEventImplWithPolls(eventId);
         Optional<Poll> optionalPollToBeModified =
                 getPollFromEvent(eventWithPolls, pollInput);
         Poll pollToBeModified = optionalPollToBeModified
@@ -97,11 +98,8 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
         Optional<Event> optionalEvent = getPrimaryParent(pollId);
         Event event = optionalEvent
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<Event> optionalEventWithPolls =
-                getPrimaryParentWithChildren(
-                        event.getEventId());
-        EventImpl eventWithPolls = (EventImpl) optionalEventWithPolls
-                .orElseThrow(() -> new EntityNotFoundException());
+        Long eventId = event.getEventId();
+        EventImpl eventWithPolls = getEventImplWithPolls(eventId);
         Optional<Poll> optionalPoll = get(pollId);
         PollImpl pollImpl = (PollImpl) optionalPoll
                 .orElseThrow(() -> new EntityNotFoundException());

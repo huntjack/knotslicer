@@ -21,7 +21,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 public class UserWithMembersServiceTest {
@@ -108,17 +108,27 @@ public class UserWithMembersServiceTest {
                 projectTwoId);
     }
     private void checkUserLightDto(User user, UserLightDto userLightDto) {
-        assertEquals(user.getUserId(), userLightDto.getUserId());
-        assertEquals(user.getUserName(), userLightDto.getUserName());
-        assertEquals(user.getUserDescription(), userLightDto.getUserDescription());
-        assertEquals(user.getTimeZone(), userLightDto.getTimeZone());
+        assertAll(
+                "UserLightDto should have the correct field values.",
+                () -> assertEquals(user.getUserId(),
+                        userLightDto.getUserId()),
+                () -> assertEquals(user.getUserName(),
+                        userLightDto.getUserName()),
+                () -> assertEquals(user.getUserDescription(),
+                        userLightDto.getUserDescription()),
+                () -> assertEquals(user.getTimeZone(),
+                        userLightDto.getTimeZone())
+        );
     }
     private void checkMemberDto(Member member, MemberDto memberDto, Long projectId) {
-        assertEquals(member.getMemberId(), memberDto.getMemberId());
-        assertEquals(projectId, memberDto.getProjectId());
-        assertEquals(member.getName(), memberDto.getName());
-        assertEquals(member.getRole(), memberDto.getRole());
-        assertEquals(member.getRoleDescription(), memberDto.getRoleDescription());
+        assertAll(
+                "MemberDto should have the correct field values.",
+                () -> assertEquals(member.getMemberId(), memberDto.getMemberId()),
+                () -> assertEquals(projectId, memberDto.getProjectId()),
+                () -> assertEquals(member.getName(), memberDto.getName()),
+                () -> assertEquals(member.getRole(), memberDto.getRole()),
+                () -> assertEquals(member.getRoleDescription(), memberDto.getRoleDescription())
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

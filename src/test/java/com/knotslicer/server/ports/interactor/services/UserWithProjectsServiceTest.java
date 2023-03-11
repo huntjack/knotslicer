@@ -86,15 +86,28 @@ public class UserWithProjectsServiceTest {
         checkProjectDto(projectTwo, projectDtoTwo);
     }
     private void checkUserLightDto(User user, UserLightDto userLightDto) {
-        assertEquals(user.getUserId(), userLightDto.getUserId());
-        assertEquals(user.getUserName(), userLightDto.getUserName());
-        assertEquals(user.getUserDescription(), userLightDto.getUserDescription());
-        assertEquals(user.getTimeZone(), userLightDto.getTimeZone());
+        assertAll(
+                "UserLightDto should have the correct field values.",
+                () -> assertEquals(user.getUserId(),
+                        userLightDto.getUserId()),
+                () -> assertEquals(user.getUserName(),
+                        userLightDto.getUserName()),
+                () -> assertEquals(user.getUserDescription(),
+                        userLightDto.getUserDescription()),
+                () -> assertEquals(user.getTimeZone(),
+                        userLightDto.getTimeZone())
+        );
     }
     private void checkProjectDto(Project project, ProjectDto projectDto) {
-        assertEquals(project.getProjectId(), projectDto.getProjectId());
-        assertEquals(project.getProjectName(), projectDto.getProjectName());
-        assertEquals(project.getProjectDescription(), projectDto.getProjectDescription());
+        assertAll(
+                "ProjectDto should have the correct field values.",
+                () -> assertEquals(project.getProjectId(),
+                        projectDto.getProjectId()),
+                () -> assertEquals(project.getProjectName(),
+                        projectDto.getProjectName()),
+                () -> assertEquals(project.getProjectDescription(),
+                        projectDto.getProjectDescription())
+        );
     }
 
     @AfterEach

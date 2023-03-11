@@ -26,9 +26,7 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Proje
     @Override
     public Member create(Member member, Long userId, Long projectId) {
         MemberImpl memberImpl = (MemberImpl) member;
-        Optional<User> optionalUserWithMembers = getPrimaryParentWithChildren(userId);
-        UserImpl userWithMembers = (UserImpl) optionalUserWithMembers
-                .orElseThrow(() -> new EntityNotFoundException());
+        UserImpl userWithMembers = getUserImplWithMembers(userId);
         entityManager.detach(userWithMembers);
         userWithMembers.addMember(memberImpl);
         userWithMembers = entityManager.merge(userWithMembers);
@@ -43,16 +41,10 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Proje
         entityManager.flush();
         return memberImpl;
     }
-    private Optional<MemberImpl> getMemberFromUser(UserImpl userImpl, Member member) {
-        List<MemberImpl> memberImpls = userImpl.getMembers();
-        int memberIndex = memberImpls.indexOf(member);
-        MemberImpl memberImpl = memberImpls.get(memberIndex);
-        return Optional.ofNullable(memberImpl);
-    }
-    @Override
-    public Optional<Member> get(Long memberId) {
-        Member member = entityManager.find(MemberImpl.class, memberId);
-        return Optional.ofNullable(member);
+    private UserImpl getUserImplWithMembers(Long userId) {
+        Optional<User> optionalUserWithMembers = getPrimaryParentWithChildren(userId);
+        return (UserImpl) optionalUserWithMembers
+                .orElseThrow(() -> new EntityNotFoundException());
     }
     @Override
     public Optional<User> getPrimaryParentWithChildren(Long userId) {
@@ -63,6 +55,17 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Proje
                 .setParameter("userId", userId);
         User user = query.getSingleResult();
         return Optional.ofNullable(user);
+    }
+    private Optional<MemberImpl> getMemberFromUser(UserImpl userImpl, Member member) {
+        List<MemberImpl> memberImpls = userImpl.getMembers();
+        int memberIndex = memberImpls.indexOf(member);
+        MemberImpl memberImpl = memberImpls.get(memberIndex);
+        return Optional.ofNullable(memberImpl);
+    }
+    @Override
+    public Optional<Member> get(Long memberId) {
+        Member member = entityManager.find(MemberImpl.class, memberId);
+        return Optional.ofNullable(member);
     }
     @Override
     public Optional<Project> getSecondaryParentWithChildren(Long projectId) {
@@ -96,9 +99,7 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Proje
     }
     @Override
     public Member update(Member memberInput, Long userId) {
-        Optional<User> optionalUserWithMembers = getPrimaryParentWithChildren(userId);
-        UserImpl userWithMembers = (UserImpl) optionalUserWithMembers
-                .orElseThrow(() -> new EntityNotFoundException());
+        UserImpl userWithMembers = getUserImplWithMembers(userId);
         Optional<MemberImpl> optionalMemberToBeModified =
                 getMemberFromUser(
                         userWithMembers,
@@ -126,11 +127,8 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Proje
         Optional<User> optionalUser = getPrimaryParent(memberId);
         User user = optionalUser
                 .orElseThrow(() -> new EntityNotFoundException());
-        Optional<User> optionalUserWithMembers =
-                getPrimaryParentWithChildren(
-                        user.getUserId());
-        UserImpl userWithMembers = (UserImpl) optionalUserWithMembers
-                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = user.getUserId();
+        UserImpl userWithMembers = getUserImplWithMembers(userId);
         Optional<Member> optionalMember = get(memberId);
         MemberImpl memberImpl = (MemberImpl) optionalMember
                 .orElseThrow(() -> new EntityNotFoundException());
