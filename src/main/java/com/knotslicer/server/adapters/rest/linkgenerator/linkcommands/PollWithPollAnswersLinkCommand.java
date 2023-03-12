@@ -8,8 +8,8 @@ import java.net.URI;
 import java.util.List;
 
 public class PollWithPollAnswersLinkCommand extends PollLinkCommand {
-    public PollWithPollAnswersLinkCommand(LinkReceiver linkReceiver, PollDto dto, UriInfo uriInfo) {
-        super(linkReceiver, dto, uriInfo);
+    public PollWithPollAnswersLinkCommand(LinkReceiver linkReceiver, PollDto pollDto, UriInfo uriInfo) {
+        super(linkReceiver, pollDto, uriInfo);
     }
 
     @Override

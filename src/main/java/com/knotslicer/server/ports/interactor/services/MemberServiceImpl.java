@@ -1,6 +1,5 @@
 package com.knotslicer.server.ports.interactor.services;
 
-
 import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Project;
 import com.knotslicer.server.domain.Schedule;

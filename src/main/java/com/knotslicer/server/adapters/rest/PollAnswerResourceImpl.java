@@ -138,7 +138,7 @@ public class PollAnswerResourceImpl implements PollAnswerResource {
                                   ParentService<PollDto> pollService,
                                   @ProcessAs(ProcessType.POLLANSWER) @Default
                                   LinkCreator<PollAnswerDto> linkCreator,
-                                  @ProcessAs(ProcessType.POLL) @WithChildren
+                                  @WithChildren @ProcessAs(ProcessType.POLLANSWER)
                                       LinkCreator<PollDto> pollWithPollAnswersLinkCreator,
                                   LinkReceiver linkReceiver) {
         this.pollAnswerService = pollAnswerService;

@@ -10,6 +10,7 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.services.UserService;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserDto;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -99,7 +100,8 @@ public class UserResourceImpl implements UserResource {
     }
     @Inject
     public UserResourceImpl(UserService userService,
-                            @ProcessAs(ProcessType.USER) LinkCreator<UserLightDto> linkCreator,
+                            @ProcessAs(ProcessType.USER) @Default
+                            LinkCreator<UserLightDto> linkCreator,
                             LinkReceiver linkReceiver) {
         this.userService = userService;
         this.linkCreator = linkCreator;

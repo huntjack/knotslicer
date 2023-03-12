@@ -6,8 +6,8 @@ import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public class ScheduleLinkCommand extends LinkCommand<ScheduleDto> {
-    public ScheduleLinkCommand(LinkReceiver linkReceiver, ScheduleDto dto, UriInfo uriInfo) {
-        super(linkReceiver, dto, uriInfo);
+    public ScheduleLinkCommand(LinkReceiver linkReceiver, ScheduleDto scheduleDto, UriInfo uriInfo) {
+        super(linkReceiver, scheduleDto, uriInfo);
     }
     @Override
     public URI execute() {

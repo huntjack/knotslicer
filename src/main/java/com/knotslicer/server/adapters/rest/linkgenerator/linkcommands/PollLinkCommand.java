@@ -6,8 +6,8 @@ import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public class PollLinkCommand extends LinkCommand<PollDto> {
-    public PollLinkCommand(LinkReceiver linkReceiver, PollDto dto, UriInfo uriInfo) {
-        super(linkReceiver, dto, uriInfo);
+    public PollLinkCommand(LinkReceiver linkReceiver, PollDto pollDto, UriInfo uriInfo) {
+        super(linkReceiver, pollDto, uriInfo);
     }
     @Override
     public URI execute() {

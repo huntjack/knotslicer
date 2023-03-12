@@ -89,14 +89,10 @@ public class EventServiceImpl implements EventService {
                 .toDto(updatedEvent, userId);
     }
     @Override
-    public EventDto addMember(EventMemberDto eventMemberDto) {
+    public void addMember(EventMemberDto eventMemberDto) {
         Long eventId = eventMemberDto.getEventId();
         Long memberId = eventMemberDto.getMemberId();
-        Event event = eventDao.addMember(eventId, memberId);
-        Long userId = getUserId(eventId);
-        return entityDtoMapper.toDto(
-                event,
-                userId);
+        eventDao.addMember(eventId, memberId);
     }
     @Override
     public void removeMember(Long eventId, Long memberId) {

@@ -10,8 +10,8 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.PollDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriInfo;
 
-@ProcessAs(ProcessType.POLL)
 @WithChildren
+@ProcessAs(ProcessType.POLLANSWER)
 @ApplicationScoped
 public class PollWithPollAnswersLinkCreator implements LinkCreator<PollDto> {
     @Override

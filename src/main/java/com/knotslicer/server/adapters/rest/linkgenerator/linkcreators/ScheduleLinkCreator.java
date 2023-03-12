@@ -7,9 +7,11 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.ws.rs.core.UriInfo;
 
 @ProcessAs(ProcessType.SCHEDULE)
+@Default
 @ApplicationScoped
 public class ScheduleLinkCreator implements LinkCreator<ScheduleDto> {
     @Override

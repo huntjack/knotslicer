@@ -7,9 +7,11 @@ import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.ws.rs.core.UriInfo;
 
 @ProcessAs(ProcessType.USER)
+@Default
 @ApplicationScoped
 public class UserLinkCreator implements LinkCreator<UserLightDto> {
     @Override

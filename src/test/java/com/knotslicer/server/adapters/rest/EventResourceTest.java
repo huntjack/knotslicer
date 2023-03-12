@@ -72,51 +72,69 @@ public class EventResourceTest extends JerseyTest {
                 eventResponseDto.getPolls();
         PollDto pollResponseDtoOne =
                 pollResponseDtos.get(0);
-        checkPolls(pollResponseDtoOne,
-                pollDtoDummyOne.getPollId());
+        checkPoll(pollResponseDtoOne, pollDtoDummyOne);
         PollDto pollResponseDtoTwo =
                 pollResponseDtos.get(1);
-        checkPolls(pollResponseDtoTwo,
-                pollDtoDummyTwo.getPollId());
+        checkPoll(pollResponseDtoTwo, pollDtoDummyTwo);
     }
     private void checkEvent(EventDto eventResponseDto, EventDto eventDtoDummy) {
         List<Link> eventDtoLinks = eventResponseDto.getLinks();
-        Link selfLink = eventDtoLinks.get(0);
-        assertEquals("self",
-                selfLink.getRel());
-        String eventId = eventDtoDummy
-                .getEventId()
-                .toString();
-        assertTrue(selfLink
-                        .getLink()
-                        .contains("/events/" +
-                                eventId),
-                "EventDto's self link is incorrect.");
+        Link eventLink = eventDtoLinks.get(0);
+        String eventId =
+                eventDtoDummy
+                        .getEventId()
+                        .toString();
+        checkEventLink(eventLink, "self", eventId);
         Link userLink = eventDtoLinks.get(1);
-        assertEquals("user",
-                userLink.getRel());
         String userId = eventDtoDummy
                 .getUserId()
                 .toString();
-        assertTrue(userLink
+        checkUserLink(userLink, "user", userId);
+    }
+    private void checkEventLink(Link eventLink, String rel, String eventId) {
+        assertAll(
+                "Event link should be correct.",
+                () -> assertEquals(rel,
+                        eventLink.getRel()),
+                () -> assertTrue(eventLink
+                        .getLink()
+                        .contains("/events/" +
+                                eventId))
+        );
+    }
+    private void checkUserLink(Link userLink, String rel, String userId) {
+        assertAll(
+                "User link should be correct.",
+                () -> assertEquals(rel,
+                        userLink.getRel()),
+                () -> assertTrue(userLink
                         .getLink()
                         .contains("/users/" +
-                                userId),
-                "EventDto's user link is incorrect.");
+                                userId))
+        );
     }
-    private void checkPolls(PollDto pollResponseDto, Long pollId) {
+    private void checkPoll(PollDto pollResponseDto, PollDto pollDtoDummy) {
         Link pollLink =
                 pollResponseDto
                         .getLinks()
                         .get(0);
-        assertEquals("poll",
-                pollLink
-                        .getRel());
-        assertTrue(pollLink
-                .getLink()
-                .contains("/polls/" +
-                        pollId.toString()),
-                "PollDto's poll link is incorrect.");
+        String pollId =
+                pollDtoDummy
+                        .getPollId()
+                        .toString();
+        checkPollLink(pollLink, "poll", pollId);
+    }
+    private void checkPollLink(Link pollLink, String rel, String pollId) {
+        assertAll(
+                "Poll link should be correct.",
+                () -> assertEquals(rel,
+                        pollLink
+                                .getRel()),
+                () -> assertTrue(pollLink
+                        .getLink()
+                        .contains("/polls/" +
+                                pollId.toString()))
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

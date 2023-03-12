@@ -119,60 +119,80 @@ public class ScheduleResourceTest extends JerseyTest {
     }
     private void checkMember(MemberDto memberResponseDto, MemberDto memberDtoDummy) {
         List<Link> memberDtoLinks = memberResponseDto.getLinks();
-        Link selfLink = memberDtoLinks.get(0);
-        assertEquals("self",
-                selfLink.getRel());
+        Link memberLink = memberDtoLinks.get(0);
         String memberId = memberDtoDummy
                 .getMemberId()
                 .toString();
-        assertTrue(selfLink
-                .getLink()
-                .contains("/members/" +
-                        memberId),
-                "MemberDto's self link is incorrect.");
+        checkMemberLink(memberLink, "self", memberId);
         Link projectLink = memberDtoLinks.get(1);
-        assertEquals("project",
-                projectLink.getRel());
         String projectId = memberDtoDummy
                 .getProjectId()
                 .toString();
-        assertTrue(projectLink
-                .getLink()
-                .contains("/projects/" +
-                        projectId),
-                "MemberDto's project link is incorrect.");
+        checkProjectLink(projectLink, "project", projectId);
         Link userLink = memberDtoLinks.get(2);
-        assertEquals("user",
-                userLink.getRel());
         String userId = memberDtoDummy
                 .getUserId()
                 .toString();
-        assertTrue(userLink
-                .getLink()
-                .contains("/users/" +
-                        userId),
-                "MemberDto's user link is incorrect.");
+        checkUserLink(userLink, "user", userId);
+    }
+    private void checkMemberLink(Link memberLink, String rel, String memberId) {
+        assertAll(
+                "Member link should be correct.",
+                () -> assertEquals(rel,
+                        memberLink.getRel()),
+                () -> assertTrue(memberLink
+                        .getLink()
+                        .contains("/members/" +
+                                memberId))
+        );
+    }
+    private void checkProjectLink(Link projectLink, String rel, String projectId) {
+        assertAll(
+                "Project link should be correct.",
+                () -> assertEquals(rel,
+                        projectLink.getRel()),
+                () -> assertTrue(projectLink
+                        .getLink()
+                        .contains("/projects/" +
+                                projectId))
+        );
+    }
+    private void checkUserLink(Link userLink, String rel, String userId) {
+        assertAll(
+                "User link should be correct.",
+                () -> assertEquals(rel,
+                        userLink.getRel()),
+                () -> assertTrue(userLink
+                        .getLink()
+                        .contains("/users/" +
+                                userId))
+        );
     }
     private void checkSchedule(ScheduleDto scheduleResponseDto, ScheduleDto scheduleDtoDummy) {
         Link scheduleLink =
                 scheduleResponseDto
                         .getLinks()
                         .get(0);
-        assertEquals("schedule",
-                scheduleLink.getRel());
         String memberId = scheduleDtoDummy
                 .getMemberId()
                 .toString();
         String scheduleId = scheduleDtoDummy
                 .getScheduleId()
                 .toString();
-        assertTrue(scheduleLink
-                .getLink()
-                .contains("/members/" +
-                         memberId +
-                        "/schedules/" +
-                        scheduleId),
-                "ScheduleDto's schedule link is incorrect.");
+        checkScheduleLink(scheduleLink, "schedule", memberId, scheduleId);
+    }
+    private void checkScheduleLink(Link scheduleLink, String rel, String memberId, String scheduleId) {
+        assertAll(
+                "Schedule link should be correct.",
+                () -> assertEquals(rel,
+                        scheduleLink.getRel()),
+                () -> assertTrue(scheduleLink
+                        .getLink()
+                        .contains("/members/" +
+                                memberId +
+                                "/schedules/" +
+                                scheduleId))
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

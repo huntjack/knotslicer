@@ -10,8 +10,8 @@ import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriInfo;
 
-@ProcessAs(ProcessType.EVENT)
 @WithChildren
+@ProcessAs(ProcessType.POLL)
 @ApplicationScoped
 public class EventWithPollsLinkCreator implements LinkCreator<EventDto> {
     @Override

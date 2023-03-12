@@ -119,7 +119,7 @@ public class ProjectResourceImpl implements ProjectResource {
                                    ParentService<ProjectDto> projectService,
                                @ProcessAs(ProcessType.PROJECT) @Default
                                LinkCreator<ProjectDto> linkCreator,
-                               @ProcessAs(ProcessType.PROJECT) @WithChildren
+                               @WithChildren @ProcessAs(ProcessType.MEMBER)
                                    LinkCreator<ProjectDto> projectWithMembersLinkCreator,
                                LinkReceiver linkReceiver) {
         this.projectService = projectService;

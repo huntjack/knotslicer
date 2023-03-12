@@ -123,7 +123,7 @@ public class EventResourceImpl implements EventResource {
     public EventResourceImpl(EventService eventService,
                              @ProcessAs(ProcessType.EVENT) @Default
                              LinkCreator<EventDto> linkCreator,
-                             @ProcessAs(ProcessType.EVENT) @WithChildren
+                             @WithChildren @ProcessAs(ProcessType.POLL)
                                  LinkCreator<EventDto> eventWithPollsLinkCreator,
                              LinkReceiver linkReceiver) {
         this.eventService = eventService;

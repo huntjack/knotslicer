@@ -17,8 +17,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 public class UserWithProjectsResourceTest extends JerseyTest {
@@ -69,31 +68,41 @@ public class UserWithProjectsResourceTest extends JerseyTest {
     }
     private void checkUser(UserLightDto userResponseDto, UserLightDto userDtoDummy) {
         List<Link> userDtoLinks = userResponseDto.getLinks();
-        Link selfLink = userDtoLinks.get(0);
-        assertEquals("self",
-                selfLink.getRel());
+        Link userLink = userDtoLinks.get(0);
         String userId = userDtoDummy
                 .getUserId()
                 .toString();
-        assertTrue(selfLink
+        checkUserLink(userLink, "self", userId);
+    }
+    private void checkUserLink(Link userLink, String rel, String userId) {
+        assertAll(
+                "User link should be correct.",
+                () -> assertEquals(rel,
+                        userLink.getRel()),
+                () -> assertTrue(userLink
                         .getLink()
                         .contains("/users/" +
-                                userId),
-                "UserDto's self link is incorrect.");
+                                userId))
+        );
     }
     private void checkProject(ProjectDto projectResponseDto, ProjectDto projectDtoDummy) {
         List<Link> projectDtoLinks = projectResponseDto.getLinks();
         Link projectLink = projectDtoLinks.get(0);
-        assertEquals("project",
-                projectLink.getRel());
         String projectId = projectDtoDummy
                 .getProjectId()
                 .toString();
-        assertTrue(projectLink
+        checkProjectLink(projectLink, "project", projectId);
+    }
+    private void checkProjectLink(Link projectLink, String rel, String projectId) {
+        assertAll(
+                "Project link should be correct.",
+                () -> assertEquals(rel,
+                        projectLink.getRel()),
+                () -> assertTrue(projectLink
                         .getLink()
                         .contains("/projects/" +
-                                projectId),
-                "ProjectDto's project link is incorrect.");
+                                projectId))
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

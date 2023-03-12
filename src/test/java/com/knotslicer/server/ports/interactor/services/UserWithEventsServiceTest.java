@@ -95,7 +95,7 @@ public class UserWithEventsServiceTest {
                 () -> assertEquals(user.getUserId(), userLightDto.getUserId()),
                 () -> assertEquals(user.getUserName(), userLightDto.getUserName()),
                 () -> assertEquals(user.getUserDescription(), userLightDto.getUserDescription()),
-                () ->assertEquals(user.getTimeZone(), userLightDto.getTimeZone())
+                () -> assertEquals(user.getTimeZone(), userLightDto.getTimeZone())
         );
     }
     private void checkEventDto(Event event, EventDto eventDto) {
@@ -107,7 +107,7 @@ public class UserWithEventsServiceTest {
                         eventDto.getEventName()),
                 () -> assertEquals(event.getSubject(),
                         eventDto.getSubject()),
-                () ->assertEquals(event.getEventDescription(),
+                () -> assertEquals(event.getEventDescription(),
                         eventDto.getEventDescription())
         );
     }

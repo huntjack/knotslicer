@@ -10,8 +10,8 @@ import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriInfo;
 
-@ProcessAs(ProcessType.MEMBER)
 @WithChildren
+@ProcessAs(ProcessType.SCHEDULE)
 @ApplicationScoped
 public class MemberWithSchedulesLinkCreator implements LinkCreator<MemberDto> {
     @Override

@@ -8,8 +8,8 @@ import java.net.URI;
 import java.util.List;
 
 public class EventWithPollsLinkCommand extends EventLinkCommand {
-    public EventWithPollsLinkCommand(LinkReceiver linkReceiver, EventDto dto, UriInfo uriInfo) {
-        super(linkReceiver, dto, uriInfo);
+    public EventWithPollsLinkCommand(LinkReceiver linkReceiver, EventDto eventDto, UriInfo uriInfo) {
+        super(linkReceiver, eventDto, uriInfo);
     }
 
     @Override

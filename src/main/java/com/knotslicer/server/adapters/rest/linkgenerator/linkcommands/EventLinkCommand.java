@@ -6,8 +6,8 @@ import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public class EventLinkCommand extends LinkCommand<EventDto> {
-    public EventLinkCommand(LinkReceiver linkReceiver, EventDto dto, UriInfo uriInfo) {
-        super(linkReceiver, dto, uriInfo);
+    public EventLinkCommand(LinkReceiver linkReceiver, EventDto eventDto, UriInfo uriInfo) {
+        super(linkReceiver, eventDto, uriInfo);
     }
     @Override
     public URI execute() {

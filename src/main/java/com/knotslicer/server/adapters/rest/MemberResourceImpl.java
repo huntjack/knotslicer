@@ -2,6 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
@@ -20,6 +21,7 @@ import java.net.URI;
 public class MemberResourceImpl implements MemberResource {
     private MemberService memberService;
     private LinkCreator<MemberDto> linkCreator;
+    private LinkCreator<MemberDto> memberWithEventsLinkCreator;
     private LinkReceiver linkReceiver;
 
     @POST
@@ -67,8 +69,19 @@ public class MemberResourceImpl implements MemberResource {
     @Path("/{memberId}/events")
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response getWithEvents(@PathParam("memberId")Long memberId, UriInfo uriInfo) {
-        return null;
+    public Response getWithEvents(@PathParam("memberId")Long memberId,
+                                  @Context UriInfo uriInfo) {
+        MemberDto memberResponseDto = memberService.getWithEvents(memberId);
+        LinkCommand<MemberDto> linkCommand =
+                memberWithEventsLinkCreator.createLinkCommand(
+                        linkReceiver,
+                        memberResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(memberResponseDto)
+                .type("application/json")
+                .build();
     }
 
     @PATCH
@@ -106,9 +119,12 @@ public class MemberResourceImpl implements MemberResource {
     public MemberResourceImpl(MemberService memberService,
                               @ProcessAs(ProcessType.MEMBER) @Default
                               LinkCreator<MemberDto> linkCreator,
+                              @WithChildren @ProcessAs(ProcessType.EVENT)
+                              LinkCreator<MemberDto> memberWithEventsLinkCreator,
                               LinkReceiver linkReceiver) {
         this.memberService = memberService;
         this.linkCreator = linkCreator;
+        this.memberWithEventsLinkCreator = memberWithEventsLinkCreator;
         this.linkReceiver = linkReceiver;
     }
     protected MemberResourceImpl(){}

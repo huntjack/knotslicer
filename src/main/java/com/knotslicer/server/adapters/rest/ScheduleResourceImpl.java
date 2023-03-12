@@ -12,6 +12,7 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.services.*;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -129,10 +130,12 @@ public class ScheduleResourceImpl implements ScheduleResource {
                 .build();
     }
     @Inject
-    public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE) Service<ScheduleDto> scheduleService,
+    public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE)
+                                    Service<ScheduleDto> scheduleService,
                                 MemberService memberService,
-                                @ProcessAs(ProcessType.SCHEDULE) LinkCreator<ScheduleDto> linkCreator,
-                                @ProcessAs(ProcessType.MEMBER) @WithChildren
+                                @ProcessAs(ProcessType.SCHEDULE) @Default
+                                    LinkCreator<ScheduleDto> linkCreator,
+                                @WithChildren @ProcessAs(ProcessType.SCHEDULE)
                                     LinkCreator<MemberDto> memberWithSchedulesLinkCreator,
                                 LinkReceiver linkReceiver) {
         this.scheduleService = scheduleService;
