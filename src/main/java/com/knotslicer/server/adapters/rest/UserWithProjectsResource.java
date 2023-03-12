@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -52,9 +52,9 @@ public class UserWithProjectsResource implements UserWithChildrenResource {
         return invoker.executeCommand();
     }
     @Inject
-    public UserWithProjectsResource(@ProcessAs(ProcessType.PROJECT)
+    public UserWithProjectsResource(@ProcessAs(ProcessType.USER) @WithChildren(ProcessType.PROJECT)
                                     UserWithChildrenService userWithProjectsService,
-                                    @WithChildren @ProcessAs(ProcessType.PROJECT)
+                                    @ProcessAs(ProcessType.USER) @WithChildren(ProcessType.PROJECT)
                                     LinkCreator<UserLightDto> userWithProjectsLinkCreator,
                                     LinkReceiver linkReceiver){
         this.userWithProjectsService = userWithProjectsService;

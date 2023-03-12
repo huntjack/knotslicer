@@ -6,12 +6,12 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkComman
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriInfo;
 
-@WithChildren
-@ProcessAs(ProcessType.POLL)
+@ProcessAs(ProcessType.EVENT)
+@WithChildren(ProcessType.POLL)
 @ApplicationScoped
 public class EventWithPollsLinkCreator implements LinkCreator<EventDto> {
     @Override

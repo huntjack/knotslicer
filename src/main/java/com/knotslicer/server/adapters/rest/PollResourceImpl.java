@@ -97,7 +97,7 @@ public class PollResourceImpl implements PollResource {
                 .build();
     }
     @Inject
-    public PollResourceImpl(@ProcessAs(ProcessType.POLL)
+    public PollResourceImpl(@ProcessAs(ProcessType.POLL) @Default
                                 ParentService<PollDto> pollService,
                             @ProcessAs(ProcessType.POLL) @Default
                             LinkCreator<PollDto> linkCreator,

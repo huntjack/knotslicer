@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
@@ -119,7 +119,7 @@ public class MemberResourceImpl implements MemberResource {
     public MemberResourceImpl(MemberService memberService,
                               @ProcessAs(ProcessType.MEMBER) @Default
                               LinkCreator<MemberDto> linkCreator,
-                              @WithChildren @ProcessAs(ProcessType.EVENT)
+                              @ProcessAs(ProcessType.MEMBER) @WithChildren(ProcessType.EVENT)
                               LinkCreator<MemberDto> memberWithEventsLinkCreator,
                               LinkReceiver linkReceiver) {
         this.memberService = memberService;

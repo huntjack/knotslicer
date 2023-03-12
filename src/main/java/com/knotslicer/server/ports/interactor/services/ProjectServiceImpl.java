@@ -11,10 +11,12 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.ProjectDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
 @ProcessAs(ProcessType.PROJECT)
+@Default
 @ApplicationScoped
 public class ProjectServiceImpl implements ParentService<ProjectDto> {
     private EntityDtoMapper entityDtoMapper;

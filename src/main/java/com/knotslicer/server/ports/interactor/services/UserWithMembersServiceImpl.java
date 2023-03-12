@@ -6,6 +6,7 @@ import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
@@ -14,7 +15,8 @@ import jakarta.inject.Inject;
 
 import java.util.Optional;
 
-@ProcessAs(ProcessType.MEMBER)
+@ProcessAs(ProcessType.USER)
+@WithChildren(ProcessType.MEMBER)
 @ApplicationScoped
 public class UserWithMembersServiceImpl implements UserWithChildrenService {
     private EntityDtoMapper entityDtoMapper;

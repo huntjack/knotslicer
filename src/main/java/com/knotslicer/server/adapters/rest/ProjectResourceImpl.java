@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -115,11 +115,11 @@ public class ProjectResourceImpl implements ProjectResource {
                 .build();
     }
     @Inject
-    public ProjectResourceImpl(@ProcessAs(ProcessType.PROJECT)
+    public ProjectResourceImpl(@ProcessAs(ProcessType.PROJECT) @Default
                                    ParentService<ProjectDto> projectService,
                                @ProcessAs(ProcessType.PROJECT) @Default
                                LinkCreator<ProjectDto> linkCreator,
-                               @WithChildren @ProcessAs(ProcessType.MEMBER)
+                               @ProcessAs(ProcessType.PROJECT) @WithChildren(ProcessType.MEMBER)
                                    LinkCreator<ProjectDto> projectWithMembersLinkCreator,
                                LinkReceiver linkReceiver) {
         this.projectService = projectService;

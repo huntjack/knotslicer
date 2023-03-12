@@ -13,10 +13,12 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.PollAnswerDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
 @ProcessAs(ProcessType.POLLANSWER)
+@Default
 @ApplicationScoped
 public class PollAnswerServiceImpl implements Service<PollAnswerDto> {
     private EntityDtoMapper entityDtoMapper;

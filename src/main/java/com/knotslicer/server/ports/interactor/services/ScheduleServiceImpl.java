@@ -9,10 +9,12 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
 @ProcessAs(ProcessType.SCHEDULE)
+@Default
 @ApplicationScoped
 public class ScheduleServiceImpl implements Service<ScheduleDto> {
     private EntityDtoMapper entityDtoMapper;

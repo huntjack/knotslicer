@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -70,7 +70,7 @@ public class EventWithMembersResourceImpl implements EventWithMembersResource {
     }
     @Inject
     public EventWithMembersResourceImpl(EventService eventService,
-                                        @WithChildren @ProcessAs(ProcessType.MEMBER)
+                                        @ProcessAs(ProcessType.EVENT) @WithChildren(ProcessType.MEMBER)
                                         LinkCreator<EventDto> eventWithMembersLinkCreator,
                                         LinkReceiver linkReceiver) {
         this.eventService = eventService;

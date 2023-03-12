@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -130,12 +130,12 @@ public class ScheduleResourceImpl implements ScheduleResource {
                 .build();
     }
     @Inject
-    public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE)
+    public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE) @Default
                                     Service<ScheduleDto> scheduleService,
                                 MemberService memberService,
                                 @ProcessAs(ProcessType.SCHEDULE) @Default
                                     LinkCreator<ScheduleDto> linkCreator,
-                                @WithChildren @ProcessAs(ProcessType.SCHEDULE)
+                                @ProcessAs(ProcessType.MEMBER) @WithChildren(ProcessType.SCHEDULE)
                                     LinkCreator<MemberDto> memberWithSchedulesLinkCreator,
                                 LinkReceiver linkReceiver) {
         this.scheduleService = scheduleService;

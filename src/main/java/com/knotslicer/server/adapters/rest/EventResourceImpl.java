@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
@@ -123,7 +123,7 @@ public class EventResourceImpl implements EventResource {
     public EventResourceImpl(EventService eventService,
                              @ProcessAs(ProcessType.EVENT) @Default
                              LinkCreator<EventDto> linkCreator,
-                             @WithChildren @ProcessAs(ProcessType.POLL)
+                             @ProcessAs(ProcessType.EVENT) @WithChildren(ProcessType.POLL)
                                  LinkCreator<EventDto> eventWithPollsLinkCreator,
                              LinkReceiver linkReceiver) {
         this.eventService = eventService;
