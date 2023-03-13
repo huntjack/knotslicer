@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.PollAnswerDto;
@@ -98,7 +98,7 @@ public class PollAnswerResourceImpl implements PollAnswerResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{pollAnswerId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -132,13 +132,13 @@ public class PollAnswerResourceImpl implements PollAnswerResource {
                 .build();
     }
     @Inject
-    public PollAnswerResourceImpl(@ProcessAs(ProcessType.POLLANSWER)
+    public PollAnswerResourceImpl(@ProcessAs(ProcessType.POLLANSWER) @Default
                                       Service<PollAnswerDto> pollAnswerService,
-                                  @ProcessAs(ProcessType.POLL)
+                                  @ProcessAs(ProcessType.POLL) @Default
                                   ParentService<PollDto> pollService,
                                   @ProcessAs(ProcessType.POLLANSWER) @Default
                                   LinkCreator<PollAnswerDto> linkCreator,
-                                  @ProcessAs(ProcessType.POLL) @WithChildren
+                                  @ProcessAs(ProcessType.POLL) @WithChildren(ProcessType.POLLANSWER)
                                       LinkCreator<PollDto> pollWithPollAnswersLinkCreator,
                                   LinkReceiver linkReceiver) {
         this.pollAnswerService = pollAnswerService;

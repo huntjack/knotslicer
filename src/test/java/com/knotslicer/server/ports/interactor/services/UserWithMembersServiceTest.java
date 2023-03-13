@@ -1,7 +1,6 @@
 package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
@@ -22,7 +21,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 public class UserWithMembersServiceTest {
@@ -31,7 +30,7 @@ public class UserWithMembersServiceTest {
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper;
     @Mock
-    private ChildWithTwoParentsDao<Member,User, Project> memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
@@ -83,11 +82,13 @@ public class UserWithMembersServiceTest {
         Mockito.when(
                 memberDao.getSecondaryParent(
                         memberOne.getMemberId()))
-                .thenReturn(projectOne);
+                .thenReturn(
+                        Optional.of(projectOne));
         Mockito.when(
                 memberDao.getSecondaryParent(
                         memberTwo.getMemberId()))
-                .thenReturn(projectTwo);
+                .thenReturn(
+                        Optional.of(projectTwo));
         Long userId = user.getUserId();
         UserLightDto userLightDto = userWithMembersService.getUserWithChildren(userId);
 
@@ -107,17 +108,27 @@ public class UserWithMembersServiceTest {
                 projectTwoId);
     }
     private void checkUserLightDto(User user, UserLightDto userLightDto) {
-        assertEquals(user.getUserId(), userLightDto.getUserId());
-        assertEquals(user.getUserName(), userLightDto.getUserName());
-        assertEquals(user.getUserDescription(), userLightDto.getUserDescription());
-        assertEquals(user.getTimeZone(), userLightDto.getTimeZone());
+        assertAll(
+                "UserLightDto should have the correct field values.",
+                () -> assertEquals(user.getUserId(),
+                        userLightDto.getUserId()),
+                () -> assertEquals(user.getUserName(),
+                        userLightDto.getUserName()),
+                () -> assertEquals(user.getUserDescription(),
+                        userLightDto.getUserDescription()),
+                () -> assertEquals(user.getTimeZone(),
+                        userLightDto.getTimeZone())
+        );
     }
     private void checkMemberDto(Member member, MemberDto memberDto, Long projectId) {
-        assertEquals(member.getMemberId(), memberDto.getMemberId());
-        assertEquals(projectId, memberDto.getProjectId());
-        assertEquals(member.getName(), memberDto.getName());
-        assertEquals(member.getRole(), memberDto.getRole());
-        assertEquals(member.getRoleDescription(), memberDto.getRoleDescription());
+        assertAll(
+                "MemberDto should have the correct field values.",
+                () -> assertEquals(member.getMemberId(), memberDto.getMemberId()),
+                () -> assertEquals(projectId, memberDto.getProjectId()),
+                () -> assertEquals(member.getName(), memberDto.getName()),
+                () -> assertEquals(member.getRole(), memberDto.getRole()),
+                () -> assertEquals(member.getRoleDescription(), memberDto.getRoleDescription())
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

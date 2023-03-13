@@ -9,10 +9,12 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
 @ProcessAs(ProcessType.SCHEDULE)
+@Default
 @ApplicationScoped
 public class ScheduleServiceImpl implements Service<ScheduleDto> {
     private EntityDtoMapper entityDtoMapper;
@@ -32,23 +34,27 @@ public class ScheduleServiceImpl implements Service<ScheduleDto> {
     }
     @Override
     public ScheduleDto get(Long scheduleId) {
-        Optional<Schedule> optionalSchedule = scheduleDao.get(scheduleId);
-        Schedule schedule = unpackOptionalSchedule(optionalSchedule);
-        Member member = scheduleDao.getPrimaryParent(scheduleId);
-        Long memberId = member.getMemberId();
+        Schedule schedule = getSchedule(scheduleId);
+        Long memberId = getMemberId(scheduleId);
         return entityDtoMapper.toDto(
                 schedule,
                 memberId);
     }
-    private Schedule unpackOptionalSchedule(Optional<Schedule> optionalSchedule) {
-        return optionalSchedule.orElseThrow(() -> new EntityNotFoundException("Schedule not found."));
+    private Schedule getSchedule(Long scheduleId) {
+        Optional<Schedule> optionalSchedule = scheduleDao.get(scheduleId);
+        return optionalSchedule
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    private Long getMemberId(Long scheduleId) {
+        Optional<Member> optionalMember = scheduleDao.getPrimaryParent(scheduleId);
+        Member member = optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
+        return member.getMemberId();
     }
     @Override
     public ScheduleDto update(ScheduleDto scheduleDto) {
         Long scheduleId = scheduleDto.getScheduleId();
-        Optional<Schedule> optionalSchedule =
-                scheduleDao.get(scheduleId);
-        Schedule scheduleToBeModified = unpackOptionalSchedule(optionalSchedule);
+        Schedule scheduleToBeModified = getSchedule(scheduleId);
 
         scheduleToBeModified = entityDtoMapper.toEntity(
                         scheduleDto,

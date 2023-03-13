@@ -16,6 +16,8 @@ public interface EventDto extends Linkable {
     void setEventName(String eventName);
     String getEventDescription();
     void setEventDescription(String eventDescription);
+    List<MemberDto> getMembers();
+    void setMembers(List<MemberDto> members);
     List<PollDto> getPolls();
     void setPolls(List<PollDto> pollDtos);
 }

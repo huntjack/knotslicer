@@ -6,6 +6,10 @@ import java.util.*;
 
 @Entity(name = "Event")
 @Table(name = "Event")
+@NamedQuery(name = "getEventWithPolls",
+        query = "SELECT event FROM Event event " +
+                "LEFT JOIN FETCH event.polls " +
+                "WHERE event.eventId = :eventId")
 public class EventImpl implements Event {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -27,14 +31,6 @@ public class EventImpl implements Event {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)
     private List<PollImpl> polls = new ArrayList<>();
 
-    public void addMember(MemberImpl member) {
-        members.add(member);
-        member.getEvents().add(this);
-    }
-    public void removeMember(MemberImpl member) {
-        members.remove(member);
-        member.getEvents().remove(this);
-    }
     public void addPoll(PollImpl poll) {
         poll.setEvent(this);
         polls.add(poll);

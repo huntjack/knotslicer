@@ -117,61 +117,83 @@ public class PollAnswerResourceTest extends JerseyTest {
     }
     private void checkPoll(PollDto pollResponseDto, PollDto pollDtoDummy) {
         List<Link> pollDtoLinks = pollResponseDto.getLinks();
-        Link selfLink = pollDtoLinks.get(0);
-        assertEquals("self",
-                selfLink.getRel());
+        Link pollLink = pollDtoLinks.get(0);
         String pollId = pollDtoDummy
                 .getPollId()
                 .toString();
-        assertTrue(selfLink
-                        .getLink()
-                        .contains("/polls/" + pollId),
-                "PollDto's self link is incorrect.");
-
+        checkPollLink(pollLink, "self", pollId);
         Link eventLink = pollDtoLinks.get(1);
-        assertEquals("event",
-                eventLink.getRel());
+
         String eventId = pollDtoDummy
                 .getEventId()
                 .toString();
-        assertTrue(eventLink
-                .getLink()
-                .contains("/events/" +
-                        eventId),
-                "PollDto's event link is incorrect.");
+        checkEventLink(eventLink, "event", eventId);
+    }
+    private void checkPollLink(Link pollLink, String rel, String pollId) {
+        assertAll(
+                "Poll link should be correct.",
+                () -> assertEquals(rel,
+                        pollLink
+                                .getRel()),
+                () -> assertTrue(pollLink
+                        .getLink()
+                        .contains("/polls/" +
+                                pollId.toString()))
+        );
+    }
+    private void checkEventLink(Link eventLink, String rel, String eventId) {
+        assertAll(
+                "Event link should be correct.",
+                () -> assertEquals(rel,
+                        eventLink.getRel()),
+                () -> assertTrue(eventLink
+                        .getLink()
+                        .contains("/events/" +
+                                eventId))
+        );
     }
     private void checkPollAnswer(PollAnswerDto pollAnswerResponseDto, PollAnswerDto pollAnswerDummyDto) {
         List<Link> pollAnswerResponseLinks =
                 pollAnswerResponseDto.getLinks();
         Link pollAnswerLink =
                 pollAnswerResponseLinks.get(0);
-        assertEquals("pollAnswer",
-                pollAnswerLink.getRel());
         String pollId = pollAnswerDummyDto
                 .getPollId()
                 .toString();
         String pollAnswerId = pollAnswerDummyDto
                 .getPollAnswerId()
                 .toString();
-        assertTrue(pollAnswerLink
+        checkPollAnswerLink(pollAnswerLink, "pollAnswer", pollId, pollAnswerId);
+
+        Link memberLink = pollAnswerResponseLinks.get(1);
+        String memberId = pollAnswerDummyDto
+                .getMemberId()
+                .toString();
+        checkMemberLink(memberLink, "member", memberId);
+    }
+    private void checkPollAnswerLink(Link pollAnswerLink, String rel, String pollId, String pollAnswerId) {
+        assertAll(
+                "PollAnswer link should be correct.",
+                () -> assertEquals(rel,
+                        pollAnswerLink.getRel()),
+                () -> assertTrue(pollAnswerLink
                         .getLink()
                         .contains("/polls/" +
                                 pollId +
                                 "/pollanswers/" +
-                                pollAnswerId),
-                "PollAnswerDto's poll answer link is incorrect.");
-
-        Link memberLink = pollAnswerResponseLinks.get(1);
-        assertEquals("member",
-                memberLink.getRel());
-        String memberId = pollAnswerDummyDto
-                .getMemberId()
-                .toString();
-        assertTrue(memberLink
+                                pollAnswerId))
+        );
+    }
+    private void checkMemberLink(Link memberLink, String rel, String memberId) {
+        assertAll(
+                "Member link should be correct.",
+                () -> assertEquals(rel,
+                        memberLink.getRel()),
+                () -> assertTrue(memberLink
                         .getLink()
                         .contains("/members/" +
-                                memberId),
-                "PollAnswerDto's member link is incorrect.");
+                                memberId))
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

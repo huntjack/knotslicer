@@ -1,7 +1,7 @@
 package com.knotslicer.server.adapters.rest.linkgenerator.linkcreators;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.MemberWithSchedulesLinkCommand;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
@@ -11,7 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriInfo;
 
 @ProcessAs(ProcessType.MEMBER)
-@WithChildren
+@WithChildren(ProcessType.SCHEDULE)
 @ApplicationScoped
 public class MemberWithSchedulesLinkCreator implements LinkCreator<MemberDto> {
     @Override

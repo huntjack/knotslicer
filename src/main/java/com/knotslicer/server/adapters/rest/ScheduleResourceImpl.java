@@ -2,7 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -12,6 +12,7 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.services.*;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -24,7 +25,7 @@ import java.net.URI;
 @RequestScoped
 public class ScheduleResourceImpl implements ScheduleResource {
     private Service<ScheduleDto> scheduleService;
-    private ParentService<MemberDto> memberService;
+    private MemberService memberService;
     private LinkCreator<ScheduleDto> linkCreator;
     private LinkCreator<MemberDto> memberWithSchedulesLinkCreator;
     private LinkReceiver linkReceiver;
@@ -95,7 +96,7 @@ public class ScheduleResourceImpl implements ScheduleResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{scheduleId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -129,10 +130,12 @@ public class ScheduleResourceImpl implements ScheduleResource {
                 .build();
     }
     @Inject
-    public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE) Service<ScheduleDto> scheduleService,
-                                @ProcessAs(ProcessType.MEMBER) ParentService<MemberDto> memberService,
-                                @ProcessAs(ProcessType.SCHEDULE) LinkCreator<ScheduleDto> linkCreator,
-                                @ProcessAs(ProcessType.MEMBER) @WithChildren
+    public ScheduleResourceImpl(@ProcessAs(ProcessType.SCHEDULE) @Default
+                                    Service<ScheduleDto> scheduleService,
+                                MemberService memberService,
+                                @ProcessAs(ProcessType.SCHEDULE) @Default
+                                    LinkCreator<ScheduleDto> linkCreator,
+                                @ProcessAs(ProcessType.MEMBER) @WithChildren(ProcessType.SCHEDULE)
                                     LinkCreator<MemberDto> memberWithSchedulesLinkCreator,
                                 LinkReceiver linkReceiver) {
         this.scheduleService = scheduleService;

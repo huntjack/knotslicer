@@ -20,8 +20,9 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
     @Override
     @Produces(MediaType.APPLICATION_JSON)
     public Response toResponse(Exception exception) {
-        logger.error("Whoops, something went wrong. Check the console log.", exception);
-        ErrorDto errorDto = errorDtoFactory.createErrorDto(500, exception.getMessage());
+        String genericMessage = "Whoops, something went wrong.";
+        logger.error(genericMessage + " Check the console log.", exception);
+        ErrorDto errorDto = errorDtoFactory.createErrorDto(500, genericMessage);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(errorDto)
                 .build();

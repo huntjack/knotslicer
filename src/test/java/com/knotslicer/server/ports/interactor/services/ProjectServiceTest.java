@@ -31,7 +31,7 @@ public class ProjectServiceTest {
     @Mock
     private ChildWithOneRequiredParentDao<Project, User> projectDao;
     @Mock
-    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
@@ -87,15 +87,18 @@ public class ProjectServiceTest {
                         .of(project));
         Mockito.when(
                 projectDao.getPrimaryParent(anyLong()))
-                .thenReturn(parentUser);
+                .thenReturn(
+                        Optional.of(parentUser));
         Mockito.when(
                 memberDao.getPrimaryParent(
                         memberOne.getMemberId()))
-                .thenReturn(userOne);
+                .thenReturn(
+                        Optional.of(userOne));
         Mockito.when(
                 memberDao.getPrimaryParent(
                         memberTwo.getMemberId()))
-                .thenReturn(userTwo);
+                .thenReturn(
+                        Optional.of(userTwo));
         ProjectDto projectDto =
                 projectService.getWithChildren(7L);
 
@@ -121,26 +124,32 @@ public class ProjectServiceTest {
                 userTwoId);
     }
     private void checkProjectDto(Project project, ProjectDto projectDto, Long userId) {
-        assertEquals(project.getProjectId(),
-                projectDto.getProjectId());
-        assertEquals(project.getProjectName(),
-                projectDto.getProjectName());
-        assertEquals(project.getProjectDescription(),
-                projectDto.getProjectDescription());
-        assertEquals(userId,
-                projectDto.getUserId());
+        assertAll(
+                "ProjectDto should have the correct field values.",
+                () -> assertEquals(project.getProjectId(),
+                        projectDto.getProjectId()),
+                () -> assertEquals(project.getProjectName(),
+                        projectDto.getProjectName()),
+                () -> assertEquals(project.getProjectDescription(),
+                        projectDto.getProjectDescription()),
+                () -> assertEquals(userId,
+                        projectDto.getUserId())
+        );
     }
     private void checkMemberDto(Member member, MemberDto memberDto, Long userId) {
-        assertEquals(member.getMemberId(),
-                memberDto.getMemberId());
-        assertEquals(userId,
-                memberDto.getUserId());
-        assertEquals(member.getName(),
-                memberDto.getName());
-        assertEquals(member.getRole(),
-                memberDto.getRole());
-        assertEquals(member.getRoleDescription(),
-                memberDto.getRoleDescription());
+        assertAll(
+                "MemberDto should have the correct field values.",
+                () -> assertEquals(member.getMemberId(),
+                        memberDto.getMemberId()),
+                () -> assertEquals(userId,
+                        memberDto.getUserId()),
+                () -> assertEquals(member.getName(),
+                        memberDto.getName()),
+                () -> assertEquals(member.getRole(),
+                        memberDto.getRole()),
+                () -> assertEquals(member.getRoleDescription(),
+                        memberDto.getRoleDescription())
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

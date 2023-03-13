@@ -2,10 +2,11 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
-import com.knotslicer.server.ports.interactor.services.ParentService;
+import com.knotslicer.server.ports.interactor.services.MemberService;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.RequestScoped;
@@ -18,8 +19,9 @@ import java.net.URI;
 @Path("/members")
 @RequestScoped
 public class MemberResourceImpl implements MemberResource {
-    private ParentService<MemberDto> memberService;
+    private MemberService memberService;
     private LinkCreator<MemberDto> linkCreator;
+    private LinkCreator<MemberDto> memberWithEventsLinkCreator;
     private LinkReceiver linkReceiver;
 
     @POST
@@ -63,7 +65,26 @@ public class MemberResourceImpl implements MemberResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @GET
+    @Path("/{memberId}/events")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Override
+    public Response getWithEvents(@PathParam("memberId")Long memberId,
+                                  @Context UriInfo uriInfo) {
+        MemberDto memberResponseDto = memberService.getWithEvents(memberId);
+        LinkCommand<MemberDto> linkCommand =
+                memberWithEventsLinkCreator.createLinkCommand(
+                        linkReceiver,
+                        memberResponseDto,
+                        uriInfo);
+        addLinks(linkCommand);
+        return Response.ok()
+                .entity(memberResponseDto)
+                .type("application/json")
+                .build();
+    }
+
+    @PATCH
     @Path("/{memberId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -88,20 +109,22 @@ public class MemberResourceImpl implements MemberResource {
     @DELETE
     @Path("/{memberId}")
     @Override
-    public Response delete(@PathParam("memberId") Long memberId) {
+    public Response delete(@PathParam("memberId")Long memberId) {
         memberService.delete(memberId);
         return Response
                 .noContent()
                 .build();
     }
     @Inject
-    public MemberResourceImpl(@ProcessAs(ProcessType.MEMBER)
-                                  ParentService<MemberDto> memberService,
+    public MemberResourceImpl(MemberService memberService,
                               @ProcessAs(ProcessType.MEMBER) @Default
                               LinkCreator<MemberDto> linkCreator,
+                              @ProcessAs(ProcessType.MEMBER) @WithChildren(ProcessType.EVENT)
+                              LinkCreator<MemberDto> memberWithEventsLinkCreator,
                               LinkReceiver linkReceiver) {
         this.memberService = memberService;
         this.linkCreator = linkCreator;
+        this.memberWithEventsLinkCreator = memberWithEventsLinkCreator;
         this.linkReceiver = linkReceiver;
     }
     protected MemberResourceImpl(){}

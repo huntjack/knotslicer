@@ -8,6 +8,7 @@ import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
@@ -16,7 +17,8 @@ import jakarta.inject.Inject;
 
 import java.util.Optional;
 
-@ProcessAs(ProcessType.PROJECT)
+@ProcessAs(ProcessType.USER)
+@WithChildren(ProcessType.PROJECT)
 @ApplicationScoped
 public class UserWithProjectsServiceImpl implements UserWithChildrenService {
     private EntityDtoMapper entityDtoMapper;
@@ -25,16 +27,13 @@ public class UserWithProjectsServiceImpl implements UserWithChildrenService {
     public UserLightDto getUserWithChildren(Long userId) {
         Optional<User> optionalUser =
                 projectDao.getPrimaryParentWithChildren(userId);
-        User user = unpackOptionalUser(optionalUser);
-        UserLightDto userLightDto =
-                entityDtoMapper.toLightDto(user);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        UserLightDto userLightDto = entityDtoMapper.toDto(user);
         return entityDtoMapper
                 .addProjectDtosToUserLightDto(
                         userLightDto,
                         user);
-    }
-    private User unpackOptionalUser(Optional<User> optionalUser) {
-        return optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found."));
     }
     @Inject
     public UserWithProjectsServiceImpl(EntityDtoMapper entityDtoMapper,

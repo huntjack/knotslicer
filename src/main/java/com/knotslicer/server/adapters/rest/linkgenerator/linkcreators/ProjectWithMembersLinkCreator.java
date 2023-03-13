@@ -1,7 +1,7 @@
 package com.knotslicer.server.adapters.rest.linkgenerator.linkcreators;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
-import com.knotslicer.server.adapters.rest.linkgenerator.WithChildren;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.ProjectWithMembersLinkCommand;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -11,7 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriInfo;
 
 @ProcessAs(ProcessType.PROJECT)
-@WithChildren
+@WithChildren(ProcessType.MEMBER)
 @ApplicationScoped
 public class ProjectWithMembersLinkCreator implements LinkCreator<ProjectDto> {
     @Override

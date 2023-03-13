@@ -4,6 +4,7 @@ import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,36 +24,54 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
     @Override
     public PollAnswer create(PollAnswer pollAnswer, Long pollId, Long memberId) {
         PollAnswerImpl pollAnswerImpl = (PollAnswerImpl) pollAnswer;
-        PollImpl pollImpl = getPollWithPollAnswersFromJpa(pollId);
-        entityManager.detach(pollImpl);
-        pollImpl.addPollAnswer(pollAnswerImpl);
-        pollImpl = entityManager.merge(pollImpl);
-        MemberImpl memberImpl = getMemberWithPollAnswersFromJpa(memberId);
-        pollAnswerImpl = getPollAnswerFromPoll(pollImpl, pollAnswerImpl);
-        memberImpl.addPollAnswer(pollAnswerImpl);
+        PollImpl pollWithPollAnswers = getPollImplWithPollAnswers(pollId);
+        entityManager.detach(pollWithPollAnswers);
+        pollWithPollAnswers.addPollAnswer(pollAnswerImpl);
+        pollWithPollAnswers = entityManager.merge(pollWithPollAnswers);
+        Optional<Member> optionalMemberWithPollAnswers =
+                getSecondaryParentWithChildren(memberId);
+        MemberImpl memberWithPollAnswers =
+                (MemberImpl) optionalMemberWithPollAnswers
+                        .orElseThrow(() -> new EntityNotFoundException());
+        Optional<PollAnswerImpl> optionalPollAnswer =
+                getPollAnswerFromPoll(pollWithPollAnswers, pollAnswerImpl);
+        pollAnswerImpl = optionalPollAnswer
+                .orElseThrow(() -> new EntityNotFoundException());
+        memberWithPollAnswers.addPollAnswer(pollAnswerImpl);
         entityManager.flush();
         return pollAnswerImpl;
     }
-    private PollImpl getPollWithPollAnswersFromJpa(Long pollId) {
+    private PollImpl getPollImplWithPollAnswers(Long pollId) {
+        Optional<Poll> optionalPollWithPollAnswers = getPrimaryParentWithChildren(pollId);
+        return (PollImpl) optionalPollWithPollAnswers
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    @Override
+    public Optional<Poll> getPrimaryParentWithChildren(Long pollId) {
         TypedQuery<PollImpl> query = entityManager.createQuery
                         ("SELECT poll FROM Poll poll " +
                                 "LEFT JOIN FETCH poll.pollAnswers " +
                                 "WHERE poll.pollId = :pollId", PollImpl.class)
                 .setParameter("pollId", pollId);
-        return query.getSingleResult();
+        Poll poll = query.getSingleResult();
+        return Optional.ofNullable(poll);
     }
-    private MemberImpl getMemberWithPollAnswersFromJpa(Long memberId) {
+    @Override
+    public Optional<Member> getSecondaryParentWithChildren(Long memberId) {
         TypedQuery<MemberImpl> query = entityManager.createQuery
                         ("SELECT m FROM Member m " +
                                 "LEFT JOIN FETCH m.pollAnswers " +
                                 "WHERE m.memberId = :memberId", MemberImpl.class)
                 .setParameter("memberId", memberId);
-        return query.getSingleResult();
+        Member member = query.getSingleResult();
+        return Optional.ofNullable(member);
     }
-    private PollAnswerImpl getPollAnswerFromPoll(PollImpl pollImpl, PollAnswer pollAnswer) {
+    private Optional<PollAnswerImpl> getPollAnswerFromPoll(PollImpl pollImpl, PollAnswer pollAnswer) {
         List<PollAnswerImpl> pollAnswerImpls = pollImpl.getPollAnswers();
         int pollAnswerIndex = pollAnswerImpls.indexOf(pollAnswer);
-        return pollAnswerImpls.get(pollAnswerIndex);
+        PollAnswerImpl pollAnswerImpl =
+                pollAnswerImpls.get(pollAnswerIndex);
+        return Optional.ofNullable(pollAnswerImpl);
     }
     @Override
     public Optional<PollAnswer> get(Long pollAnswerId) {
@@ -60,57 +79,56 @@ public class PollAnswerDaoImpl implements ChildWithTwoParentsDao<PollAnswer,Poll
         return Optional.ofNullable(pollAnswer);
     }
     @Override
-    public Poll getPrimaryParent(Long pollAnswerId) {
+    public Optional<Poll> getPrimaryParent(Long pollAnswerId) {
         TypedQuery<PollImpl> query = entityManager.createQuery(
                 "SELECT poll FROM Poll poll " +
                         "INNER JOIN poll.pollAnswers pollAnswer " +
                         "WHERE pollAnswer.pollAnswerId = :pollAnswerId", PollImpl.class)
                 .setParameter("pollAnswerId", pollAnswerId);
-        return query.getSingleResult();
+        Poll poll = query.getSingleResult();
+        return Optional.ofNullable(poll);
     }
     @Override
-    public Member getSecondaryParent(Long pollAnswerId) {
+    public Optional<Member> getSecondaryParent(Long pollAnswerId) {
         TypedQuery<MemberImpl> query = entityManager.createQuery(
                 "SELECT m FROM Member m " +
                         "INNER JOIN m.pollAnswers pollAnswer " +
                         "WHERE pollAnswer.pollAnswerId = :pollAnswerId", MemberImpl.class)
                 .setParameter("pollAnswerId", pollAnswerId);
-        return query.getSingleResult();
-    }
-    @Override
-    public Optional<Poll> getPrimaryParentWithChildren(Long pollId) {
-        Poll poll = getPollWithPollAnswersFromJpa(pollId);
-        return Optional.ofNullable(poll);
-    }
-    @Override
-    public Optional<Member> getSecondaryParentWithChildren(Long memberId) {
-        Member member = getMemberWithPollAnswersFromJpa(memberId);
+        Member member = query.getSingleResult();
         return Optional.ofNullable(member);
     }
     @Override
     public PollAnswer update(PollAnswer pollAnswerInput, Long pollId) {
-        PollImpl pollImpl = getPollWithPollAnswersFromJpa(pollId);
-        entityManager.detach(pollImpl);
-        PollAnswer pollAnswerToBeModified =
+        PollImpl pollWithPollAnswers = getPollImplWithPollAnswers(pollId);
+        Optional<PollAnswerImpl> optionalPollAnswerToBeModified =
                 getPollAnswerFromPoll(
-                        pollImpl,
+                        pollWithPollAnswers,
                         pollAnswerInput);
+        PollAnswerImpl pollAnswerToBeModified = optionalPollAnswerToBeModified
+                .orElseThrow(() -> new EntityNotFoundException());
+        entityManager.detach(pollWithPollAnswers);
         pollAnswerToBeModified.setApproved(pollAnswerInput.isApproved());
-        pollImpl = entityManager.merge(pollImpl);
+        pollWithPollAnswers = entityManager.merge(pollWithPollAnswers);
         entityManager.flush();
-        return getPollAnswerFromPoll(
-                pollImpl,
-                pollAnswerToBeModified);
+        Optional<PollAnswerImpl> optionalPollAnswerResponse =
+                getPollAnswerFromPoll(
+                        pollWithPollAnswers,
+                        pollAnswerToBeModified);
+        return optionalPollAnswerResponse
+                .orElseThrow(() -> new EntityNotFoundException());
     }
     @Override
     public void delete(Long pollAnswerId) {
-        Poll poll = getPrimaryParent(pollAnswerId);
-        PollImpl pollImpl =
-                getPollWithPollAnswersFromJpa(
-                        poll.getPollId());
-        PollAnswerImpl pollAnswerImpl = entityManager
-                .find(PollAnswerImpl.class, pollAnswerId);
-        pollImpl.removePollAnswer(pollAnswerImpl);
+        Optional<Poll> optionalPoll = getPrimaryParent(pollAnswerId);
+        Poll poll = optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long pollId = poll.getPollId();
+        PollImpl pollWithPollAnswers = getPollImplWithPollAnswers(pollId);
+        Optional<PollAnswer> optionalPollAnswer = get(pollAnswerId);
+        PollAnswerImpl pollAnswerImpl = (PollAnswerImpl) optionalPollAnswer
+                .orElseThrow(() -> new EntityNotFoundException());
+        pollWithPollAnswers.removePollAnswer(pollAnswerImpl);
         entityManager.flush();
     }
 }

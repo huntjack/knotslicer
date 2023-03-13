@@ -2,6 +2,7 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
+import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.ProcessAs;
@@ -25,7 +26,7 @@ import java.net.URI;
 @RequestScoped
 public class UserWithMembersResource implements UserWithChildrenResource {
     private UserWithChildrenService userWithMembersService;
-    private LinkCreator<UserLightDto> linkCreator;
+    private LinkCreator<UserLightDto> userWithMembersLinkCreator;
     private LinkReceiver linkReceiver;
 
     @GET
@@ -36,7 +37,7 @@ public class UserWithMembersResource implements UserWithChildrenResource {
                 userWithMembersService
                         .getUserWithChildren(userId);
         LinkCommand<UserLightDto> linkCommand =
-                linkCreator.createLinkCommand(
+                userWithMembersLinkCreator.createLinkCommand(
                         linkReceiver,
                         userResponseDto,
                         uriInfo);
@@ -48,17 +49,17 @@ public class UserWithMembersResource implements UserWithChildrenResource {
     }
     private URI addLinks(LinkCommand<UserLightDto> linkCommand) {
         Invoker invoker =
-                linkCreator.createInvoker(linkCommand);
+                userWithMembersLinkCreator.createInvoker(linkCommand);
         return invoker.executeCommand();
     }
     @Inject
-    public UserWithMembersResource (@ProcessAs(ProcessType.MEMBER)
+    public UserWithMembersResource (@ProcessAs(ProcessType.USER) @WithChildren(ProcessType.MEMBER)
                                         UserWithChildrenService userWithMembersService,
-                                    @ProcessAs(ProcessType.MEMBER)
-                                    LinkCreator<UserLightDto> linkCreator,
+                                    @ProcessAs(ProcessType.USER) @WithChildren(ProcessType.MEMBER)
+                                    LinkCreator<UserLightDto> userWithMembersLinkCreator,
                                     LinkReceiver linkReceiver) {
         this.userWithMembersService = userWithMembersService;
-        this.linkCreator = linkCreator;
+        this.userWithMembersLinkCreator = userWithMembersLinkCreator;
         this.linkReceiver = linkReceiver;
     }
     protected UserWithMembersResource() {}

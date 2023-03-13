@@ -4,9 +4,11 @@ import com.knotslicer.server.domain.Event;
 import com.knotslicer.server.domain.Poll;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
+import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
+import com.knotslicer.server.ports.interactor.datatransferobjects.EventMemberDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,11 +16,10 @@ import jakarta.inject.Inject;
 
 import java.util.Optional;
 
-@ProcessAs(ProcessType.EVENT)
 @ApplicationScoped
-public class EventServiceImpl implements ParentService<EventDto> {
+public class EventServiceImpl implements EventService {
     private EntityDtoMapper entityDtoMapper;
-    private ChildWithOneRequiredParentDao<Event, User> eventDao;
+    private EventDao eventDao;
     private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
 
     @Override
@@ -31,40 +32,56 @@ public class EventServiceImpl implements ParentService<EventDto> {
     }
     @Override
     public EventDto get(Long eventId) {
-        Optional<Event> optionalEvent = eventDao.get(eventId);
-        Event event = unpackOptionalEvent(optionalEvent);
-        User user = eventDao.getPrimaryParent(eventId);
-        Long userId = user.getUserId();
+        Event event = getEvent(eventId);
+        Long userId = getUserId(eventId);
         return entityDtoMapper
                 .toDto(event, userId);
     }
-    private Event unpackOptionalEvent(Optional<Event> optionalEvent) {
-        return optionalEvent.orElseThrow(() -> new EntityNotFoundException("Event not found."));
+    private Event getEvent(Long eventId) {
+        Optional<Event> optionalEvent = eventDao.get(eventId);
+         return optionalEvent
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    private Long getUserId(Long eventId) {
+        Optional<User> optionalUser = eventDao.getPrimaryParent(eventId);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        return user.getUserId();
     }
     @Override
     public EventDto getWithChildren(Long eventId) {
         Optional<Event> optionalEvent =
                 pollDao.getPrimaryParentWithChildren(eventId);
-        Event event = unpackOptionalEvent(optionalEvent);
-        User user = eventDao
-                .getPrimaryParent(eventId);
-        Long userId = user.getUserId();
+        Event event = optionalEvent
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(eventId);
         EventDto eventDto = entityDtoMapper
                 .toDto(event, userId);
         return entityDtoMapper
                 .addPollDtosToEventDto(eventDto, event);
     }
     @Override
+    public EventDto getWithMembers(Long eventId) {
+        Optional<Event> optionalEventWithMembers =
+                eventDao.getEventWithMembers(eventId);
+        Event eventWithMembers = optionalEventWithMembers
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(eventId);
+        EventDto eventDto = entityDtoMapper
+                .toDto(eventWithMembers, userId);
+        return entityDtoMapper
+                .addMemberDtosToEventDto(
+                        eventDto,
+                        eventWithMembers);
+    }
+
+    @Override
     public EventDto update(EventDto eventDto) {
         Long eventId = eventDto.getEventId();
-        Optional<Event> optionalEvent =
-                eventDao.get(eventId);
-        Event eventToBeModified = unpackOptionalEvent(optionalEvent);
+        Event eventToBeModified = getEvent(eventId);
         eventToBeModified = entityDtoMapper
                 .toEntity(eventDto, eventToBeModified);
-        User user = eventDao
-                .getPrimaryParent(eventId);
-        Long userId = user.getUserId();
+        Long userId = getUserId(eventId);
         Event updatedEvent = eventDao
                 .update(eventToBeModified,
                         userId);
@@ -72,13 +89,22 @@ public class EventServiceImpl implements ParentService<EventDto> {
                 .toDto(updatedEvent, userId);
     }
     @Override
+    public void addMember(EventMemberDto eventMemberDto) {
+        Long eventId = eventMemberDto.getEventId();
+        Long memberId = eventMemberDto.getMemberId();
+        eventDao.addMember(eventId, memberId);
+    }
+    @Override
+    public void removeMember(Long eventId, Long memberId) {
+        eventDao.removeMember(eventId, memberId);
+    }
+    @Override
     public void delete(Long eventId) {
         eventDao.delete(eventId);
     }
     @Inject
     public EventServiceImpl(EntityDtoMapper entityDtoMapper,
-                            @ProcessAs(ProcessType.EVENT)
-                            ChildWithOneRequiredParentDao<Event, User> eventDao,
+                            EventDao eventDao,
                             @ProcessAs(ProcessType.POLL)
                             ChildWithOneRequiredParentDao<Poll, Event> pollDao) {
         this.entityDtoMapper = entityDtoMapper;

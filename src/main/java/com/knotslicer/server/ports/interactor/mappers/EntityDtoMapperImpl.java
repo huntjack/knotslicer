@@ -6,35 +6,23 @@ import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
+import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.Optional;
 
 @ApplicationScoped
 public class EntityDtoMapperImpl implements EntityDtoMapper {
     private EntityCreator entityCreator;
     private DtoCreator dtoCreator;
-    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     @Override
-    public UserDto toDto(User userInput) {
-        UserDto userDto = dtoCreator.createUserDto();
-        userDto.setUserId(
-                userInput.getUserId());
-        userDto.setEmail(
-                userInput.getEmail());
-        userDto.setUserName(
-                userInput.getUserName());
-        userDto.setUserDescription(
-                userInput.getUserDescription());
-        userDto.setTimeZone(
-                userInput.getTimeZone());
-        return userDto;
-    }
-    @Override
-    public UserLightDto toLightDto(User userInput) {
+    public UserLightDto toDto(User userInput) {
         UserLightDto userLightDto = dtoCreator.createUserLightDto();
         userLightDto.setUserId(
                 userInput.getUserId());
@@ -69,8 +57,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         Long userId = userInput.getUserId();
         for(MemberImpl memberImpl: memberImpls) {
             Long memberId = memberImpl.getMemberId();
-            Project project = memberDao.getSecondaryParent(memberId);
-            Long projectId = project.getProjectId();
+            Long projectId = getMembersSecondaryParentId(memberId);
             MemberDto memberDto = toDto(
                     memberImpl,
                     userId,
@@ -79,6 +66,12 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         }
         userLightDto.setMembers(memberDtos);
         return userLightDto;
+    }
+    private Long getMembersSecondaryParentId(Long memberId) {
+        Optional<Project> optionalProject = memberDao.getSecondaryParent(memberId);
+        Project project = optionalProject
+                .orElseThrow(() -> new EntityNotFoundException());
+        return project.getProjectId();
     }
     @Override
     public UserLightDto addEventDtosToUserLightDto(UserLightDto userLightDto, User userInput) {
@@ -138,9 +131,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         Long projectId = projectImpl.getProjectId();
         for(MemberImpl memberImpl: membersImpls) {
             Long memberId = memberImpl.getMemberId();
-            User user = memberDao
-                    .getPrimaryParent(memberId);
-            Long userId = user.getUserId();
+            Long userId = getMembersPrimaryParentId(memberId);
             MemberDto memberDto = toDto(
                     memberImpl,
                     userId,
@@ -149,6 +140,13 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         }
         projectDto.setMembers(memberDtos);
         return projectDto;
+    }
+    private Long getMembersPrimaryParentId(Long memberId) {
+        Optional<User> optionalUser = memberDao
+                .getPrimaryParent(memberId);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        return user.getUserId();
     }
     @Override
     public Project toEntity(ProjectDto projectDtoInput) {
@@ -197,6 +195,18 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return memberDto;
     }
     @Override
+    public MemberDto addEventDtosToMemberDto(MemberDto memberDto, Member memberInput) {
+        MemberImpl memberImpl = (MemberImpl) memberInput;
+        Set<EventImpl> eventImpls = memberImpl.getEvents();
+        List<EventDto> eventDtos = new LinkedList<>();
+        for(EventImpl eventImpl: eventImpls) {
+            EventDto eventDto = toDto(eventImpl);
+            eventDtos.add(eventDto);
+        }
+        memberDto.setEvents(eventDtos);
+        return memberDto;
+    }
+    @Override
     public Member toEntity(MemberDto memberDtoInput) {
         Member member = entityCreator.createMember();
         setEntityFields(member, memberDtoInput);
@@ -216,9 +226,12 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         return memberToBeModified;
     }
     @Override
-    public EventDto toDto(Event eventInput, Long userId) {
+    public EventDto toDto(Event eventInput) {
         EventDto eventDto = dtoCreator.createEventDto();
-        eventDto.setUserId(userId);
+        setDtoFields(eventDto, eventInput);
+        return eventDto;
+    }
+    private void setDtoFields(EventDto eventDto, Event eventInput) {
         eventDto.setEventId(
                 eventInput.getEventId());
         eventDto.setEventName(
@@ -227,6 +240,12 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
                 eventInput.getSubject());
         eventDto.setEventDescription(
                 eventInput.getEventDescription());
+    }
+    @Override
+    public EventDto toDto(Event eventInput, Long userId) {
+        EventDto eventDto = dtoCreator.createEventDto();
+        eventDto.setUserId(userId);
+        setDtoFields(eventDto, eventInput);
         return eventDto;
     }
     @Override
@@ -241,6 +260,24 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
             pollDtos.add(pollDto);
         }
         eventDto.setPolls(pollDtos);
+        return eventDto;
+    }
+    @Override
+    public EventDto addMemberDtosToEventDto(EventDto eventDto, Event eventInput) {
+        EventImpl eventImpl = (EventImpl) eventInput;
+        Set<MemberImpl> memberImpls = eventImpl.getMembers();
+        List<MemberDto> memberDtos = new LinkedList<>();
+        for(MemberImpl memberImpl: memberImpls) {
+            Long memberId = memberImpl.getMemberId();
+            Long userId = getMembersPrimaryParentId(memberId);
+            Long projectId = getMembersSecondaryParentId(memberId);
+            MemberDto memberDto = toDto(
+                    memberImpl,
+                    userId,
+                    projectId);
+            memberDtos.add(memberDto);
+        }
+        eventDto.setMembers(memberDtos);
         return eventDto;
     }
     @Override
@@ -312,9 +349,11 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
         Long pollId = pollInput.getPollId();
         for(PollAnswerImpl pollAnswerImpl : pollAnswerImpls) {
             Long pollAnswerId = pollAnswerImpl.getPollAnswerId();
-            Member member = pollAnswerDao
+            Optional<Member> optionalMember = pollAnswerDao
                     .getSecondaryParent(pollAnswerId);
-            Long memberId = member.getMemberId();
+            Member member = optionalMember
+                    .orElseThrow(() -> new EntityNotFoundException());
+            Long memberId =  member.getMemberId();;
             PollAnswerDto pollAnswerDto =
                     toDto(pollAnswerImpl,
                             pollId,
@@ -371,7 +410,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     public EntityDtoMapperImpl(EntityCreator entityCreator,
                                DtoCreator dtoCreator,
                                @ProcessAs(ProcessType.MEMBER)
-                               ChildWithTwoParentsDao<Member,User,Project> memberDao,
+                               ChildWithTwoParentsDao<Member, User, Project> memberDao,
                                @ProcessAs(ProcessType.POLLANSWER)
                                ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao) {
         this.entityCreator = entityCreator;

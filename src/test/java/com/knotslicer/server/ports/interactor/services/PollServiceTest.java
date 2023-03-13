@@ -36,7 +36,7 @@ public class PollServiceTest {
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     @Mock
-    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     private AutoCloseable closeable;
     @BeforeEach
     public void init() {
@@ -88,15 +88,18 @@ public class PollServiceTest {
                         .of(poll));
         Mockito.when(
                 pollDao.getPrimaryParent(anyLong()))
-                .thenReturn(event);
+                .thenReturn(
+                        Optional.of(event));
         Mockito.when(pollAnswerDao
                 .getSecondaryParent(
                         pollAnswerOne.getPollAnswerId()))
-                .thenReturn(memberOne);
+                .thenReturn(
+                        Optional.of(memberOne));
         Mockito.when(pollAnswerDao
                         .getSecondaryParent(
                                 pollAnswerTwo.getPollAnswerId()))
-                .thenReturn(memberTwo);
+                .thenReturn(
+                        Optional.of(memberTwo));
         PollDto pollDto = pollService.getWithChildren(5L);
 
         checkPollDto(
@@ -119,22 +122,28 @@ public class PollServiceTest {
                 memberTwoId);
     }
     private void checkPollDto(Poll poll, PollDto pollDto, Long eventId) {
-        assertEquals(poll.getPollId(),
-                pollDto.getPollId());
-        assertEquals(poll.getStartTimeUtc(),
-                pollDto.getStartTimeUtc());
-        assertEquals(poll.getEndTimeUtc(),
-                pollDto.getEndTimeUtc());
-        assertEquals(eventId,
-                pollDto.getEventId());
+        assertAll(
+                "PollDto should have the correct field values.",
+                () -> assertEquals(poll.getPollId(),
+                        pollDto.getPollId()),
+                () -> assertEquals(poll.getStartTimeUtc(),
+                        pollDto.getStartTimeUtc()),
+                () -> assertEquals(poll.getEndTimeUtc(),
+                        pollDto.getEndTimeUtc()),
+                () -> assertEquals(eventId,
+                        pollDto.getEventId())
+        );
     }
     private void checkPollAnswerDto(PollAnswer pollAnswer, PollAnswerDto pollAnswerDto, Long memberId) {
-        assertEquals(pollAnswer.getPollAnswerId(),
-                pollAnswerDto.getPollAnswerId());
-        assertEquals(memberId,
-                pollAnswerDto.getMemberId());
-        assertEquals(pollAnswer.isApproved(),
-                pollAnswerDto.isApproved());
+        assertAll(
+                "PollAnswerDto should have the correct field values.",
+                () -> assertEquals(pollAnswer.getPollAnswerId(),
+                        pollAnswerDto.getPollAnswerId()),
+                () -> assertEquals(memberId,
+                        pollAnswerDto.getMemberId()),
+                () -> assertEquals(pollAnswer.isApproved(),
+                        pollAnswerDto.isApproved())
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

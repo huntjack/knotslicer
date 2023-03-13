@@ -12,11 +12,13 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.PollDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
 import java.util.Optional;
 
 @ProcessAs(ProcessType.POLL)
+@Default
 @ApplicationScoped
 public class PollServiceImpl implements ParentService<PollDto> {
     private EntityDtoMapper entityDtoMapper;
@@ -33,24 +35,29 @@ public class PollServiceImpl implements ParentService<PollDto> {
     }
     @Override
     public PollDto get(Long pollId) {
-        Optional<Poll> optionalPoll = pollDao.get(pollId);
-        Poll poll = unpackOptionalPoll(optionalPoll);
-        Event event = pollDao.getPrimaryParent(pollId);
-        Long eventId = event.getEventId();
+        Poll poll = getPoll(pollId);
+        Long eventId = getEventId(pollId);
         return entityDtoMapper
                 .toDto(poll, eventId);
     }
-    private Poll unpackOptionalPoll(Optional<Poll> optionalPoll) {
-        return optionalPoll.orElseThrow(() -> new EntityNotFoundException("Poll not found."));
+    private Poll getPoll(Long pollId) {
+        Optional<Poll> optionalPoll = pollDao.get(pollId);
+        return optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    private Long getEventId(Long pollId) {
+        Optional<Event> optionalEvent = pollDao.getPrimaryParent(pollId);
+        Event event = optionalEvent
+                .orElseThrow(() -> new EntityNotFoundException());
+        return event.getEventId();
     }
     @Override
     public PollDto getWithChildren(Long pollId) {
         Optional<Poll> optionalPoll =
                 pollAnswerDao.getPrimaryParentWithChildren(pollId);
-        Poll poll = unpackOptionalPoll(optionalPoll);
-        Event event = pollDao
-                .getPrimaryParent(pollId);
-        Long eventId = event.getEventId();
+        Poll poll = optionalPoll
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long eventId = getEventId(pollId);
         PollDto pollDto = entityDtoMapper
                 .toDto(poll,
                         eventId);
@@ -60,13 +67,10 @@ public class PollServiceImpl implements ParentService<PollDto> {
     @Override
     public PollDto update(PollDto pollDto) {
         Long pollId = pollDto.getPollId();
-        Optional<Poll> optionalPoll = pollDao.get(pollId);
-        Poll pollLToBeModified = unpackOptionalPoll(optionalPoll);
+        Poll pollLToBeModified = getPoll(pollId);
         pollLToBeModified = entityDtoMapper
                 .toEntity(pollDto, pollLToBeModified);
-        Event event = pollDao
-                .getPrimaryParent(pollId);
-        Long eventId = event.getEventId();
+        Long eventId = getEventId(pollId);
         Poll updatedPoll = pollDao
                 .update(pollLToBeModified, eventId);
         return entityDtoMapper

@@ -4,8 +4,7 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.domain.*;
 
 public interface EntityDtoMapper {
-    UserDto toDto(User userInput);
-    UserLightDto toLightDto(User userInput);
+    UserLightDto toDto(User userInput);
     UserLightDto addProjectDtosToUserLightDto(UserLightDto userLightDto, User userInput);
     UserLightDto addMemberDtosToUserLightDto(UserLightDto userLightDto, User userInput);
     UserLightDto addEventDtosToUserLightDto(UserLightDto userLightDto, User userInput);
@@ -17,11 +16,14 @@ public interface EntityDtoMapper {
     Project toEntity(ProjectDto projectDtoInput, Project projectToBeModified);
     MemberDto toDto(Member memberInput, Long userId, Long projectId);
     MemberDto addScheduleDtosToMemberDto(MemberDto memberDto, Member memberInput);
+    MemberDto addEventDtosToMemberDto(MemberDto memberDto, Member memberInput);
     Member toEntity(MemberDto memberDtoInput);
     Member toEntity(MemberDto memberDtoInput, Member memberToBeModified);
 
+    EventDto toDto(Event eventInput);
     EventDto toDto(Event eventInput, Long userId);
     EventDto addPollDtosToEventDto(EventDto eventDto, Event eventInput);
+    EventDto addMemberDtosToEventDto(EventDto eventDto, Event eventInput);
     Event toEntity(EventDto eventDtoInput);
     Event toEntity(EventDto eventDtoInput, Event eventToBeModified);
 

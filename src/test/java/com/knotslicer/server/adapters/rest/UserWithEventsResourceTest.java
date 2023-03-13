@@ -69,31 +69,41 @@ public class UserWithEventsResourceTest extends JerseyTest {
     }
     private void checkUser(UserLightDto userResponseDto, UserLightDto userDtoDummy) {
         List<Link> userResponseDtoLinks = userResponseDto.getLinks();
-        Link selfLink = userResponseDtoLinks.get(0);
-        assertEquals("self",
-                selfLink.getRel());
+        Link userLink = userResponseDtoLinks.get(0);
         String userId = userDtoDummy
                 .getUserId()
                 .toString();
-        assertTrue(selfLink
+        checkUserLink(userLink, "self", userId);
+    }
+    private void checkUserLink(Link userLink, String rel, String userId) {
+        assertAll(
+                "User link should be correct.",
+                () -> assertEquals(rel,
+                        userLink.getRel()),
+                () -> assertTrue(userLink
                         .getLink()
                         .contains("/users/" +
-                                userId),
-                "UserDto's self link is incorrect.");
+                                userId))
+        );
     }
     private void checkEvent(EventDto eventResponseDto, EventDto eventDtoDummy) {
         List<Link> eventResponseDtoLinks = eventResponseDto.getLinks();
         Link eventLink = eventResponseDtoLinks.get(0);
-        assertEquals("event",
-                eventLink.getRel());
         String eventId = eventDtoDummy
                 .getEventId()
                 .toString();
-        assertTrue(eventLink
+        checkEventLink(eventLink, "event", eventId);
+    }
+    private void checkEventLink(Link eventLink, String rel, String eventId) {
+        assertAll(
+                "Event link should be correct.",
+                () -> assertEquals(rel,
+                        eventLink.getRel()),
+                () -> assertTrue(eventLink
                         .getLink()
                         .contains("/events/" +
-                                eventId),
-                "EventDto's event link is incorrect.");
+                                eventId))
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

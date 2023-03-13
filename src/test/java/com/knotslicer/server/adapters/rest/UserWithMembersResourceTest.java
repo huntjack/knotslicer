@@ -18,8 +18,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 public class UserWithMembersResourceTest extends JerseyTest {
@@ -72,40 +71,59 @@ public class UserWithMembersResourceTest extends JerseyTest {
     }
     private void checkUser(UserLightDto userResponseDto, UserLightDto userDtoDummy) {
         List<Link> userResponseDtoLinks = userResponseDto.getLinks();
-        Link selfLink = userResponseDtoLinks.get(0);
-        assertEquals("self",
-                selfLink.getRel());
+        Link userLink = userResponseDtoLinks.get(0);
         String userId = userDtoDummy
                 .getUserId()
                 .toString();
-        assertTrue(selfLink
+        checkUserLink(userLink, "self", userId);
+    }
+    private void checkUserLink(Link userLink, String rel, String userId) {
+        assertAll(
+                "User link should be correct.",
+                () -> assertEquals(rel,
+                        userLink.getRel()),
+                () -> assertTrue(userLink
                         .getLink()
                         .contains("/users/" +
-                                userId),
-                "UserDto's self link is incorrect.");
+                                userId))
+        );
     }
     private void checkMember(MemberDto memberResponseDto, MemberDto memberDtoDummy) {
         List<Link> memberResponseDtoLinks = memberResponseDto.getLinks();
         Link memberLink = memberResponseDtoLinks.get(0);
-        assertEquals("member",
-                memberLink.getRel());
         String memberId = memberDtoDummy
                 .getMemberId()
                 .toString();
-        assertTrue(memberLink
-                .getLink()
-                .contains("/members/" +
-                        memberId),
-                "MemberDto's member link is incorrect.");
+        checkMemberLink(memberLink, "member", memberId);
         Link projectLink = memberResponseDtoLinks.get(1);
         assertEquals("project",
                 projectLink.getRel());
-        Long projectId = memberDtoDummy.getProjectId();
-        assertTrue(projectLink
-                .getLink()
-                .contains("/projects/" +
-                        projectId),
-                "ProjectDto's project link is incorrect.");
+        String projectId = memberDtoDummy
+                .getProjectId()
+                .toString();
+        checkProjectLink(projectLink, "project", projectId);
+    }
+    private void checkMemberLink(Link memberLink, String rel, String memberId) {
+        assertAll(
+                "Member link should be correct.",
+                () -> assertEquals(rel,
+                        memberLink.getRel()),
+                () -> assertTrue(memberLink
+                        .getLink()
+                        .contains("/members/" +
+                                memberId))
+        );
+    }
+    private void checkProjectLink(Link projectLink, String rel, String projectId) {
+        assertAll(
+                "Project link should be correct.",
+                () -> assertEquals(rel,
+                        projectLink.getRel()),
+                () -> assertTrue(projectLink
+                        .getLink()
+                        .contains("/projects/" +
+                                projectId))
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

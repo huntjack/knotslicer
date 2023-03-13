@@ -1,8 +1,8 @@
 package com.knotslicer.server.ports.interactor.services;
 
 import com.knotslicer.server.domain.*;
-import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.DtoCreator;
@@ -22,7 +22,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 public class UserWithEventsServiceTest {
@@ -31,9 +31,9 @@ public class UserWithEventsServiceTest {
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper;
     @Mock
-    private ChildWithOneRequiredParentDao<Event, User> eventDao;
+    private EventDao eventDao;
     @Mock
-    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     @Mock
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
     private AutoCloseable closeable;
@@ -90,20 +90,26 @@ public class UserWithEventsServiceTest {
         checkEventDto(eventTwo, eventDtoTwo);
     }
     private void checkUserLightDto(User user, UserLightDto userLightDto) {
-        assertEquals(user.getUserId(), userLightDto.getUserId());
-        assertEquals(user.getUserName(), userLightDto.getUserName());
-        assertEquals(user.getUserDescription(), userLightDto.getUserDescription());
-        assertEquals(user.getTimeZone(), userLightDto.getTimeZone());
+        assertAll(
+                "UserLightDto should have the correct field values.",
+                () -> assertEquals(user.getUserId(), userLightDto.getUserId()),
+                () -> assertEquals(user.getUserName(), userLightDto.getUserName()),
+                () -> assertEquals(user.getUserDescription(), userLightDto.getUserDescription()),
+                () -> assertEquals(user.getTimeZone(), userLightDto.getTimeZone())
+        );
     }
     private void checkEventDto(Event event, EventDto eventDto) {
-        assertEquals(event.getEventId(),
-                eventDto.getEventId());
-        assertEquals(event.getEventName(),
-                eventDto.getEventName());
-        assertEquals(event.getSubject(),
-                eventDto.getSubject());
-        assertEquals(event.getEventDescription(),
-                eventDto.getEventDescription());
+        assertAll(
+                "EventDto should have the correct field values.",
+                () -> assertEquals(event.getEventId(),
+                        eventDto.getEventId()),
+                () -> assertEquals(event.getEventName(),
+                        eventDto.getEventName()),
+                () -> assertEquals(event.getSubject(),
+                        eventDto.getSubject()),
+                () -> assertEquals(event.getEventDescription(),
+                        eventDto.getEventDescription())
+        );
     }
     @AfterEach
     public void shutdown() throws Exception {

@@ -66,7 +66,7 @@ public class PollResourceImpl implements PollResource {
                 .type("application/json")
                 .build();
     }
-    @PUT
+    @PATCH
     @Path("/{pollId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ public class PollResourceImpl implements PollResource {
                 .build();
     }
     @Inject
-    public PollResourceImpl(@ProcessAs(ProcessType.POLL)
+    public PollResourceImpl(@ProcessAs(ProcessType.POLL) @Default
                                 ParentService<PollDto> pollService,
                             @ProcessAs(ProcessType.POLL) @Default
                             LinkCreator<PollDto> linkCreator,

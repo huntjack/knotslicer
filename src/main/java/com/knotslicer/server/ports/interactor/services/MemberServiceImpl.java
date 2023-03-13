@@ -1,12 +1,12 @@
 package com.knotslicer.server.ports.interactor.services;
 
-
 import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Project;
 import com.knotslicer.server.domain.Schedule;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
+import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.datatransferobjects.MemberDto;
@@ -16,12 +16,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
-@ProcessAs(ProcessType.MEMBER)
 @ApplicationScoped
-public class MemberServiceImpl implements ParentService<MemberDto> {
+public class MemberServiceImpl implements MemberService {
     private EntityDtoMapper entityDtoMapper;
-    private ChildWithTwoParentsDao<Member,User,Project> memberDao;
+    private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     private ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao;
+    private EventDao eventDao;
 
     @Override
     public MemberDto create(MemberDto memberDto) {
@@ -40,59 +40,83 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
     }
     @Override
     public MemberDto get(Long memberId) {
-        Optional<Member> optionalMember = memberDao
-                .get(memberId);
-        Member member = unpackOptionalMember(optionalMember);
-        User user = memberDao.getPrimaryParent(memberId);
-        Long userId = user.getUserId();
-        Project project = memberDao.getSecondaryParent(memberId);
-        Long projectId = project.getProjectId();;
+        Member member = getMember(memberId);
+        Long userId = getUserId(memberId);
+        Long projectId = getProjectId(memberId);
         return entityDtoMapper.toDto(
                 member,
                 userId,
                 projectId);
     }
-    private Member unpackOptionalMember(Optional<Member> optionalMember) {
-        return optionalMember.orElseThrow(() -> new EntityNotFoundException("Member not found."));
+    private Member getMember(Long memberId) {
+        Optional<Member> optionalMember = memberDao
+                .get(memberId);
+        return optionalMember
+                .orElseThrow(() -> new EntityNotFoundException());
+    }
+    private Long getUserId(Long memberId) {
+        Optional<User> optionalUser =
+                memberDao.getPrimaryParent(memberId);
+        User user = optionalUser
+                .orElseThrow(() -> new EntityNotFoundException());
+        return user.getUserId();
+    }
+    private Long getProjectId(Long memberId) {
+        Optional<Project> optionalProject = memberDao.getSecondaryParent(memberId);
+        Project project = optionalProject
+                .orElseThrow(() -> new EntityNotFoundException());
+        return project.getProjectId();
     }
     @Override
     public MemberDto getWithChildren(Long memberId) {
-        Optional<Member> optionalMember = scheduleDao.getPrimaryParentWithChildren(memberId);
-        Member member = unpackOptionalMember(optionalMember);
-        User user = memberDao.getPrimaryParent(memberId);
-        Long userId = user.getUserId();
-        Project project = memberDao.getSecondaryParent(memberId);
-        Long projectId = project.getProjectId();
+        Optional<Member> optionalMemberWithSchedules = scheduleDao.getPrimaryParentWithChildren(memberId);
+        Member memberWithSchedules =  optionalMemberWithSchedules
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(memberId);
+        Long projectId = getProjectId(memberId);
         MemberDto memberDto =
                 entityDtoMapper.toDto(
-                        member,
+                        memberWithSchedules,
                         userId,
                         projectId);
         return entityDtoMapper
                 .addScheduleDtosToMemberDto(
                         memberDto,
-                        member);
+                        memberWithSchedules);
+    }
+    @Override
+    public MemberDto getWithEvents(Long memberId) {
+        Optional<Member> optionalMemberWithEvents =
+                eventDao.getMemberWithEvents(memberId);
+        Member memberWithEvents =  optionalMemberWithEvents
+                .orElseThrow(() -> new EntityNotFoundException());
+        Long userId = getUserId(memberId);
+        Long projectId = getProjectId(memberId);
+        MemberDto memberDto = entityDtoMapper
+                .toDto(memberWithEvents,
+                        userId,
+                        projectId);
+        return entityDtoMapper
+                .addEventDtosToMemberDto(
+                        memberDto,
+                        memberWithEvents);
     }
     @Override
     public MemberDto update(MemberDto memberDto) {
         Long memberId = memberDto.getMemberId();
-        Optional<Member> optionalMember =
-                memberDao.get(memberId);
-        Member memberToBeModified = unpackOptionalMember(optionalMember);
+        Member memberToBeModified = getMember(memberId);
 
         memberToBeModified = entityDtoMapper
                 .toEntity(memberDto,
                         memberToBeModified);
 
-        User user = memberDao.getPrimaryParent(memberId);
-        Long userId = user.getUserId();
+        Long userId = getUserId(memberId);
         Member updatedMember =
                 memberDao.update(
                         memberToBeModified,
                         userId);
 
-        Project project = memberDao.getSecondaryParent(memberId);
-        Long projectId = project.getProjectId();
+        Long projectId = getProjectId(memberId);
         return entityDtoMapper.toDto(
                 updatedMember,
                 userId,
@@ -107,10 +131,12 @@ public class MemberServiceImpl implements ParentService<MemberDto> {
                              @ProcessAs(ProcessType.MEMBER)
                              ChildWithTwoParentsDao<Member, User, Project> memberDao,
                              @ProcessAs(ProcessType.SCHEDULE)
-                             ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao) {
+                             ChildWithOneRequiredParentDao<Schedule, Member> scheduleDao,
+                             EventDao eventDao) {
         this.entityDtoMapper = entityDtoMapper;
         this.memberDao = memberDao;
         this.scheduleDao = scheduleDao;
+        this.eventDao = eventDao;
     }
     protected MemberServiceImpl() {}
 }
