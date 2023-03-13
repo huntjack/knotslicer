@@ -9,6 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -95,36 +96,34 @@ public class EventDaoImpl implements EventDao {
     }
     @Override
     public Event addMember(Long eventId, Long memberId) {
-        MemberImpl memberWithEvents = getMemberImplWithEventsIfAvailable(memberId);
-        EventImpl eventWithMembers = getEventImplWithMembersIfAvailable(eventId);
+        MemberImpl memberWithEvents = getMemberImplWithEvents(memberId);
+        EventImpl eventWithMembers = getEventImplWithMembers(eventId);
         memberWithEvents.addEvent(eventWithMembers);
         entityManager.flush();
         return eventWithMembers;
     }
-    private MemberImpl getMemberImplWithEventsIfAvailable(Long memberId) {
+    private MemberImpl getMemberImplWithEvents(Long memberId) {
         Optional<Member> optionalMemberWithEvents = getMemberWithEvents(memberId);
         return (MemberImpl) optionalMemberWithEvents
                 .orElseThrow(() -> new EntityNotFoundException());
     }
-    private EventImpl getEventImplWithMembersIfAvailable(Long eventId) {
+    @Override
+    public Optional<Member> getMemberWithEvents(Long memberId) {
+        TypedQuery<MemberImpl> query = entityManager
+                .createNamedQuery("getMemberWithEvents", MemberImpl.class)
+                .setParameter("memberId", memberId);
+        MemberImpl memberImpl = query.getSingleResult();
+        return Optional.ofNullable(memberImpl);
+    }
+    private EventImpl getEventImplWithMembers(Long eventId) {
         Optional<Event> optionalEventWithMembers = getEventWithMembers(eventId);
         return (EventImpl) optionalEventWithMembers
                 .orElseThrow(() -> new EntityNotFoundException());
     }
     @Override
-    public Optional<Member> getMemberWithEvents(Long memberId) {
-        TypedQuery<MemberImpl> query = entityManager.createQuery
-                        ("SELECT m FROM Member m " +
-                                "LEFT JOIN FETCH m.events " +
-                                "WHERE m.memberId = :memberId", MemberImpl.class)
-                .setParameter("memberId", memberId);
-        MemberImpl memberImpl = query.getSingleResult();
-        return Optional.ofNullable(memberImpl);
-    }
-    @Override
     public Optional<Event> getEventWithMembers(Long eventId) {
-        TypedQuery<EventImpl> query = entityManager.createQuery
-                        ("SELECT event FROM Event event " +
+        TypedQuery<EventImpl> query = entityManager
+                .createQuery("SELECT event FROM Event event " +
                                 "LEFT JOIN FETCH event.members " +
                                 "WHERE event.eventId = :eventId", EventImpl.class)
                 .setParameter("eventId", eventId);
@@ -133,10 +132,43 @@ public class EventDaoImpl implements EventDao {
     }
     @Override
     public void removeMember(Long eventId, Long memberId) {
-        MemberImpl memberWithEvents = getMemberImplWithEventsIfAvailable(memberId);
-        EventImpl eventWithMembers = getEventImplWithMembersIfAvailable(eventId);
+        removeMembersPollAnswersFromEvent(eventId, memberId);
+        MemberImpl memberWithEvents = getMemberImplWithEvents(memberId);
+        EventImpl eventWithMembers = getEventImplWithMembers(eventId);
         memberWithEvents.removeEvent(eventWithMembers);
         entityManager.flush();
+    }
+    private void removeMembersPollAnswersFromEvent(Long eventId, Long memberId) {
+        Optional<MemberImpl> optionalMemberWithPollAnswers = getMemberWithPollAnswers(memberId);
+        MemberImpl memberWithPollAnswers =
+                optionalMemberWithPollAnswers.orElseThrow(() -> new EntityNotFoundException());
+        Optional<EventImpl> optionalEventWithPolls = getEventWithPolls(eventId);
+        EventImpl eventWithPolls =
+                optionalEventWithPolls.orElseThrow(() -> new EntityNotFoundException());
+        List<PollImpl> polls = eventWithPolls.getPolls();
+        List<PollAnswerImpl> pollAnswers =
+                new LinkedList<>(memberWithPollAnswers.getPollAnswers());
+        for(PollAnswerImpl pollAnswer: pollAnswers) {
+            if(polls.contains(pollAnswer.getPoll())) {
+                memberWithPollAnswers.removePollAnswer(pollAnswer);
+            }
+        }
+    }
+    private Optional<MemberImpl> getMemberWithPollAnswers(Long memberId) {
+        TypedQuery<MemberImpl> query = entityManager
+                .createQuery("SELECT m FROM Member m " +
+                        "LEFT JOIN FETCH m.pollAnswers " +
+                        "WHERE m.memberId = :memberId", MemberImpl.class)
+                .setParameter("memberId", memberId);
+        MemberImpl memberImpl = query.getSingleResult();
+        return Optional.ofNullable(memberImpl);
+    }
+    private Optional<EventImpl> getEventWithPolls(Long eventId) {
+        TypedQuery<EventImpl> query = entityManager
+                .createNamedQuery("getEventWithPolls", EventImpl.class)
+                .setParameter("eventId", eventId);
+        EventImpl eventImpl = query.getSingleResult();
+        return Optional.ofNullable(eventImpl);
     }
     @Override
     public void delete(Long eventId) {
@@ -152,7 +184,7 @@ public class EventDaoImpl implements EventDao {
         entityManager.flush();
     }
     public Boolean eventContainsMember(Long eventId, Long memberId) {
-        EventImpl eventWithMembers = getEventImplWithMembersIfAvailable(eventId);
+        EventImpl eventWithMembers = getEventImplWithMembers(eventId);
         MemberImpl memberImpl = entityManager
                 .find(MemberImpl.class, memberId);
         Set<MemberImpl> memberImpls = eventWithMembers.getMembers();

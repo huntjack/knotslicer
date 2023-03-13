@@ -6,6 +6,10 @@ import java.util.*;
 
 @Entity(name = "Member")
 @Table(name = "Member")
+@NamedQuery(name = "getMemberWithEvents",
+        query = "SELECT m FROM Member m " +
+                "LEFT JOIN FETCH m.events " +
+                "WHERE m.memberId = :memberId")
 public class MemberImpl implements Member {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

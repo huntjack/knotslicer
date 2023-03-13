@@ -42,10 +42,8 @@ public class PollDaoImpl implements ChildWithOneRequiredParentDao<Poll, Event> {
     }
     @Override
     public Optional<Event> getPrimaryParentWithChildren(Long eventId) {
-        TypedQuery<EventImpl> query = entityManager.createQuery
-                        ("SELECT event FROM Event event " +
-                                "LEFT JOIN FETCH event.polls " +
-                                "WHERE event.eventId = :eventId", EventImpl.class)
+        TypedQuery<EventImpl> query = entityManager
+                .createNamedQuery("getEventWithPolls", EventImpl.class)
                 .setParameter("eventId", eventId);
         Event event = query.getSingleResult();
         return Optional.ofNullable(event);

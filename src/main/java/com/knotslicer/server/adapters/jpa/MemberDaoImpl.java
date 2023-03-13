@@ -11,10 +11,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @ProcessAs(ProcessType.MEMBER)
 @ApplicationScoped
@@ -124,20 +121,30 @@ public class MemberDaoImpl implements ChildWithTwoParentsDao<Member, User, Proje
 
     @Override
     public void delete(Long memberId) {
+        Optional<MemberImpl> optionalMemberWithEvents = getMemberWithEvents(memberId);
+        MemberImpl memberWithEvents = optionalMemberWithEvents
+                .orElseThrow(() -> new EntityNotFoundException());
+        removeMemberFromEvents(memberWithEvents);
         Optional<User> optionalUser = getPrimaryParent(memberId);
         User user = optionalUser
                 .orElseThrow(() -> new EntityNotFoundException());
         Long userId = user.getUserId();
         UserImpl userWithMembers = getUserImplWithMembers(userId);
-        Optional<Member> optionalMember = get(memberId);
-        MemberImpl memberImpl = (MemberImpl) optionalMember
-                .orElseThrow(() -> new EntityNotFoundException());
-        Set<EventImpl> events =
-                new HashSet<>(memberImpl.getEvents());
-        for(EventImpl event: events) {
-            memberImpl.removeEvent(event);
-        }
-        userWithMembers.removeMember(memberImpl);
+        userWithMembers.removeMember(memberWithEvents);
         entityManager.flush();
+    }
+    private Optional<MemberImpl> getMemberWithEvents(Long memberId) {
+        TypedQuery<MemberImpl> query = entityManager
+                .createNamedQuery("getMemberWithEvents", MemberImpl.class)
+                .setParameter("memberId", memberId);
+        MemberImpl memberImpl = query.getSingleResult();
+        return Optional.ofNullable(memberImpl);
+    }
+    private void removeMemberFromEvents(MemberImpl member) {
+        Set<EventImpl> events =
+                new HashSet<>(member.getEvents());
+        for(EventImpl event: events) {
+            member.removeEvent(event);
+        }
     }
 }
