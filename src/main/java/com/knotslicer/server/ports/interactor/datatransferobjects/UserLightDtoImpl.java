@@ -1,5 +1,8 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.LinkedList;
@@ -8,7 +11,11 @@ import java.util.List;
 public class UserLightDtoImpl implements UserLightDto, Serializable {
     private static final long serialVersionUID = 2000L;
     private Long userId;
+    @Size(max=50)
+    @NotBlank
     private String userName;
+    @Size(min=8, max=250)
+    @NotBlank
     private String userDescription;
     private ZoneId timeZone;
     private List<ProjectDto> projects = new LinkedList<>();

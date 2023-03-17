@@ -11,6 +11,7 @@ import com.knotslicer.server.ports.interactor.ProcessType;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -71,7 +72,7 @@ public class PollResourceImpl implements PollResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Override
-    public Response update(PollDto pollRequestDto,
+    public Response update(@Valid PollDto pollRequestDto,
                            @PathParam("pollId") Long pollId,
                            @Context UriInfo uriInfo) {
         pollRequestDto.setPollId(pollId);

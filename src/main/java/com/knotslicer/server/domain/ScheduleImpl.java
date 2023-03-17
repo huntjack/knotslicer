@@ -1,6 +1,8 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -14,7 +16,9 @@ public class ScheduleImpl implements Schedule {
     private Long scheduleId;
     @Column(unique=true, updatable = false, nullable = false)
     private String scheduleBusinessKey;
+    @Future
     private LocalDateTime startTimeUtc;
+    @Future
     private LocalDateTime endTimeUtc;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="memberId")

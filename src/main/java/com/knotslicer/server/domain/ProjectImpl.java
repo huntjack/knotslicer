@@ -1,6 +1,8 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,11 @@ public class ProjectImpl implements Project {
     @Column(unique=true, updatable = false, nullable = false)
     private String projectBusinessKey;
     @Column(unique=true, nullable = false)
+    @Size(max=50)
+    @NotBlank
     private String projectName;
+    @Size(min=8, max=250)
+    @NotBlank
     private String projectDescription;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")

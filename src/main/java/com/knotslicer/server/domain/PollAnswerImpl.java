@@ -1,6 +1,8 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -13,6 +15,7 @@ public class PollAnswerImpl implements PollAnswer {
     private Long pollAnswerId;
     @Column(unique=true, updatable = false, nullable = false)
     private String pollAnswerBusinessKey;
+    @NotNull
     private Boolean approved;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="pollId")

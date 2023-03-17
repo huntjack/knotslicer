@@ -1,6 +1,9 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -18,9 +21,14 @@ public class UserImpl implements User {
     @Column(unique=true, updatable = false, nullable = false)
     private String userBusinessKey;
     @Column(unique=true, nullable = false)
+    @Email
     private String email;
     @Column(unique=true, nullable = false)
+    @Size(max=50)
+    @NotBlank
     private String userName;
+    @Size(min=8, max=250)
+    @NotBlank
     private String userDescription;
     private ZoneId timeZone;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, orphanRemoval = true)

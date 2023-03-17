@@ -1,6 +1,8 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.*;
 
@@ -17,8 +19,14 @@ public class EventImpl implements Event {
     private Long eventId;
     @Column(unique=true, updatable = false, nullable = false)
     private String eventBusinessKey;
+    @Size(max=100)
+    @NotBlank
     private String subject;
+    @Size(max=50)
+    @NotBlank
     private String eventName;
+    @Size(min=8, max=250)
+    @NotBlank
     private String eventDescription;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")
