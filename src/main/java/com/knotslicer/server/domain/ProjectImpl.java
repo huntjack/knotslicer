@@ -9,11 +9,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static jakarta.persistence.GenerationType.SEQUENCE;
+
 @Entity(name = "Project")
 @Table(name = "Project")
 public class ProjectImpl implements Project {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="project_generator", sequenceName = "project_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="project_generator")
     @Column(updatable = false, nullable = false)
     private Long projectId;
     @Column(unique=true, updatable = false, nullable = false)

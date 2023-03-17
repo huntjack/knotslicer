@@ -9,11 +9,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static jakarta.persistence.GenerationType.SEQUENCE;
+
 @Entity(name = "Poll")
 @Table(name = "Poll")
 public class PollImpl implements Poll {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="poll_generator", sequenceName = "poll_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="poll_generator")
     @Column(updatable = false, nullable = false)
     private Long pollId;
     @Column(unique=true, updatable = false, nullable = false)

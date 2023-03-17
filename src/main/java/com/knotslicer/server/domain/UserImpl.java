@@ -11,11 +11,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static jakarta.persistence.GenerationType.SEQUENCE;
+
 @Entity(name = "User")
 @Table(name = "User")
 public class UserImpl implements User {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="user_generator", sequenceName = "user_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="user_generator")
     @Column(updatable = false, nullable = false)
     private Long userId;
     @Column(unique=true, updatable = false, nullable = false)

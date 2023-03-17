@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 
 import java.util.*;
 
+import static jakarta.persistence.GenerationType.SEQUENCE;
+
 @Entity(name = "Event")
 @Table(name = "Event")
 @NamedQuery(name = "getEventWithPolls",
@@ -14,7 +16,8 @@ import java.util.*;
                 "WHERE event.eventId = :eventId")
 public class EventImpl implements Event {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="event_generator", sequenceName = "event_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="event_generator")
     @Column(updatable = false, nullable = false)
     private Long eventId;
     @Column(unique=true, updatable = false, nullable = false)

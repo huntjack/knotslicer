@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 
 import java.util.*;
 
+import static jakarta.persistence.GenerationType.SEQUENCE;
+
 @Entity(name = "Member")
 @Table(name = "Member")
 @NamedQuery(name = "getMemberWithEvents",
@@ -14,7 +16,8 @@ import java.util.*;
                 "WHERE m.memberId = :memberId")
 public class MemberImpl implements Member {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="member_generator", sequenceName = "member_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="member_generator")
     @Column(updatable = false, nullable = false)
     private Long memberId;
     @Column(unique=true, updatable = false, nullable = false)
