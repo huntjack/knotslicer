@@ -1,16 +1,17 @@
 package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
-import com.knotslicer.server.ports.interactor.datatransferobjects.EventMemberDto;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 public interface EventResource {
-    Response create(EventDto eventDto, UriInfo uriInfo);
-    Response get(Long eventId, UriInfo uriInfo);
-    Response getWithChildren(Long eventId, UriInfo uriInfo);
-    Response update(EventDto eventDto,
-                    Long eventId,
+    Response create(@Valid EventDto eventDto, UriInfo uriInfo);
+    Response get(@Positive Long eventId, UriInfo uriInfo);
+    Response getWithChildren(@Positive Long eventId, UriInfo uriInfo);
+    Response update(@Valid EventDto eventDto,
+                    @Positive Long eventId,
                     UriInfo uriInfo);
-    Response delete(Long eventId);
+    Response delete(@Positive Long eventId);
 }

@@ -1,18 +1,23 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.UUID;
+
+import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "PollAnswer")
 @Table(name = "PollAnswer")
 public class PollAnswerImpl implements PollAnswer {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="pollAnswer_generator", sequenceName = "pollAnswer_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="pollAnswer_generator")
     @Column(updatable = false, nullable = false)
     private Long pollAnswerId;
     @Column(unique=true, updatable = false, nullable = false)
     private String pollAnswerBusinessKey;
+    @NotNull
     private Boolean approved;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="pollId")

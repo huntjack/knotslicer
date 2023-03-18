@@ -1,6 +1,8 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 
+import jakarta.validation.constraints.Future;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -10,7 +12,9 @@ public class ScheduleDtoImpl implements ScheduleDto, Serializable {
     private static final long serialVersionUID = 7000L;
     private Long scheduleId;
     private Long memberId;
+    @Future
     private LocalDateTime startTimeUtc;
+    @Future
     private LocalDateTime endTimeUtc;
     private List<Link> links = new LinkedList<>();
     @Override

@@ -1,8 +1,11 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
-
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.util.*;
+
+import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "Event")
 @Table(name = "Event")
@@ -12,13 +15,20 @@ import java.util.*;
                 "WHERE event.eventId = :eventId")
 public class EventImpl implements Event {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="event_generator", sequenceName = "event_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="event_generator")
     @Column(updatable = false, nullable = false)
     private Long eventId;
     @Column(unique=true, updatable = false, nullable = false)
     private String eventBusinessKey;
+    @Size(max=100)
+    @NotBlank
     private String subject;
+    @Size(max=50)
+    @NotBlank
     private String eventName;
+    @Size(min=8, max=250)
+    @NotBlank
     private String eventDescription;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")

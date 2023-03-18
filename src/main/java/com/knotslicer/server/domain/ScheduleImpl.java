@@ -1,20 +1,26 @@
 package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+
+import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "Schedule")
 @Table(name = "Schedule")
 public class ScheduleImpl implements Schedule {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @SequenceGenerator(name="project_generator", sequenceName = "project_sequence", allocationSize=1)
+    @GeneratedValue(strategy=SEQUENCE, generator="project_generator")
     @Column(updatable = false, nullable = false)
     private Long scheduleId;
     @Column(unique=true, updatable = false, nullable = false)
     private String scheduleBusinessKey;
+    @Future
     private LocalDateTime startTimeUtc;
+    @Future
     private LocalDateTime endTimeUtc;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="memberId")
