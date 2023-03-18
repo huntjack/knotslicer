@@ -3,7 +3,6 @@ package com.knotslicer.server.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
 import java.util.*;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;

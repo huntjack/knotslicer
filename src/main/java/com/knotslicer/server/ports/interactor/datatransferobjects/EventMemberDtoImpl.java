@@ -1,12 +1,14 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;
 
 public class EventMemberDtoImpl implements EventMemberDto, Serializable {
     private static final long serialVersionUID = 10000L;
     private Long eventId;
+    @Positive
     private Long memberId;
 
     @Override

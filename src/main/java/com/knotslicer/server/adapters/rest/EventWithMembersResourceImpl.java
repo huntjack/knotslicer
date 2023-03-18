@@ -30,7 +30,7 @@ public class EventWithMembersResourceImpl implements EventWithMembersResource {
     @PATCH
     @Override
     public Response addMember(EventMemberDto eventMemberDto,
-                              @PathParam("eventId")Long eventId) {
+                              @PathParam("eventId") Long eventId) {
         eventMemberDto.setEventId(eventId);
         eventService.addMember(eventMemberDto);
         return Response

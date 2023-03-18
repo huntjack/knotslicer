@@ -50,15 +50,24 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
     }
     private JsonObject createJsonViolation(ConstraintViolation<?> constraint) {
         String message = constraint.getMessage();
-        String propertyPath = constraint
-                .getPropertyPath()
-                .toString()
-                .split("\\.")[2];
-
+        String propertyPath = getPropertyPath(constraint);
         return Json.createObjectBuilder()
                 .add("property", propertyPath)
                 .add("violationMessage", message)
                 .build();
+    }
+    private String getPropertyPath(ConstraintViolation<?> constraint) {
+        String propertyPath;
+        try {
+            propertyPath = constraint
+                    .getPropertyPath()
+                    .toString()
+                    .split("\\.")[2];
+        } catch(ArrayIndexOutOfBoundsException exception) {
+            logger.info("Id property path. ArrayIndexOutOfBoundException caught." , exception);
+            propertyPath = "id";
+        }
+        return propertyPath;
     }
     public ConstraintViolationExceptionMapper(@Context UriInfo uriInfo) {
         this.uriInfo = uriInfo;

@@ -2,21 +2,22 @@ package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.ports.interactor.datatransferobjects.PollAnswerDto;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 public interface PollAnswerResource {
     Response create(@Valid PollAnswerDto pollAnswerRequestDto,
-                    Long pollId,
+                    @Positive Long pollId,
                     UriInfo uriInfo);
-    Response get(Long pollAnswerId,
-                 Long pollId,
+    Response get(@Positive Long pollAnswerId,
+                 @Positive Long pollId,
                  UriInfo uriInfo);
-    Response getParentWithAllChildren(Long pollId,
+    Response getParentWithAllChildren(@Positive Long pollId,
                                       UriInfo uriInfo);
     Response update(@Valid PollAnswerDto pollAnswerDto,
-                    Long pollAnswerId,
-                    Long pollId,
+                    @Positive Long pollAnswerId,
+                    @Positive Long pollId,
                     UriInfo uriInfo);
-    Response delete(Long pollAnswerId);
+    Response delete(@Positive Long pollAnswerId);
 }

@@ -2,7 +2,6 @@ package com.knotslicer.server.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
