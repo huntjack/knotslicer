@@ -9,10 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @ApplicationScoped
 @Transactional(rollbackOn={Exception.class})
@@ -69,7 +66,15 @@ public class EventDaoImpl implements EventDao {
         User user = query.getSingleResult();
         return Optional.ofNullable(user);
     }
-
+    public Optional<Set<Schedule>> getSchedulesOfAllMembersAttendingEvent(Long eventId) {
+        EventImpl event = getEventImplWithMembers(eventId);
+        Set<MemberImpl> members = event.getMembers();
+        Set<Schedule> schedules = new HashSet<>();
+        for(MemberImpl memberImpl: members) {
+            schedules.addAll(memberImpl.getSchedules());
+        }
+        return Optional.ofNullable(schedules);
+    }
     @Override
     public Event update(Event eventInput, Long userId) {
         UserImpl userWithEvents = getUserImplWithEvents(userId);

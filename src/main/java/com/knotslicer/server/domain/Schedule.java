@@ -9,4 +9,5 @@ public interface Schedule {
     void setStartTimeUtc(LocalDateTime startTimeUtc);
     LocalDateTime getEndTimeUtc();
     void setEndTimeUtc(LocalDateTime endTimeUtc);
+    Member getMember();
 }

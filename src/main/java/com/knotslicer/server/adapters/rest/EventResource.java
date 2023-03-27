@@ -10,6 +10,7 @@ public interface EventResource {
     Response create(@Valid EventDto eventDto, UriInfo uriInfo);
     Response get(@Positive Long eventId, UriInfo uriInfo);
     Response getWithChildren(@Positive Long eventId, UriInfo uriInfo);
+    Response findAvailableEventTimes(@Positive Long eventId, UriInfo uriInfo);
     Response update(@Valid EventDto eventDto,
                     @Positive Long eventId,
                     UriInfo uriInfo);

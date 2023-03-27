@@ -9,5 +9,6 @@ public interface EntityCreator {
     Event createEvent();
     Schedule createSchedule();
     Poll createPoll();
+    Poll copyPoll(Poll poll);
     PollAnswer createPollAnswer();
 }
