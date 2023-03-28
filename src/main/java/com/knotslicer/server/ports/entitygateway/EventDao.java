@@ -11,6 +11,7 @@ public interface EventDao extends ChildWithOneRequiredParentDao<Event, User> {
     Event addMember(Long eventId, Long memberId);
     Boolean eventContainsMember(Long eventId, Long memberId);
     Optional<Event> getEventWithMembers(Long eventId);
+    Optional<Set<Member>> getEventsMemberSet(Long eventId);
     Optional<Member> getMemberWithEvents(Long memberId);
     Optional<Set<Schedule>> getSchedulesOfAllMembersAttendingEvent(Long eventId);
     void removeMember(Long eventId, Long memberId);

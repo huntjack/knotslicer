@@ -258,6 +258,9 @@ public class EventServiceTest {
         Set<Schedule> schedules = new HashSet<>();
         schedules.addAll(memberOneImpl.getSchedules());
         schedules.addAll(memberTwoImpl.getSchedules());
+        Set<Member> members = new HashSet<>();
+        members.add(memberOne);
+        members.add(memberTwo);
         Long eventId = event.getEventId();
 
         Mockito.when(
@@ -265,8 +268,8 @@ public class EventServiceTest {
                 .thenReturn(
                         Optional.of(schedules));
         Mockito.when(
-                eventDao.getEventWithMembers(eventId))
-                .thenReturn(Optional.of(event));
+                eventDao.getEventsMemberSet(eventId))
+                .thenReturn(Optional.of(members));
         List<PollDto> pollDtos = eventService.findAvailableEventTimes(event.getEventId());
 
         PollDto pollDtoOne = pollDtos.get(0);

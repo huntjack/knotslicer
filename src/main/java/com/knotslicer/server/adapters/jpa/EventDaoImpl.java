@@ -135,6 +135,17 @@ public class EventDaoImpl implements EventDao {
         EventImpl eventImpl = query.getSingleResult();
         return Optional.ofNullable(eventImpl);
     }
+
+    @Override
+    public Optional<Set<Member>> getEventsMemberSet(Long eventId) {
+        Optional<Event> optionalEvent = getEventWithMembers(eventId);
+        EventImpl eventImpl = (EventImpl) optionalEvent
+                .orElseThrow(() -> new EntityNotFoundException());
+        Set<MemberImpl> memberImpls = eventImpl.getMembers();
+        Set<Member> members = new HashSet<>(memberImpls);
+        return Optional.ofNullable(members);
+    }
+
     @Override
     public void removeMember(Long eventId, Long memberId) {
         removeMembersPollAnswersFromEvent(eventId, memberId);

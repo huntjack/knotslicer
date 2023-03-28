@@ -108,7 +108,8 @@ public class EventServiceImpl implements EventService {
     public List<PollDto> findAvailableEventTimes(Long eventId) {
         logger.debug("findAvailableEventTimes() -> is running");
         Map<Long, Schedule> schedules = getSchedulesMap(eventId);
-        Set<Member> members = getMembersSet(eventId);
+        Optional<Set<Member>> optionalmembers = eventDao.getEventsMemberSet(eventId);
+        Set<Member> members = optionalmembers.orElseThrow(() -> new EntityNotFoundException());
         Set<Poll> solutions = new HashSet<>();
         InteractorCommand interactorCommand = findEventTimesCommandCreator.createFindEventTimesCommand(
                 schedules,
@@ -134,16 +135,16 @@ public class EventServiceImpl implements EventService {
         }
         return schedulesMap;
     }
-    private Set<Member> getMembersSet(Long eventId) {
+    /*private Set<Member> getMembersSet(Long eventId) {
         logger.debug("getMemberSet() -> is running");
         Optional<Event> optionalEvent = eventDao.getEventWithMembers(eventId);
         EventImpl eventImpl = (EventImpl) optionalEvent
                 .orElseThrow(() -> new EntityNotFoundException());
         Set<MemberImpl> memberImpls = eventImpl.getMembers();
-        Set<Member> members = new HashSet<>();
+        Set<Member> members = new HashSet<>(memberImpls);
         members.addAll(memberImpls);
         return members;
-    }
+    }*/
     private List<PollDto> packPollSolutionsIntoPollDtos(Set<Poll> solutions, List<PollDto> pollDtos, Long eventId) {
         for(Poll poll : solutions) {
             logger.debug("Potential Meeting Start Time: " + poll.getStartTimeUtc().toString());
