@@ -6,6 +6,8 @@ import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
+import com.knotslicer.server.ports.interactor.FindEventTimesCommandCreator;
+import com.knotslicer.server.ports.interactor.FindEventTimesCommandCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapperImpl;
@@ -28,6 +30,7 @@ public class EventServiceTest {
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper;
+    private FindEventTimesCommandCreator findEventTimesCommandCreator = new FindEventTimesCommandCreatorImpl();
     @Mock
     private EventDao eventDao;
     @Mock
@@ -49,6 +52,7 @@ public class EventServiceTest {
                 entityDtoMapper,
                 eventDao,
                 pollDao,
+                findEventTimesCommandCreator,
                 entityCreator);
     }
     @Test
@@ -216,11 +220,6 @@ public class EventServiceTest {
     }
     @Test
     public void givenCorrectEventId_whenFindAvailableEventTimes_thenReturnSetOfPolls() {
-        //dummyEvent with two members(two schedules each, one matching)
-        //memberImpl.addSchedule(schedule) x4 + memberImpl.addEvent(event) x2
-        //eventDao.getEventWithMembers(eventId) returns dummyEvent
-        //for each member in Event scheduleDao.getPrimaryParentWithChildren(memberId) -> returns Member with dummySchedules
-
         Event event = entityCreator.createEvent();
         initializeEventFields(event);
         Member memberOne = entityCreator.createMember();
