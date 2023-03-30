@@ -9,11 +9,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class FindEventTimesCommandImpl implements FindEventTimesCommand {
-    private Map<Long, Schedule> schedules;
-    private Set<Member> members;
-    private EntityCreator entityCreator;
-    private Map<Set<Long>, Poll> memo = new HashMap<>();
-    private Set<Poll> solutions = new HashSet<>();
+    private final Map<Long, Schedule> schedules;
+    private final Set<Member> members;
+    private final EntityCreator entityCreator;
+    private final Map<Set<Long>, Poll> memo = new HashMap<>(250);
+    private final Set<Poll> solutions = new HashSet<>();
     private static final Logger logger
             = LoggerFactory.getLogger(FindEventTimesCommandImpl.class);
     public FindEventTimesCommandImpl(Map<Long, Schedule> schedules,
@@ -29,6 +29,7 @@ public class FindEventTimesCommandImpl implements FindEventTimesCommand {
         Set<Long> state = new HashSet<>();
         search(state);
         logger.debug("FindEventTimesCommand.execute() -> root search() call has been completed");
+        logger.debug("memo size:" + memo.size());
         return solutions;
     }
     private void search(Set<Long> state) {
@@ -80,17 +81,20 @@ public class FindEventTimesCommandImpl implements FindEventTimesCommand {
         logger.debug("memberCheck() -> node does not contain all event members");
         return false;
     }
-    private List<Long> getCandidates(Set<Long> state) {
+    private Set<Long> getCandidates(Set<Long> state) {
         logger.debug("getCandidates() is running -> state = " + state);
-        List<Long> candidates = new LinkedList<>();
-        //If state is empty, get all candidates(potential schedules)
         if (state.isEmpty()) {
-            for (Map.Entry<Long, Schedule> mapElement : schedules.entrySet()) {
-                candidates.add(mapElement.getKey());
-            }
-            return candidates;
+            return new HashSet<>(schedules.keySet());
         }
-        //Otherwise, get all candidates that are not in the state and haven't been tried before
+        Set<Long> candidates = addUntriedCandidates(state);
+        logger.debug("Current candidates before pruning: " + candidates);
+        Set<Long> candidatesToBeRemoved = pruneCandidates(state, candidates);
+        candidates.removeAll(candidatesToBeRemoved);
+        logger.debug("getCandidates() -> candidates after pruning: " + candidates);
+        return candidates;
+    }
+    private Set<Long> addUntriedCandidates(Set<Long> state) {
+        Set<Long> candidates = new HashSet<>();
         Set<Long> stateCopy = new HashSet<>(state);
         logger.debug("getCandidates() -> getting candidates that are not in state and haven't been tried before");
         for (Map.Entry<Long, Schedule> mapElement : schedules.entrySet()) {
@@ -102,61 +106,55 @@ public class FindEventTimesCommandImpl implements FindEventTimesCommand {
             }
             stateCopy.remove(scheduleId);
         }
-        logger.debug("Current candidates before pruning: " + candidates);
-        //Prune candidates + save overlap results in memo
+        return candidates;
+    }
+    private Set<Long> pruneCandidates(Set<Long> state, Set<Long> candidates) {
         Set<Long> candidatesToBeRemoved = new HashSet<>();
         for (Long candidate : candidates) {
-            logger.debug("getCandidates() check if state is in memo -> state = " + state + " | candidate = " + candidate);
+            logger.debug("pruneCandidates() check if state is in memo -> state = " + state + " | candidate = " + candidate);
             Schedule candidateSchedule = schedules.get(candidate);
             LocalDateTime candidateStartTime = candidateSchedule.getStartTimeUtc();
             LocalDateTime candidateEndTime = candidateSchedule.getEndTimeUtc();
+            String endOfNoOverlapMessage = ") do not overlap -> pruning candidates and adding invalid node to memo";
+            String endOfOverlapMessage = ") overlap -> adding valid node to memo";
             if (memo.containsKey(state)) {
-                    /*If state's poll is in memo, compare new candidateSchedule with poll for overlaps and save new valid/invalid poll in memo,
-                    otherwise the node only has one schedule and must be compared manually*/
-                logger.debug("getCandidates() state is in memo -> state = " + state);
+                logger.debug("pruneCandidates() state is in memo -> state = " + state);
                 Poll poll = memo.get(state);
                 LocalDateTime stateNodeOverlapStart = poll.getStartTimeUtc();
                 LocalDateTime stateNodeOverlapEnd = poll.getEndTimeUtc();
                 if (!hasOverlap(candidateSchedule, stateNodeOverlapStart, stateNodeOverlapEnd)) {
-                    logger.debug("getCandidates() -> stateNode(" + state + ") and candidate(" + candidate + ") do not overlap");
+                    logger.debug("pruneCandidates() -> stateNode(" + state + ") and candidate(" + candidate + endOfNoOverlapMessage);
                     candidatesToBeRemoved.add(candidate);
-                    //save invalid poll in memo
-                    Set<Long> invalidNode = new HashSet<>();
-                    invalidNode.addAll(state);
+                    Set<Long> invalidNode = new HashSet<>(state);
                     invalidNode.add(candidate);
                     addNodeToMemo(
                             invalidNode,
                             LocalDateTime.MAX,
                             LocalDateTime.MAX);
                 } else {
-                    logger.debug("getCandidates() -> stateNode(" + state + ") and candidateSchedule(" + candidate + ") overlap");
-                    //save valid poll in memo
-                    Set<Long> validNode = new HashSet<>();
-                    validNode.addAll(state);
+                    logger.debug("pruneCandidates() -> stateNode(" + state + ") and candidateSchedule(" + candidate + endOfOverlapMessage);
+                    Set<Long> validNode = new HashSet<>(state);
                     validNode.add(candidate);
-                    //Determine Overlap
                     LocalDateTime candidateNodeOverlapStart =
                             findOverlapStart(candidateStartTime, stateNodeOverlapStart);
                     LocalDateTime candidateNodeOverlapEnd =
                             findOverlapEnd(candidateEndTime, stateNodeOverlapEnd);
                     addNodeToMemo(
                             validNode,
-                            //memo,
                             candidateNodeOverlapStart,
                             candidateNodeOverlapEnd);
                 }
             } else {
-                logger.debug("getCandidates() -> state(" + state + ") is not found in memo -> state has contains only one schedule");
+                logger.debug("pruneCandidates() -> state(" + state + ") is not found in memo -> state has contains only one schedule");
                 for (Long scheduleIdInNode : state) {
-                    logger.debug("getCandidates() comparing candidate(" + candidate + ") and scheduleInNode = " + scheduleIdInNode);
+                    logger.debug("pruneCandidates() comparing candidate(" + candidate + ") and scheduleInNode = " + scheduleIdInNode);
                     Schedule scheduleInNode = schedules.get(scheduleIdInNode);
                     LocalDateTime scheduleInNodeStartTime = scheduleInNode.getStartTimeUtc();
                     LocalDateTime scheduleInNodeEndTime = scheduleInNode.getEndTimeUtc();
                     if (!hasOverlap(candidateSchedule, scheduleInNodeStartTime, scheduleInNodeEndTime)) {
-                        logger.debug("getCandidates() -> nodeSchedule(" + scheduleIdInNode + ") and candidateSchedule(" + candidate +
-                                ") do not overlap -> pruning candidate + adding invalid node to memo");
+                        logger.debug("pruneCandidates() -> nodeSchedule(" + scheduleIdInNode + ") and candidateSchedule(" +
+                                candidate + endOfNoOverlapMessage);
                         candidatesToBeRemoved.add(candidate);
-                        //Add invalidNode to memo
                         Set<Long> invalidNode = new HashSet<>();
                         invalidNode.add(candidate);
                         invalidNode.add(scheduleIdInNode);
@@ -165,13 +163,11 @@ public class FindEventTimesCommandImpl implements FindEventTimesCommand {
                                 LocalDateTime.MAX,
                                 LocalDateTime.MAX);
                     } else {
-                        logger.debug("getCandidates() -> nodeSchedule(" + scheduleIdInNode +") and candidateSchedule(" + candidate +
-                                ") overlap -> adding valid node to memo");
-                        //Add validNode to memo
+                        logger.debug("pruneCandidates() -> nodeSchedule(" + scheduleIdInNode +") and candidateSchedule(" +
+                                        candidate + endOfOverlapMessage);
                         Set<Long> validNode = new HashSet<>();
                         validNode.add(scheduleIdInNode);
                         validNode.add(candidate);
-                        //Determine Overlap
                         LocalDateTime overlapStart =
                                 findOverlapStart(candidateStartTime, scheduleInNodeStartTime);
                         LocalDateTime overlapEnd =
@@ -184,10 +180,7 @@ public class FindEventTimesCommandImpl implements FindEventTimesCommand {
                 }
             }
         }
-        logger.debug("getCandidates() -> candidates.removeAll(candidatesToBeRemoved)");
-        candidates.removeAll(candidatesToBeRemoved);
-        logger.debug("getCandidates() -> candidates after pruning: " + candidates);
-        return candidates;
+        return candidatesToBeRemoved;
     }
     private Boolean hasOverlap(Schedule candidateSchedule, LocalDateTime nodeStartTime, LocalDateTime nodeEndTime) {
         logger.debug("hasOverlap() -> is running");
