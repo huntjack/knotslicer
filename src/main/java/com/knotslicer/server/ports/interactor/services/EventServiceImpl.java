@@ -13,9 +13,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
-
 import java.util.*;
 
 @ApplicationScoped
@@ -110,15 +107,13 @@ public class EventServiceImpl implements EventService {
         Map<Long, Schedule> schedules = getSchedulesMap(eventId);
         Optional<Set<Member>> optionalmembers = eventDao.getEventsMemberSet(eventId);
         Set<Member> members = optionalmembers.orElseThrow(() -> new EntityNotFoundException());
-        Set<Poll> solutions = new HashSet<>();
-        InteractorCommand interactorCommand = findEventTimesCommandCreator.createFindEventTimesCommand(
+        FindEventTimesCommand findEventTimesCommand = findEventTimesCommandCreator.createFindEventTimesCommand(
                 schedules,
                 members,
-                solutions,
                 entityCreator);
-        InteractorCommandInvoker interactorCommandInvoker =
-                findEventTimesCommandCreator.createCommandInvoker(interactorCommand);
-        interactorCommandInvoker.executeCommand();
+        FindEventTimesCommandInvoker findEventTimesCommandInvoker =
+                findEventTimesCommandCreator.createCommandInvoker(findEventTimesCommand);
+        Set<Poll> solutions = findEventTimesCommandInvoker.executeCommand();
         List<PollDto> pollDtos = new LinkedList<>();
         packPollSolutionsIntoPollDtos(solutions, pollDtos, eventId);
         return pollDtos;
@@ -135,16 +130,6 @@ public class EventServiceImpl implements EventService {
         }
         return schedulesMap;
     }
-    /*private Set<Member> getMembersSet(Long eventId) {
-        logger.debug("getMemberSet() -> is running");
-        Optional<Event> optionalEvent = eventDao.getEventWithMembers(eventId);
-        EventImpl eventImpl = (EventImpl) optionalEvent
-                .orElseThrow(() -> new EntityNotFoundException());
-        Set<MemberImpl> memberImpls = eventImpl.getMembers();
-        Set<Member> members = new HashSet<>(memberImpls);
-        members.addAll(memberImpls);
-        return members;
-    }*/
     private List<PollDto> packPollSolutionsIntoPollDtos(Set<Poll> solutions, List<PollDto> pollDtos, Long eventId) {
         for(Poll poll : solutions) {
             logger.debug("Potential Meeting Start Time: " + poll.getStartTimeUtc().toString());
