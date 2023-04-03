@@ -7,12 +7,10 @@
         <jta-data-source>java:global/jdbc/local-mysql</jta-data-source>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
-            <property name="jakarta.persistence.schema-generation.scripts.action" value="create"/>
-            <property name="jakarta.persistence.schema-generation.create-source" value="metadata"/>
-            <property name="jakarta.persistence.schema-generation.scripts.create-target" value="/opt/payara/create.sql"/>
-
             <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
-            <property name="jakarta.persistence.schema-generation.create-script-source" value="/opt/payara/create.sql" />
+            <property name ="jakarta.persistence.schema-generation.create-database-schemas" value="true"/>
+            <property name="jakarta.persistence.schema-generation.scripts.action" value="create"/>
+            <property name="jakarta.persistence.schema-generation.scripts.create-target" value="/opt/payara/create.sql"/>
 
             <property name="eclipselink.logging.level" value="FINEST"/>
             <property name="eclipselink.logging.level.sql" value="FINE"/>
