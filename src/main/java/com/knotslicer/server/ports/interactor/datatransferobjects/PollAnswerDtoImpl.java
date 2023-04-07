@@ -1,6 +1,8 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 
+import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +12,7 @@ public class PollAnswerDtoImpl implements PollAnswerDto, Serializable {
     private Long pollId;
     private Long memberId;
     private Long pollAnswerId;
+    @NotNull
     private Boolean approved;
     private List<Link> links = new LinkedList<>();
     @Override

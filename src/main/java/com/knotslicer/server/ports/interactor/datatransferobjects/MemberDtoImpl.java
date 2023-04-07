@@ -1,6 +1,9 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,8 +13,14 @@ public class MemberDtoImpl implements MemberDto, Serializable {
     private Long userId;
     private Long memberId;
     private Long projectId;
+    @Size(max=50)
+    @NotBlank
     private String name;
+    @Size(max=100)
+    @NotBlank
     private String role;
+    @Size(min=8, max=250)
+    @NotBlank
     private String roleDescription;
     private List<ScheduleDto> schedules = new LinkedList<>();
     private List<EventDto> events = new LinkedList<>();

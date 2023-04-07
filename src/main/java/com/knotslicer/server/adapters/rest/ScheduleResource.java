@@ -1,20 +1,22 @@
 package com.knotslicer.server.adapters.rest;
 
 import com.knotslicer.server.ports.interactor.datatransferobjects.ScheduleDto;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 public interface ScheduleResource {
-    Response create(ScheduleDto scheduleDto,
-                    Long memberId,
+    Response create(@Valid ScheduleDto scheduleDto,
+                    @Positive Long memberId,
                     UriInfo uriInfo);
-    Response get(Long scheduleId,
-                 Long memberId,
+    Response get(@Positive Long scheduleId,
+                 @Positive Long memberId,
                  UriInfo uriInfo);
-    Response getParentWithAllChildren(Long memberId, UriInfo uriInfo);
-    Response update(ScheduleDto scheduleDto,
-                    Long scheduleId,
-                    Long memberId,
+    Response getParentWithAllChildren(@Positive Long memberId, UriInfo uriInfo);
+    Response update(@Valid ScheduleDto scheduleDto,
+                    @Positive Long scheduleId,
+                    @Positive Long memberId,
                    UriInfo uriInfo);
-    Response delete(Long scheduleId);
+    Response delete(@Positive Long scheduleId);
 }

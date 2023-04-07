@@ -1,6 +1,9 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,8 +12,14 @@ public class EventDtoImpl implements EventDto, Serializable {
     private static final long serialVersionUID = 6000L;
     private Long userId;
     private Long eventId;
+    @Size(max=100)
+    @NotBlank
     private String subject;
+    @Size(max=50)
+    @NotBlank
     private String eventName;
+    @Size(min=8, max=250)
+    @NotBlank
     private String eventDescription;
     private List<MemberDto> members = new LinkedList<>();
     private List<PollDto> polls = new LinkedList<>();

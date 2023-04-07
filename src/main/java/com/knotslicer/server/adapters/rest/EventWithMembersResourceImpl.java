@@ -1,6 +1,6 @@
 package com.knotslicer.server.adapters.rest;
 
-import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
+import com.knotslicer.server.adapters.rest.linkgenerator.LinkInvoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
@@ -30,7 +30,7 @@ public class EventWithMembersResourceImpl implements EventWithMembersResource {
     @PATCH
     @Override
     public Response addMember(EventMemberDto eventMemberDto,
-                              @PathParam("eventId")Long eventId) {
+                              @PathParam("eventId") Long eventId) {
         eventMemberDto.setEventId(eventId);
         eventService.addMember(eventMemberDto);
         return Response
@@ -54,9 +54,9 @@ public class EventWithMembersResourceImpl implements EventWithMembersResource {
                 .build();
     }
     private URI addLinks(LinkCommand<EventDto> linkCommand) {
-        Invoker invoker =
-                eventWithMembersLinkCreator.createInvoker(linkCommand);
-        return invoker.executeCommand();
+        LinkInvoker linkInvoker =
+                eventWithMembersLinkCreator.createLinkInvoker(linkCommand);
+        return linkInvoker.executeCommand();
     }
     @DELETE
     @Path("/{memberId}")

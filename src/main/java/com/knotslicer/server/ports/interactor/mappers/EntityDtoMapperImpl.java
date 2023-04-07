@@ -21,6 +21,7 @@ public class EntityDtoMapperImpl implements EntityDtoMapper {
     private DtoCreator dtoCreator;
     private ChildWithTwoParentsDao<Member, User, Project> memberDao;
     private ChildWithTwoParentsDao<PollAnswer, Poll, Member> pollAnswerDao;
+
     @Override
     public UserLightDto toDto(User userInput) {
         UserLightDto userLightDto = dtoCreator.createUserLightDto();

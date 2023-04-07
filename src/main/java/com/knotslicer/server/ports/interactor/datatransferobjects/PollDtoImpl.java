@@ -1,5 +1,7 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
+import jakarta.validation.constraints.Future;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -9,7 +11,9 @@ public class PollDtoImpl implements PollDto, Serializable {
     private static final long serialVersionUID = 8000L;
     private Long eventId;
     private Long pollId;
+    @Future
     private LocalDateTime startTimeUtc;
+    @Future
     private LocalDateTime endTimeUtc;
     private List<PollAnswerDto> pollAnswers = new LinkedList<>();
     private List<Link> links = new LinkedList<>();

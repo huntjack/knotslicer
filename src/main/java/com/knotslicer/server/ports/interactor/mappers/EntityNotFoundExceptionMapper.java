@@ -21,8 +21,9 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
     @Override
     @Produces(MediaType.APPLICATION_JSON)
     public Response toResponse(EntityNotFoundException exception) {
-        logger.error("Entity could not be found.", exception);
-        ErrorDto errorDto = errorDtoFactory.createErrorDto(404, exception.getMessage());
+        String genericMessage = "Entity could not be found.";
+        logger.error(genericMessage, exception);
+        ErrorDto errorDto = errorDtoFactory.createErrorDto(404, genericMessage);
         return Response.status(Response.Status.NOT_FOUND)
                 .entity(errorDto)
                 .build();
@@ -31,5 +32,5 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
     public EntityNotFoundExceptionMapper(ErrorDtoFactory errorDtoFactory) {
         this.errorDtoFactory = errorDtoFactory;
     }
-    public EntityNotFoundExceptionMapper(){}
+    protected EntityNotFoundExceptionMapper(){}
 }

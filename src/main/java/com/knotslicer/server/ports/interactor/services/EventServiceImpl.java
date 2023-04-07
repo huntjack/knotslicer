@@ -1,26 +1,29 @@
 package com.knotslicer.server.ports.interactor.services;
 
-import com.knotslicer.server.domain.Event;
-import com.knotslicer.server.domain.Poll;
-import com.knotslicer.server.domain.User;
+import com.knotslicer.server.domain.*;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
 import com.knotslicer.server.ports.entitygateway.EventDao;
-import com.knotslicer.server.ports.interactor.ProcessAs;
-import com.knotslicer.server.ports.interactor.ProcessType;
+import com.knotslicer.server.ports.interactor.*;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventMemberDto;
+import com.knotslicer.server.ports.interactor.datatransferobjects.PollDto;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.*;
 
 @ApplicationScoped
 public class EventServiceImpl implements EventService {
+    private static final Logger logger
+            = LoggerFactory.getLogger(EventServiceImpl.class);
     private EntityDtoMapper entityDtoMapper;
     private EventDao eventDao;
     private ChildWithOneRequiredParentDao<Poll, Event> pollDao;
+    private FindEventTimesCommandCreator findEventTimesCommandCreator;
+    private EntityCreator entityCreator;
 
     @Override
     public EventDto create(EventDto eventDto) {
@@ -99,6 +102,46 @@ public class EventServiceImpl implements EventService {
         eventDao.removeMember(eventId, memberId);
     }
     @Override
+    public List<PollDto> findAvailableEventTimes(Long eventId, Long minimumMeetingTimeInMinutes) {
+        logger.debug("findAvailableEventTimes() -> is running");
+        Map<Long, Schedule> schedules = getSchedulesMap(eventId);
+        Optional<Set<Member>> optionalmembers = eventDao.getEventsMemberSet(eventId);
+        Set<Member> members = optionalmembers.orElseThrow(() -> new EntityNotFoundException());
+        FindEventTimesCommand findEventTimesCommand = findEventTimesCommandCreator.createFindEventTimesCommand(
+                schedules,
+                members,
+                minimumMeetingTimeInMinutes,
+                entityCreator);
+        FindEventTimesCommandInvoker findEventTimesCommandInvoker =
+                findEventTimesCommandCreator.createCommandInvoker(findEventTimesCommand);
+        Set<Poll> solutions = findEventTimesCommandInvoker.executeCommand();
+        List<PollDto> pollDtos = new LinkedList<>();
+        packPollSolutionsIntoPollDtos(solutions, pollDtos, eventId);
+        return pollDtos;
+    }
+    private Map<Long, Schedule> getSchedulesMap(Long eventId) {
+        logger.debug("getSchedulesMap() -> is running");
+        Optional<Set<Schedule>> optionalSchedulesOfMembers =
+                eventDao.getSchedulesOfAllMembersAttendingEvent(eventId);
+        Set<Schedule> schedulesOfMembers = optionalSchedulesOfMembers
+                .orElseThrow(() -> new EntityNotFoundException());
+        Map<Long, Schedule> schedulesMap = new HashMap<>();
+        for(Schedule schedule : schedulesOfMembers) {
+            schedulesMap.put(schedule.getScheduleId(), schedule);
+        }
+        return schedulesMap;
+    }
+    private List<PollDto> packPollSolutionsIntoPollDtos(Set<Poll> solutions, List<PollDto> pollDtos, Long eventId) {
+        for(Poll poll : solutions) {
+            logger.debug("Potential Meeting Start Time: " + poll.getStartTimeUtc().toString());
+            logger.debug("Potential Meeting End Time: " + poll.getEndTimeUtc().toString());
+            PollDto pollDto = entityDtoMapper.toDto(poll, eventId);
+            pollDtos.add(pollDto);
+        }
+        return pollDtos;
+    }
+
+    @Override
     public void delete(Long eventId) {
         eventDao.delete(eventId);
     }
@@ -106,10 +149,14 @@ public class EventServiceImpl implements EventService {
     public EventServiceImpl(EntityDtoMapper entityDtoMapper,
                             EventDao eventDao,
                             @ProcessAs(ProcessType.POLL)
-                            ChildWithOneRequiredParentDao<Poll, Event> pollDao) {
+                            ChildWithOneRequiredParentDao<Poll, Event> pollDao,
+                            FindEventTimesCommandCreator findEventTimesCommandCreator,
+                            EntityCreator entityCreator) {
         this.entityDtoMapper = entityDtoMapper;
         this.eventDao = eventDao;
         this.pollDao = pollDao;
+        this.findEventTimesCommandCreator = findEventTimesCommandCreator;
+        this.entityCreator = entityCreator;
     }
     protected EventServiceImpl() {}
 }
