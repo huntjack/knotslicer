@@ -262,6 +262,7 @@ public class EventServiceTest {
         members.add(memberOne);
         members.add(memberTwo);
         Long eventId = event.getEventId();
+        Long minimumMeetingTimeInMinutes = 15L;
 
         Mockito.when(
                 eventDao.getSchedulesOfAllMembersAttendingEvent(eventId))
@@ -270,7 +271,7 @@ public class EventServiceTest {
         Mockito.when(
                 eventDao.getEventsMemberSet(eventId))
                 .thenReturn(Optional.of(members));
-        List<PollDto> pollDtos = eventService.findAvailableEventTimes(event.getEventId());
+        List<PollDto> pollDtos = eventService.findAvailableEventTimes(event.getEventId(), minimumMeetingTimeInMinutes);
 
         PollDto pollDtoOne = pollDtos.get(0);
         LocalDateTime expectedStartTime = LocalDateTime.of(2024, Month.DECEMBER, 27, 16, 0);

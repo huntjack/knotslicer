@@ -11,6 +11,7 @@ import java.util.*;
 public class FindEventTimesCommandImpl implements FindEventTimesCommand {
     private final Map<Long, Schedule> schedules;
     private final Set<Member> members;
+    private final Long minimumMeetingTimeInMinutes;
     private final EntityCreator entityCreator;
     private final Map<Set<Long>, Poll> memo = new HashMap<>(250);
     private final Set<Poll> solutions = new HashSet<>();
@@ -18,9 +19,11 @@ public class FindEventTimesCommandImpl implements FindEventTimesCommand {
             = LoggerFactory.getLogger(FindEventTimesCommandImpl.class);
     public FindEventTimesCommandImpl(Map<Long, Schedule> schedules,
                                      Set<Member> members,
+                                     Long minimumMeetingTimeInMinutes,
                                      EntityCreator entityCreator) {
         this.schedules = schedules;
         this.members = members;
+        this.minimumMeetingTimeInMinutes = minimumMeetingTimeInMinutes;
         this.entityCreator = entityCreator;
     }
 
@@ -186,10 +189,13 @@ public class FindEventTimesCommandImpl implements FindEventTimesCommand {
         logger.debug("hasOverlap() -> is running");
         LocalDateTime candidateStartTime = candidateSchedule.getStartTimeUtc();
         LocalDateTime candidateEndTime = candidateSchedule.getEndTimeUtc();
+        LocalDateTime overlapStart = findOverlapStart(candidateStartTime, nodeStartTime);
+        LocalDateTime overlapEnd = findOverlapEnd(candidateEndTime, nodeEndTime);
         if(candidateStartTime.isBefore(
-                nodeEndTime.minusMinutes(15L)) &&
+                nodeEndTime.minusMinutes(10L)) &&
                 candidateEndTime.isAfter(
-                        nodeStartTime.plusMinutes(15L))) {
+                        nodeStartTime.plusMinutes(10L)) &&
+                overlapEnd.isAfter(overlapStart.plusMinutes(minimumMeetingTimeInMinutes))) {
             logger.debug("hasOverlap() -> candidate and node overlap");
             return true;
         } else {

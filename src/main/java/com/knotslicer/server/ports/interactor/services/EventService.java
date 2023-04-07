@@ -9,5 +9,5 @@ public interface EventService extends ParentService<EventDto> {
     EventDto getWithMembers(Long eventId);
     void addMember(EventMemberDto eventMemberDto);
     void removeMember(Long eventId, Long memberId);
-    List<PollDto> findAvailableEventTimes(Long eventId);
+    List<PollDto> findAvailableEventTimes(Long eventId, Long minimumMeetingTimeInMinutes);
 }

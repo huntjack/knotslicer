@@ -102,7 +102,7 @@ public class EventServiceImpl implements EventService {
         eventDao.removeMember(eventId, memberId);
     }
     @Override
-    public List<PollDto> findAvailableEventTimes(Long eventId) {
+    public List<PollDto> findAvailableEventTimes(Long eventId, Long minimumMeetingTimeInMinutes) {
         logger.debug("findAvailableEventTimes() -> is running");
         Map<Long, Schedule> schedules = getSchedulesMap(eventId);
         Optional<Set<Member>> optionalmembers = eventDao.getEventsMemberSet(eventId);
@@ -110,6 +110,7 @@ public class EventServiceImpl implements EventService {
         FindEventTimesCommand findEventTimesCommand = findEventTimesCommandCreator.createFindEventTimesCommand(
                 schedules,
                 members,
+                minimumMeetingTimeInMinutes,
                 entityCreator);
         FindEventTimesCommandInvoker findEventTimesCommandInvoker =
                 findEventTimesCommandCreator.createCommandInvoker(findEventTimesCommand);

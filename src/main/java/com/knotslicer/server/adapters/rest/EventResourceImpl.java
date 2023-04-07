@@ -91,8 +91,9 @@ public class EventResourceImpl implements EventResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response findAvailableEventTimes(@PathParam("eventId") Long eventId,
+                                    @QueryParam("minimum") Long minimumMeetingTimeInMinutes,
                                     @Context UriInfo uriInfo) {
-        List<PollDto> availableEventTimes = eventService.findAvailableEventTimes(eventId);
+        List<PollDto> availableEventTimes = eventService.findAvailableEventTimes(eventId, minimumMeetingTimeInMinutes);
         GenericEntity<List<PollDto>> pollDtos = new GenericEntity<>(availableEventTimes){};
         return Response.ok()
                 .entity(pollDtos)

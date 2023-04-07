@@ -11,8 +11,9 @@ public class FindEventTimesCommandCreatorImpl implements FindEventTimesCommandCr
     @Override
     public FindEventTimesCommand createFindEventTimesCommand(Map<Long, Schedule> schedules,
                                                              Set<Member> members,
+                                                             Long minimumMeetingTimeInMinutes,
                                                              EntityCreator entityCreator) {
-        return new FindEventTimesCommandImpl(schedules, members, entityCreator);
+        return new FindEventTimesCommandImpl(schedules, members, minimumMeetingTimeInMinutes, entityCreator);
     }
     @Override
     public FindEventTimesCommandInvoker createCommandInvoker(FindEventTimesCommand findEventTimesCommand) {

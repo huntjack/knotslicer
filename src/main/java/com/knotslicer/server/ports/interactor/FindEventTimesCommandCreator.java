@@ -8,6 +8,7 @@ import java.util.Set;
 public interface FindEventTimesCommandCreator {
     FindEventTimesCommand createFindEventTimesCommand(Map<Long, Schedule> schedules,
                                                       Set<Member> members,
+                                                      Long minimumMeetingTimeInMinutes,
                                                       EntityCreator entityCreator);
     FindEventTimesCommandInvoker createCommandInvoker(FindEventTimesCommand findEventTimesCommand);
 }
