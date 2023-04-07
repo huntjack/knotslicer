@@ -1,6 +1,6 @@
 package com.knotslicer.server.adapters.rest;
 
-import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
+import com.knotslicer.server.adapters.rest.linkgenerator.LinkInvoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
@@ -46,9 +46,9 @@ public class UserResourceImpl implements UserResource {
                 .build();
     }
     private URI addLinks(LinkCommand<UserLightDto> linkCommand) {
-        Invoker invoker =
-                linkCreator.createInvoker(linkCommand);
-        return invoker.executeCommand();
+        LinkInvoker linkInvoker =
+                linkCreator.createLinkInvoker(linkCommand);
+        return linkInvoker.executeCommand();
     }
     @GET
     @Path("/{userId}")

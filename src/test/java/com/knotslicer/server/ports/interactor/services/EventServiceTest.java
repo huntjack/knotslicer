@@ -6,6 +6,8 @@ import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.entitygateway.EventDao;
 import com.knotslicer.server.ports.interactor.EntityCreator;
 import com.knotslicer.server.ports.interactor.EntityCreatorImpl;
+import com.knotslicer.server.ports.interactor.FindEventTimesCommandCreator;
+import com.knotslicer.server.ports.interactor.FindEventTimesCommandCreatorImpl;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapper;
 import com.knotslicer.server.ports.interactor.mappers.EntityDtoMapperImpl;
@@ -18,8 +20,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -29,6 +30,7 @@ public class EventServiceTest {
     private EntityCreator entityCreator = new EntityCreatorImpl();
     private DtoCreator dtoCreator = new DtoCreatorImpl();
     private EntityDtoMapper entityDtoMapper;
+    private FindEventTimesCommandCreator findEventTimesCommandCreator = new FindEventTimesCommandCreatorImpl();
     @Mock
     private EventDao eventDao;
     @Mock
@@ -49,7 +51,9 @@ public class EventServiceTest {
         eventService = new EventServiceImpl(
                 entityDtoMapper,
                 eventDao,
-                pollDao);
+                pollDao,
+                findEventTimesCommandCreator,
+                entityCreator);
     }
     @Test
     public void givenCorrectEventId_whenGetWithChildren_thenReturnEventDtoWithPollDtos() {
@@ -137,20 +141,14 @@ public class EventServiceTest {
         Event event = entityCreator.createEvent();
         initializeEventFields(event);
         Member memberOne = entityCreator.createMember();
-        memberOne.setMemberId(1L);
-        memberOne.setName("memberOne Name");
-        memberOne.setRole("memberOne Role");
-        memberOne.setRoleDescription("memberOne Role Description");
+        initializeMemberFields(memberOne, 1L, "One");
         EventImpl eventImpl = (EventImpl) event;
         MemberImpl memberOneImpl = (MemberImpl) memberOne;
         memberOneImpl.addEvent(eventImpl);
         User userTwo = entityCreator.createUser();
         userTwo.setUserId(2L);
         Member memberTwo = entityCreator.createMember();
-        memberTwo.setMemberId(2L);
-        memberTwo.setName("memberTwo Name");
-        memberTwo.setRole("memberTwo Role");
-        memberTwo.setRoleDescription("memberTwo Role Description");
+        initializeMemberFields(memberTwo, 2L, "Two");
         MemberImpl memberTwoImpl = (MemberImpl) memberTwo;
         memberTwoImpl.addEvent(eventImpl);
 
@@ -197,6 +195,12 @@ public class EventServiceTest {
             }
         }
     }
+    private void initializeMemberFields(Member member, Long memberId, String memberNumber) {
+        member.setMemberId(memberId);
+        member.setName("member" + memberNumber + " Name");
+        member.setRole("member" + memberNumber + " Role");
+        member.setRoleDescription("member" + memberNumber + " Role Description");
+    }
     private void checkMemberDto(Member member, MemberDto memberDto, Long userId, Long projectId) {
         assertAll(
                 "MemberDto should have the correct field values.",
@@ -213,6 +217,67 @@ public class EventServiceTest {
                 () -> assertEquals(member.getRoleDescription(),
                         memberDto.getRoleDescription())
         );
+    }
+    @Test
+    public void givenCorrectEventId_whenFindAvailableEventTimes_thenReturnSetOfPolls() {
+        Event event = entityCreator.createEvent();
+        initializeEventFields(event);
+        Member memberOne = entityCreator.createMember();
+        initializeMemberFields(memberOne, 1L, "One");
+        Schedule scheduleOne = entityCreator.createSchedule();
+        scheduleOne.setScheduleId(1L);
+        scheduleOne.setStartTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 27, 16, 0));
+        scheduleOne.setEndTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 27, 21, 0));
+        Schedule scheduleTwo = entityCreator.createSchedule();
+        scheduleTwo.setScheduleId(2L);
+        scheduleTwo.setStartTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 28, 18, 0));
+        scheduleTwo.setEndTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 28, 22, 0));
+        MemberImpl memberOneImpl = (MemberImpl) memberOne;
+        ScheduleImpl scheduleOneImpl = (ScheduleImpl) scheduleOne;
+        memberOneImpl.addSchedule(scheduleOneImpl);
+        ScheduleImpl scheduleTwoImpl = (ScheduleImpl) scheduleTwo;
+        memberOneImpl.addSchedule(scheduleTwoImpl);
+        EventImpl eventImpl = (EventImpl) event;
+        memberOneImpl.addEvent(eventImpl);
+        Member memberTwo = entityCreator.createMember();
+        initializeMemberFields(memberTwo, 2L, "Two");
+        Schedule scheduleThree = entityCreator.createSchedule();
+        scheduleThree.setScheduleId(3L);
+        scheduleThree.setStartTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 27, 14, 0));
+        scheduleThree.setEndTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 27, 18, 0));
+        Schedule scheduleFour = entityCreator.createSchedule();
+        scheduleFour.setScheduleId(4L);
+        scheduleFour.setStartTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 28, 14, 0));
+        scheduleFour.setEndTimeUtc(LocalDateTime.of(2024, Month.DECEMBER, 28, 18, 0));
+        MemberImpl memberTwoImpl = (MemberImpl) memberTwo;
+        ScheduleImpl scheduleThreeImpl = (ScheduleImpl) scheduleThree;
+        memberTwoImpl.addSchedule(scheduleThreeImpl);
+        ScheduleImpl scheduleFourImpl = (ScheduleImpl) scheduleFour;
+        memberTwoImpl.addSchedule(scheduleFourImpl);
+        memberTwoImpl.addEvent(eventImpl);
+        Set<Schedule> schedules = new HashSet<>();
+        schedules.addAll(memberOneImpl.getSchedules());
+        schedules.addAll(memberTwoImpl.getSchedules());
+        Set<Member> members = new HashSet<>();
+        members.add(memberOne);
+        members.add(memberTwo);
+        Long eventId = event.getEventId();
+        Long minimumMeetingTimeInMinutes = 15L;
+
+        Mockito.when(
+                eventDao.getSchedulesOfAllMembersAttendingEvent(eventId))
+                .thenReturn(
+                        Optional.of(schedules));
+        Mockito.when(
+                eventDao.getEventsMemberSet(eventId))
+                .thenReturn(Optional.of(members));
+        List<PollDto> pollDtos = eventService.findAvailableEventTimes(event.getEventId(), minimumMeetingTimeInMinutes);
+
+        PollDto pollDtoOne = pollDtos.get(0);
+        LocalDateTime expectedStartTime = LocalDateTime.of(2024, Month.DECEMBER, 27, 16, 0);
+        LocalDateTime expectedEndTime = LocalDateTime.of(2024, Month.DECEMBER, 27, 18, 0);
+        assertEquals(expectedStartTime, pollDtoOne.getStartTimeUtc());
+        assertEquals(expectedEndTime, pollDtoOne.getEndTimeUtc());
     }
     @AfterEach
     public void shutdown() throws Exception {

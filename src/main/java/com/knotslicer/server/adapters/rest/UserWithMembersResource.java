@@ -1,6 +1,6 @@
 package com.knotslicer.server.adapters.rest;
 
-import com.knotslicer.server.adapters.rest.linkgenerator.Invoker;
+import com.knotslicer.server.adapters.rest.linkgenerator.LinkInvoker;
 import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.ports.interactor.WithChildren;
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkCommand;
@@ -48,9 +48,9 @@ public class UserWithMembersResource implements UserWithChildrenResource {
                 .build();
     }
     private URI addLinks(LinkCommand<UserLightDto> linkCommand) {
-        Invoker invoker =
-                userWithMembersLinkCreator.createInvoker(linkCommand);
-        return invoker.executeCommand();
+        LinkInvoker linkInvoker =
+                userWithMembersLinkCreator.createLinkInvoker(linkCommand);
+        return linkInvoker.executeCommand();
     }
     @Inject
     public UserWithMembersResource (@ProcessAs(ProcessType.USER) @WithChildren(ProcessType.MEMBER)

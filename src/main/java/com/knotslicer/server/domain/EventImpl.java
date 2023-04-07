@@ -34,7 +34,7 @@ public class EventImpl implements Event {
     @JoinColumn(name="userId")
     private UserImpl user;
     @ManyToMany
-    @JoinTable(name = "event_member",
+    @JoinTable(name = "Event_Member",
                 joinColumns = {@JoinColumn(name = "eventId")},
                 inverseJoinColumns = {@JoinColumn(name = "memberId")})
     private Set<MemberImpl> members = new HashSet<>();

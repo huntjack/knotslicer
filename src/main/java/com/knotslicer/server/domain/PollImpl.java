@@ -58,7 +58,14 @@ public class PollImpl implements Poll {
     }
 
     public PollImpl() {this.pollBusinessKey = UUID.randomUUID().toString();}
-
+    public PollImpl(PollImpl pollImpl) {
+        this.pollId = pollImpl.getPollId();
+        this.pollBusinessKey = pollImpl.getPollBusinessKey();
+        this.startTimeUtc = pollImpl.getStartTimeUtc();
+        this.endTimeUtc = pollImpl.getEndTimeUtc();
+        this.event = pollImpl.getEvent();
+        this.pollAnswers = pollImpl.getPollAnswers();
+    }
     @Override
     public Long getPollId() {return pollId;}
     @Override

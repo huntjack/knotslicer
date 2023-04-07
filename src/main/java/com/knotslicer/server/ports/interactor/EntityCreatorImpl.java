@@ -23,6 +23,10 @@ public class EntityCreatorImpl implements EntityCreator {
     public Poll createPoll() {
         return new PollImpl();
     }
+    public Poll copyPoll(Poll poll) {
+        PollImpl pollImpl = (PollImpl) poll;
+        return new PollImpl(pollImpl);
+    }
     @Override
     public PollAnswer createPollAnswer() {
         return new PollAnswerImpl();

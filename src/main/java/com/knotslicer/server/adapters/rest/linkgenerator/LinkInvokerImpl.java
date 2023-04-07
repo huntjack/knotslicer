@@ -4,9 +4,9 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcommands.LinkComman
 
 import java.net.URI;
 
-public class InvokerImpl implements Invoker {
+public class LinkInvokerImpl implements LinkInvoker {
     private LinkCommand<?> linkCommand;
-    public InvokerImpl(LinkCommand<?> linkCommand) {
+    public LinkInvokerImpl(LinkCommand<?> linkCommand) {
         this.linkCommand = linkCommand;
     }
     @Override
