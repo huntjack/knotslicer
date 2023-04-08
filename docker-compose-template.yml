@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0.31-debian
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_DATABASE=knotslicer_database
+      - MYSQL_USER=knotslicer
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_PASSWORD=
+  knotslicer:
+    image: knotslicer:1.0
+    ports:
+      - 8080:8080
+    environment:
+      - DB_USER=knotslicer
+      - DB_PASSWORD=
+      - DB_JDBC_URL=jdbc:mysql://mysql:3306/knotslicer_database
+    depends_on:
+      - "mysql"
