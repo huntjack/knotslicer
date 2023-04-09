@@ -48,8 +48,8 @@ When performing a PATCH request, do not omit or set any values to null, unless y
 to this rule would be the key-value pairs that are included in the note section below each request body template.
 
 ### User
-User POST URI Template: `http://localhost:8080/users`
-User GET/PATCH/DELETE URI Template: `http://localhost:8080/users/{userId}`
+User POST URI Template: `http://localhost:8080/users` <br>
+User GET/PATCH/DELETE URI Template: `http://localhost:8080/users/{userId}` <br>
 User Request Body Template:
 
 ```
@@ -63,18 +63,18 @@ User Request Body Template:
 
 Note: For PATCH requests, you should omit the "email" key-value pair.
 
-User's Projects URI Template: `http://localhost:8080/users/{userId}/projects`
+User's Projects URI Template: `http://localhost:8080/users/{userId}/projects` <br>
 HTTP Request Method: GET
 
-User's Events URI Template: `http://localhost:8080/users/{userId}/events`
+User's Events URI Template: `http://localhost:8080/users/{userId}/events` <br>
 HTTP Request Method: GET
 
-User's Members URI Template: `http://localhost:8080/users/{userId}/members`
+User's Members URI Template: `http://localhost:8080/users/{userId}/members` <br>
 HTTP Request Method: GET
 
 ### Project
-Project POST URI Template: `http://localhost:8080/projects`
-Project GET/PATCH/DELETE URI Template: `http://localhost:8080/projects/{projectId}` 
+Project POST URI Template: `http://localhost:8080/projects` <br>
+Project GET/PATCH/DELETE URI Template: `http://localhost:8080/projects/{projectId}` <br> 
 Project Reqest Body Template:
 
 ```
@@ -88,12 +88,12 @@ Project Reqest Body Template:
 Note: The "userId" key-value pair represents the user that owns the project. It should be omitted for PATCH requests. Projects ownership 
 cannot be transferred at this time. If you wish to change the owner of a project, you can simply recreate the project in the meantime.
 
-Project's Members URI Template: `http://localhost:8080/projects/{projectId}/members`
+Project's Members URI Template: `http://localhost:8080/projects/{projectId}/members` <br>
 HTTP Request Method: GET
 
 ### Member
-Member POST URI Template: `http://localhost:8080/members`
-Member GET/PATCH/DELETE URI Template: `http://localhost:8080/members/{memberId}`
+Member POST URI Template: `http://localhost:8080/members` <br>
+Member GET/PATCH/DELETE URI Template: `http://localhost:8080/members/{memberId}` <br>
 Member Request Body Template:
 
 ```
@@ -109,15 +109,15 @@ Member Request Body Template:
 Note: The "userId" key-value pair represents the user that owns the member. The "projectId" key-value pair represents that project that the member belongs to. 
 Both of these key-value pairs should be omitted for Patch Requests.
 
-Member's Schedules URI Template: `http://localhost:8080/members/{memberId}/schedules`
+Member's Schedules URI Template: `http://localhost:8080/members/{memberId}/schedules` <br>
 HTTP Request Method: GET
 
-Member's Events URI Template: `http://localhost:8080/members/{memberId}/events`
+Member's Events URI Template: `http://localhost:8080/members/{memberId}/events` <br>
 HTTP Request Method: GET
 
 ### Schedule
-Schedule POST URI Template: `http://localhost:8080/members/{memberId}/schedules`
-Schedule GET/PATCH/DELETE URI Template: `http://localhost:8080/members/{memberId}/schedules/{scheduleId}`
+Schedule POST URI Template: `http://localhost:8080/members/{memberId}/schedules` <br>
+Schedule GET/PATCH/DELETE URI Template: `http://localhost:8080/members/{memberId}/schedules/{scheduleId}` <br>
 Schedule Request Body Template:
  
 ```
@@ -128,8 +128,8 @@ Schedule Request Body Template:
 ```
 
 ### Event
-Event POST URI Template: `http://localhost:8080/events`
-Event GET/PATCH/DELETE URI Template: `http://localhost:8080/events/{eventId}`
+Event POST URI Template: `http://localhost:8080/events` <br>
+Event GET/PATCH/DELETE URI Template: `http://localhost:8080/events/{eventId}` <br>
 Event Request Body Template:
  
 ```
@@ -143,8 +143,8 @@ Event Request Body Template:
 
 Note: The "userId" key-value pair represents that event owner. It should be omitted for PATCH requests.
 
-Add Member to Event URI Template: `http://localhost:8080/events/{eventId}/members`
-HTTP Request Method: PATCH
+Add Member to Event URI Template: `http://localhost:8080/events/{eventId}/members` <br>
+HTTP Request Method: PATCH <br>
 Add Member Request Body Template:
  
 ```
@@ -153,23 +153,23 @@ Add Member Request Body Template:
 }
 ```
 
-Remove Member from Event URI Template: `http://localhost:8080/events/{eventId}/members/{memberId}`
+Remove Member from Event URI Template: `http://localhost:8080/events/{eventId}/members/{memberId}` <br>
 HTTP Request Method: DELETE
 
-Event's Polls URI Template: `http://localhost:8080/events/{eventId}/polls`
+Event's Polls URI Template: `http://localhost:8080/events/{eventId}/polls` <br>
 HTTP Request Method: GET
 
-Event's Members URI Template: `http://localhost:8080/events/{eventId}/members`
+Event's Members URI Template: `http://localhost:8080/events/{eventId}/members` <br>
 HTTP Request Method: GET
 
-Available Event Times URI Template: `http://localhost:8080/events/{eventId}/availabletimes?minimum={minimum-meeting-time-in-minutes}`
-Client Side Default Minimum Value: 15
-Server Side Maximum Minimum Value: 960
+Available Event Times URI Template: `http://localhost:8080/events/{eventId}/availabletimes?minimum={minimum-meeting-time-in-minutes}` <br>
+Client Side Default Minimum Value: 15 <br>
+Server Side Maximum Minimum Value: 960 <br>
 HTTP Request Method: GET
 
 ### Poll
-Poll POST URI Template: `http://localhost:8080/polls`
-Poll GET/PATCH/DELETE URI Template: `http://localhost:8080/polls/{pollId}`
+Poll POST URI Template: `http://localhost:8080/polls` <br>
+Poll GET/PATCH/DELETE URI Template: `http://localhost:8080/polls/{pollId}` <br>
 Poll Request Body Template:
  
 ```
@@ -182,12 +182,12 @@ Poll Request Body Template:
 
 Note: The "eventId" key-value pair represents this poll's event. It should be omitted for PATCH requests.
 
-Poll's PollAnswers URI Template: `http://localhost:8080/polls/{pollId}/pollanswers`
+Poll's PollAnswers URI Template: `http://localhost:8080/polls/{pollId}/pollanswers` <br>
 HTTP Request Method: GET
 
 ### Poll Answers
-Poll Answer POST URI Template: `http://localhost:8080/polls/{pollId}/pollanswers`
-Poll Answer GET/PATCH/DELETE URI Template: `http://localhost:8080/polls/{pollId}/pollanswers/{pollAnswerId}`
+Poll Answer POST URI Template: `http://localhost:8080/polls/{pollId}/pollanswers` <br>
+Poll Answer GET/PATCH/DELETE URI Template: `http://localhost:8080/polls/{pollId}/pollanswers/{pollAnswerId}` <br>
 Poll Answer Request Body Template:
  
 ```
