@@ -4,7 +4,6 @@ import com.knotslicer.server.adapters.rest.linkgenerator.LinkReceiver;
 import com.knotslicer.server.ports.interactor.datatransferobjects.EventDto;
 import com.knotslicer.server.ports.interactor.datatransferobjects.UserLightDto;
 import jakarta.ws.rs.core.UriInfo;
-
 import java.net.URI;
 import java.util.List;
 
