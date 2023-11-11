@@ -15,7 +15,6 @@ import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-
 import java.net.URI;
 import java.util.List;
 
