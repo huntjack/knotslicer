@@ -3,7 +3,6 @@ package com.knotslicer.server.adapters.rest.linkgenerator;
 import com.knotslicer.server.adapters.rest.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;

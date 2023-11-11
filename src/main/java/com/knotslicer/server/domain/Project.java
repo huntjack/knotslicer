@@ -1,7 +1,6 @@
 package com.knotslicer.server.domain;
 
 
-
 public interface Project {
     Long getProjectId();
     void setProjectId(Long projectId);

@@ -2,7 +2,6 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
 import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.LinkedList;

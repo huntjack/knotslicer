@@ -1,7 +1,5 @@
 package com.knotslicer.server.domain;
 
-import java.time.ZoneId;
-
 public interface Member {
     Long getMemberId();
     void setMemberId(Long memberId);

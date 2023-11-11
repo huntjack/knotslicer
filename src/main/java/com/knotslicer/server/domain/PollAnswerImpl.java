@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.UUID;
-
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "PollAnswer")

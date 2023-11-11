@@ -1,11 +1,8 @@
 package com.knotslicer.server.ports.interactor.services;
 
-import com.knotslicer.server.domain.Event;
-import com.knotslicer.server.domain.Member;
 import com.knotslicer.server.domain.Project;
 import com.knotslicer.server.domain.User;
 import com.knotslicer.server.ports.entitygateway.ChildWithOneRequiredParentDao;
-import com.knotslicer.server.ports.entitygateway.ChildWithTwoParentsDao;
 import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.WithChildren;

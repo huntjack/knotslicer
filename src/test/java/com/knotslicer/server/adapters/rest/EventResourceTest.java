@@ -7,7 +7,6 @@ import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.EventWithP
 import com.knotslicer.server.adapters.rest.linkgenerator.linkcreators.LinkCreator;
 import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.services.EventService;
-import com.knotslicer.server.ports.interactor.services.ParentService;
 import jakarta.ws.rs.core.Application;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;

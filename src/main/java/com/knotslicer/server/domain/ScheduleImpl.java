@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Future;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
-
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "Schedule")
