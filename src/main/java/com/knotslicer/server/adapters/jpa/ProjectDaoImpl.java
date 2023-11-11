@@ -9,7 +9,6 @@ import com.knotslicer.server.ports.interactor.ProcessAs;
 import com.knotslicer.server.ports.interactor.ProcessType;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;

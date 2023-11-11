@@ -9,7 +9,6 @@ import com.knotslicer.server.ports.interactor.datatransferobjects.*;
 import com.knotslicer.server.ports.interactor.exceptions.EntityNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;

@@ -1,8 +1,6 @@
 package com.knotslicer.server.ports.entitygateway;
 
 import com.knotslicer.server.domain.User;
-import com.knotslicer.server.domain.UserImpl;
-
 import java.util.Optional;
 
 public interface UserDao {

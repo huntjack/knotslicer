@@ -1,6 +1,5 @@
 package com.knotslicer.server.ports.interactor.datatransferobjects;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;

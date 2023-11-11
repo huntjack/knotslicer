@@ -2,8 +2,6 @@ package com.knotslicer.server.ports.interactor.datatransferobjects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.util.List;
-
 @JsonDeserialize(as = PollAnswerDtoImpl.class)
 public interface PollAnswerDto extends Linkable {
     Long getPollId();
